@@ -88,7 +88,7 @@ def lti_launch(request):
     if custom_canvas_account_id:
         return redirect('dashboard_account')
     else:
-        return redirect(('dashboard_course'))
+        return redirect('dashboard_course')
 
 
 @login_required
@@ -120,7 +120,7 @@ def dashboard_account(request):
         courses_in_this_account
     ]
 
-    return render(request, 'canvas_admin_tools/dashboard.html', {
+    return render(request, 'canvas_admin_tools/dashboard_account.html', {
         'has_manage_courses': [x for x in manage_courses if x is not None],
         'has_manage_account': [x for x in manage_account if x is not None],
         'canvas_site_creator': canvas_site_creator,
@@ -132,4 +132,4 @@ def dashboard_account(request):
 
 @login_required
 def dashboard_course(request):
-    raise NotImplementedError
+    return render(request, 'canvas_admin_tools/dashboard_course.html', {})

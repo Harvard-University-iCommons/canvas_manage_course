@@ -34,9 +34,12 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django_auth_lti',
     'icommons_common',
+    'async',
+    'django_rq',
     'icommons_ui',
     'djangular',
     'canvas_admin_tools',
+    'isites_migration',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -134,6 +137,17 @@ CACHES = {
         'KEY_PREFIX': 'tlt_shared',
         'TIMEOUT': SECURE_SETTINGS.get('default_cache_timeout_secs', 300),
     }
+}
+
+# RQ
+# http://python-rq.org/docs/
+
+RQ_QUEUES = {
+    'default': {
+        'HOST': REDIS_HOST,
+        'PORT': REDIS_PORT,
+        'DB': 0,
+    },
 }
 
 # Sessions

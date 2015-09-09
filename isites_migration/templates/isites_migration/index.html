@@ -1,0 +1,43 @@
+{% extends 'canvas_admin_tools/base.html' %}
+
+{% load static %}
+{% load django_helpers %}
+
+{% block content %}
+<header>
+    <div class="row lti-header">
+        <h1>Course iSites Import</h1>
+    </div>
+</header>
+
+<main>
+    <div class="content">
+        <form class="form-inline" method="POST" action="{% url 'isites_migration:index' %}">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="keyword">Course iSites Keyword</label>
+                <input type="text" class="form-control" id="keyword" name="keyword" placeholder="k00000"/>
+            </div>
+            <button type="submit" class="btn btn-primary">Begin iSites Import</button>
+        </form>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Started At</th>
+                    <th>iSites Keyword</th>
+                    <th>State</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in processes %}
+                <tr>
+                    <td>{{ p.date_created|format_datetime }}</td>
+                    <td>{{ p.details.keyword }}</td>
+                    <td>{{ p.state }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</main>
+{% endblock content %}
