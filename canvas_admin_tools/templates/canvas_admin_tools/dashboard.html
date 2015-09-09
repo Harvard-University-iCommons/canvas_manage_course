@@ -2,6 +2,10 @@
 
 {% load static %}
 
+{% block stylesheets %}
+<link href="{% static 'canvas_admin_tools/css/dashboard.css' %}" rel="stylesheet" />
+{% endblock stylesheets %}
+
 {% block content %}
 <header>
     <div class="row lti-header">
