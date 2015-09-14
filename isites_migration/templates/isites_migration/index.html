@@ -33,7 +33,7 @@
                 <tr>
                     <td>{{ p.date_created|format_datetime }}</td>
                     <td>{{ p.details.keyword }}</td>
-                    <td>{{ p.state }}</td>
+                    <td>{{ p.status_display }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
