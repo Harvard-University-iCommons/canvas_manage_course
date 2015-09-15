@@ -12,11 +12,16 @@
 
 <main>
     <div class="content">
+        {% if keywords %}
         <form class="form-inline" method="POST" action="{% url 'isites_migration:index' %}">
             {% csrf_token %}
             <div class="form-group">
-                <label for="keyword">Course iSites Keyword</label>
-                <input type="text" class="form-control" id="keyword" name="keyword" placeholder="k00000"/>
+                <label for="keyword">Select a Course iSite</label>
+                <select id="keyword" name="keyword" class="form-control">
+                    {% for keyword in keywords %}
+                    <option value="{{ keyword }}">{{ keyword }}</option>
+                    {% endfor %}
+                </select>
             </div>
             <button type="submit" class="btn btn-primary">Begin iSites Import</button>
         </form>
@@ -38,6 +43,11 @@
                 {% endfor %}
             </tbody>
         </table>
+        {% else %}
+        <div class="alert alert-info" role="alert">
+            This Canvas course is not associated with any Course iSites.
+        </div>
+        {% endif %}
     </div>
 </main>
 {% endblock content %}
