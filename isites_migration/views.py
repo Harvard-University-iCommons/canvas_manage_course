@@ -5,8 +5,7 @@ from django.shortcuts import render
 
 from async.models import Process
 
-from icommons_common.models import CourseInstance, SiteMap
-
+from isites_migration.utils import get_previous_isites_keywords
 from isites_migration.jobs import migrate_files
 
 
@@ -26,18 +25,8 @@ def index(request):
             queue='isites_file_migration'
         )
 
-    try:
-        course_instance = CourseInstance.objects.get(course_instance_id=course_instance_id)
-        course_instance_ids = [c.course_instance_id for c in course_instance.course.course_instances.all()]
-        keywords = [m.course_site.external_id for m in SiteMap.objects.filter(
-            course_instance_id__in=course_instance_ids,
-            course_site__site_type_id='isite'
-        )]
-    except CourseInstance.DoesNotExist:
-        keywords = []
-
     processes = Process.objects.filter(name='isites_migration.jobs.migrate_files').order_by('-date_created')
     return render(request, 'isites_migration/index.html', {
-        'keywords': keywords,
+        'keywords': get_previous_isites_keywords(course_instance_id),
         'processes': processes
     })

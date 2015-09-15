@@ -11,6 +11,7 @@ from django.conf import settings
 from django.db.models import Q
 from django.template.loader import get_template
 from django.template import Context
+from django.db import connections
 
 from boto.s3.connection import S3Connection
 from boto.s3.key import Key
@@ -18,7 +19,7 @@ from boto.s3.key import Key
 from kitchen.text.converters import to_bytes, to_unicode
 
 from icommons_common.models import (
-    Site, Topic, FileRepository, FileNode, TopicText
+    Site, Topic, FileRepository, FileNode, TopicText, CourseInstance, SiteMap, Course
 )
 from icommons_common.canvas_utils import SessionInactivityExpirationRC
 
@@ -160,6 +161,55 @@ def lock_canvas_folder(canvas_course_id, folder_name):
     except CanvasAPIError:
         logger.exception("Failed to lock import folder %s for canvas_course_id %s", folder_name, canvas_course_id)
         raise
+
+
+def get_previous_isites_keywords(course_instance_id):
+    """
+    Given a course_instance_id, finds iSite keywords mapped to previous offerings of the course
+
+    Adapted from:
+    http://subversion.icommons.harvard.edu/filedetails.php?
+    repname=Perl.CourseManager&path=%2Fbranches%2Fmod_perl2_2%2Flib%2FCourseTools%2FNewCourseSiteWizard.pm
+
+    :param course_instance_id:
+    :return: The set of iSite keywords
+    """
+    previous_keywords = set()
+    try:
+        course_instance = CourseInstance.objects.get(course_instance_id=course_instance_id)
+    except CourseInstance.DoesNotExist:
+        return previous_keywords
+
+    course = course_instance.course
+    previous_instance_ids = {c.course_instance_id for c in course.course_instances.all()}
+    if course.school.school_id == 'ext':
+        previous_courses = Course.objects.filter(school=course.school, registrar_code_display=course.registrar_code)
+        previous_instance_ids = previous_instance_ids | {
+            c.course_instance_id for c in CourseInstance.objects.filter(course__in=previous_courses)
+        }
+
+    evm_sql_query = """
+    SELECT course_instance_id, user_id
+    FROM enrollment_viewer_manager
+    WHERE
+    course_instance_id = '%s'
+    """
+    cursor = connections['termtool'].cursor()
+    cursor.execute(evm_sql_query % course_instance_id)
+    evm_user_ids = {row['user_id'] for row in cursor.fetchall()}
+
+    for previous_instance_id in previous_instance_ids:
+        keywords = [m.course_site.external_id for m in SiteMap.objects.filter(
+            course_instance_id=previous_instance_id,
+            course_site__site_type_id='isite'
+        )]
+        if keywords:
+            cursor.execute(evm_sql_query % previous_instance_id)
+            previous_evm_user_ids = {row['user_id'] for row in cursor.fetchall()}
+            if previous_evm_user_ids & evm_user_ids:
+                previous_keywords = previous_keywords | keywords
+
+    return previous_keywords
 
 
 def _export_file_repository(file_repository, keyword, topic_title):
