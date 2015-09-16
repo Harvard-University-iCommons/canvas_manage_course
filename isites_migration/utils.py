@@ -180,8 +180,11 @@ def get_previous_isites_keywords(course_instance_id):
     except CourseInstance.DoesNotExist:
         return previous_keywords
 
+    # Collect the iSites keywords associated with previous offerings of the given course instance
     course = course_instance.course
     previous_instance_ids = {c.course_instance_id for c in course.course_instances.all()}
+    # If this is an EXT course, also look for instances where the registrar_code
+    # is stored in the registrar_code_display field
     if course.school.school_id == 'ext':
         previous_courses = Course.objects.filter(school=course.school, registrar_code_display=course.registrar_code)
         previous_instance_ids = previous_instance_ids | {
@@ -192,20 +195,25 @@ def get_previous_isites_keywords(course_instance_id):
     SELECT course_instance_id, user_id
     FROM enrollment_viewer_manager
     WHERE
-    course_instance_id = '%s'
+    course_instance_id = %s
     """
     cursor = connections['termtool'].cursor()
-    cursor.execute(evm_sql_query % course_instance_id)
-    evm_user_ids = {row['user_id'] for row in cursor.fetchall()}
 
+    # Get a list of the enrollment viewer managers for the given course instance
+    cursor.execute(evm_sql_query % course_instance_id)
+    evm_user_ids = {user_id for (ci_id, user_id) in cursor.fetchall()}
+
+    # Check each previous offering to verify there is an associated iSite and
+    # the course instance's list of enrollment viewer managers intersects
+    # with the current course instance's list of enrollment viewer managers
     for previous_instance_id in previous_instance_ids:
-        keywords = [m.course_site.external_id for m in SiteMap.objects.filter(
+        keywords = {m.course_site.external_id for m in SiteMap.objects.filter(
             course_instance_id=previous_instance_id,
             course_site__site_type_id='isite'
-        )]
+        )}
         if keywords:
             cursor.execute(evm_sql_query % previous_instance_id)
-            previous_evm_user_ids = {row['user_id'] for row in cursor.fetchall()}
+            previous_evm_user_ids = {user_id for (ci_id, user_id) in cursor.fetchall()}
             if previous_evm_user_ids & evm_user_ids:
                 previous_keywords = previous_keywords | keywords
 
