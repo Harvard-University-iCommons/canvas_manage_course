@@ -295,7 +295,7 @@ EXPORT_DIR = SECURE_SETTINGS.get('export_dir', os.path.join(BASE_DIR, 'export'))
 EXPORT_FILES_README_FILENAME = '_ReadMe_About_Your_iSites_Archive.html'
 CANVAS_IMPORT_FOLDER_PREFIX = 'unpublished_isites_archive_'
 
-EXPORT_FILES_EXCLUDED_TOOL_IDS = [10384]  # PROD tool IDs
+EXPORT_FILES_EXCLUDED_TOOL_IDS = SECURE_SETTINGS.get('export_files_excluded_tool_ids')
 EXPORT_FILES_EXCLUDED_TOPIC_TITLES = [
     'Syllabus Template (Hidden)',
     'About Course iSites, About the Library Resources Page'
@@ -304,4 +304,4 @@ EXPORT_FILES_EXCLUDED_TOPIC_TITLES = [
 AWS_ACCESS_KEY_ID = SECURE_SETTINGS.get('aws_access_key_id')
 AWS_ACCESS_KEY = SECURE_SETTINGS.get('aws_access_key')
 AWS_EXPORT_DOWNLOAD_TIMEOUT_SECONDS = 60
-AWS_EXPORT_BUCKET_ISITES_FILES = 'isites-slide-data'
+AWS_EXPORT_BUCKET_ISITES_FILES = SECURE_SETTINGS.get('aws_export_bucket_isites_files')
