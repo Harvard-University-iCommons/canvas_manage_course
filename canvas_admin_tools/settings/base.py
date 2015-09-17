@@ -305,3 +305,4 @@ AWS_ACCESS_KEY_ID = SECURE_SETTINGS.get('aws_access_key_id')
 AWS_ACCESS_KEY = SECURE_SETTINGS.get('aws_access_key')
 AWS_EXPORT_DOWNLOAD_TIMEOUT_SECONDS = 60
 AWS_EXPORT_BUCKET_ISITES_FILES = SECURE_SETTINGS.get('aws_export_bucket_isites_files')
+AWS_EXPORT_BUCKET_SLIDE_TOOL = SECURE_SETTINGS.get('aws_export_bucket_slide_tool')

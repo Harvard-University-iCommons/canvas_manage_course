@@ -35,7 +35,7 @@ if hasattr(ssl, '_create_unverified_context'):
 
 def export_files(keyword):
     try:
-        s3_bucket = _get_s3_bucket(settings.AWS_EXPORT_BUCKET_SLIDE_TOOL)
+        s3_bucket = _get_s3_bucket(settings.AWS_EXPORT_BUCKET_ISITES_FILES)
         logger.info("Beginning iSites file export for keyword %s to S3 bucket %s", keyword, s3_bucket.name)
         try:
             os.makedirs(os.path.join(settings.EXPORT_DIR, settings.CANVAS_IMPORT_FOLDER_PREFIX + keyword))
@@ -324,7 +324,7 @@ def _get_s3_bucket(bucket_name):
 
 
 def _get_export_s3_url(keyword):
-    s3_bucket = _get_s3_bucket(settings.AWS_EXPORT_BUCKET_SLIDE_TOOL)
+    s3_bucket = _get_s3_bucket(settings.AWS_EXPORT_BUCKET_ISITES_FILES)
     key = s3_bucket.get_key("%s.zip" % keyword)
     return key.generate_url(settings.AWS_EXPORT_DOWNLOAD_TIMEOUT_SECONDS)
 
