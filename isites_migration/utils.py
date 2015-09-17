@@ -200,7 +200,7 @@ def get_previous_isites_keywords(course_instance_id):
     cursor = connections['termtool'].cursor()
 
     # Get a list of the enrollment viewer managers for the given course instance
-    cursor.execute(evm_sql_query % course_instance_id)
+    cursor.execute(evm_sql_query, [course_instance_id])
     evm_user_ids = {user_id for (ci_id, user_id) in cursor.fetchall()}
 
     # Check each previous offering to verify there is an associated iSite and
@@ -212,7 +212,7 @@ def get_previous_isites_keywords(course_instance_id):
             course_site__site_type_id='isite'
         )}
         if keywords:
-            cursor.execute(evm_sql_query % previous_instance_id)
+            cursor.execute(evm_sql_query, [previous_instance_id])
             previous_evm_user_ids = {user_id for (ci_id, user_id) in cursor.fetchall()}
             if previous_evm_user_ids & evm_user_ids:
                 previous_keywords = previous_keywords | keywords
