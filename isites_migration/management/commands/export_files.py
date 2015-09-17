@@ -70,7 +70,7 @@ class Command(BaseCommand):
         sm.course_site_id = cs.course_site_id AND
         cs.site_type_id = 'isite';
         """
-        for cs in CourseSite.objects.raw(keyword_sql_query % term_id):
+        for cs in CourseSite.objects.raw(keyword_sql_query, [term_id]):
             self._export_keyword(cs.external_id)
 
     def _export_csv(self, csv_path):

@@ -63,7 +63,7 @@ class Command(BaseCommand):
         t.topic_id = pc.topic_id AND
         t.tool_id = %s
         """
-        topics = Topic.objects.raw(topic_sql_query % (keyword, settings.SLIDE_TOOL_ID))
+        topics = Topic.objects.raw(topic_sql_query, [keyword, settings.SLIDE_TOOL_ID])
         for topic in topics:
             logger.info("Exporting files for topic %d %s", topic.topic_id, topic.title)
             topic_data = {
