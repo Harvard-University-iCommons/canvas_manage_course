@@ -2,7 +2,7 @@ import logging
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 
 from lti_permissions.decorators import lti_permission_required
 from async.models import Process
@@ -27,9 +27,12 @@ def index(request):
             keyword=keyword,
             canvas_course_id=canvas_course_id
         )
+        return redirect('isites_migration:index')
 
     processes = Process.objects.filter(name='isites_migration.jobs.migrate_files').order_by('-date_created')
+    has_active_process = len([p for p in processes if p.state != Process.COMPLETE]) > 0
     return render(request, 'isites_migration/index.html', {
         'keywords': get_previous_isites_keywords(course_instance_id),
-        'processes': processes
+        'processes': processes,
+        'has_active_process': has_active_process
     })

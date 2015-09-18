@@ -51,3 +51,15 @@
     </div>
 </main>
 {% endblock content %}
+
+{% block javascript %}
+{% if has_active_process %}
+<script>
+    $(document).ready(function(){
+        setInterval(function(){
+            window.location.reload();
+        }, 5000);
+    });
+</script>
+{% endif %}
+{% endblock javascript %}
