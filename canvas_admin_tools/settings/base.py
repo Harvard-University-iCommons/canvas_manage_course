@@ -239,11 +239,6 @@ LOGGING = {
         },
     },
     'loggers': {
-        # TODO: remove this catch-all handler in favor of app-specific handlers
-        '': {
-            'handlers': ['console', 'app_logfile'],
-            'level': _DEFAULT_LOG_LEVEL,
-        },
         'django.request': {
             'handlers': ['console', 'app_logfile'],
             'level': 'ERROR',
@@ -259,11 +254,13 @@ LOGGING = {
         },
         'rq.worker': {
             'handlers': ['console', 'app_logfile'],
-            'level': 'DEBUG'
+            'level': 'DEBUG',
+            'propagate': False,
         },
         'isites_migration': {
             'handlers': ['console', 'app_logfile'],
-            'level': 'DEBUG'
+            'level': 'DEBUG',
+            'propagate': False,
         },
     }
 }
