@@ -29,6 +29,8 @@ from canvas_sdk.exceptions import CanvasAPIError
 
 logger = logging.getLogger(__name__)
 SDK_CONTEXT = SessionInactivityExpirationRC(**settings.CANVAS_SDK_SETTINGS)
+
+# Make unverified SSL connections for connecting to Canvas API from tool2.icommons(solaris)
 if hasattr(ssl, '_create_unverified_context'):
     ssl._create_default_https_context = ssl._create_unverified_context
 
