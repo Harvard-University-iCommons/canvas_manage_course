@@ -34,6 +34,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django_auth_lti',
     'icommons_common',
+    'lti_permissions',
     'async',
     'django_rq',
     'icommons_ui',
@@ -293,6 +294,8 @@ ICOMMONS_COMMON = {
         'Authorization': 'Bearer ' + SECURE_SETTINGS.get('canvas_token', 'canvas_token_missing_from_config')
     },
 }
+
+PERMISSION_ISITES_MIGRATION_IMPORT_FILES = 'isites_migration_import_files'
 
 CONCLUDE_COURSES_URL = SECURE_SETTINGS.get(
     'conclude_courses_url',
