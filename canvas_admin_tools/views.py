@@ -3,7 +3,6 @@ import logging
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
-from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
@@ -16,10 +15,6 @@ from canvas_admin_tools.models import ExternalTool
 
 
 logger = logging.getLogger(__name__)
-
-
-def lti_auth_error(request):
-    raise PermissionDenied()
 
 
 @require_http_methods(['GET'])
@@ -41,10 +36,10 @@ def tool_config_account(request):
         'default': 'disabled',
         'visibility': 'admins',
     }
-    lti_tool_config.set_ext_param(
-        'canvas.instructure.com', 'account_navigation', nav_params)
-    lti_tool_config.set_ext_param(
-        'canvas.instructure.com', 'privacy_level', 'public')
+    custom_fields = {'canvas_membership_roles': '$Canvas.membership.roles'}
+    lti_tool_config.set_ext_param('canvas.instructure.com', 'custom_fields', custom_fields)
+    lti_tool_config.set_ext_param('canvas.instructure.com', 'account_navigation', nav_params)
+    lti_tool_config.set_ext_param('canvas.instructure.com', 'privacy_level', 'public')
 
     return HttpResponse(lti_tool_config.to_xml(), content_type='text/xml')
 
@@ -68,10 +63,10 @@ def tool_config_course(request):
         'default': 'disabled',
         'visibility': 'admins',
     }
-    lti_tool_config.set_ext_param(
-        'canvas.instructure.com', 'course_navigation', nav_params)
-    lti_tool_config.set_ext_param(
-        'canvas.instructure.com', 'privacy_level', 'public')
+    custom_fields = {'canvas_membership_roles': '$Canvas.membership.roles'}
+    lti_tool_config.set_ext_param('canvas.instructure.com', 'custom_fields', custom_fields)
+    lti_tool_config.set_ext_param('canvas.instructure.com', 'course_navigation', nav_params)
+    lti_tool_config.set_ext_param('canvas.instructure.com', 'privacy_level', 'public')
 
     return HttpResponse(lti_tool_config.to_xml(), content_type='text/xml')
 
