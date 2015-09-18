@@ -20,9 +20,9 @@ def index(request):
         keyword = request.POST.get('keyword')
         Process.enqueue(
             migrate_files,
+            'isites_file_migration',
             keyword=keyword,
-            canvas_course_id=canvas_course_id,
-            queue='isites_file_migration'
+            canvas_course_id=canvas_course_id
         )
 
     processes = Process.objects.filter(name='isites_migration.jobs.migrate_files').order_by('-date_created')

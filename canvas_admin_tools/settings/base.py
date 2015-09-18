@@ -204,7 +204,7 @@ LOGGING = {
         },
         'simple': {
             'format': '%(levelname)s\t%(name)s:%(lineno)s\t%(message)s',
-        },
+        }
     },
     # Borrowing some default filters for app loggers
     'filters': {
