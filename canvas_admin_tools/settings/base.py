@@ -260,6 +260,10 @@ LOGGING = {
             'handlers': ['console', 'app_logfile'],
             'level': 'DEBUG'
         },
+        'isites_migration': {
+            'handlers': ['console', 'app_logfile'],
+            'level': 'DEBUG'
+        },
     }
 }
 
