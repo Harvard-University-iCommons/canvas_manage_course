@@ -3,6 +3,14 @@
 {% load static %}
 {% load django_helpers %}
 
+{% block stylesheets %}
+<style>
+    .content form {
+        text-align: center;
+    }
+</style>
+{% endblock stylesheets %}
+
 {% block content %}
 <header>
     <div class="row lti-header">
@@ -16,14 +24,14 @@
         <form class="form-inline" method="POST" action="{% url 'isites_migration:index' %}">
             {% csrf_token %}
             <div class="form-group">
-                <label for="keyword">Select a Course iSite</label>
                 <select id="keyword" name="keyword" class="form-control">
+                    <option value="">Select a Course iSite</option>
                     {% for keyword in keywords %}
                     <option value="{{ keyword }}">{{ keyword }}</option>
                     {% endfor %}
                 </select>
             </div>
-            <button type="submit" class="btn btn-primary">Begin iSites Import</button>
+            <button id="begin-import" type="submit" class="btn btn-primary" disabled="disabled"><i class="fa fa-download"></i> Begin iSites Import</button>
         </form>
         <table class="table table-striped">
             <thead>
@@ -38,7 +46,7 @@
                 <tr>
                     <td>{{ p.date_created|format_datetime }}</td>
                     <td>{{ p.details.keyword }}</td>
-                    <td>{{ p.status_display }}</td>
+                    <td><span class="process-state label">{{ p.status_display }}</span></td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -56,7 +64,27 @@
 {% if has_active_process %}
 <script>
     $(document).ready(function(){
-        setInterval(function(){
+        // Add appropriate label class to state column
+        $('.process-state').each(function(){
+            var $label = $(this);
+            var state = $label.html()
+            var stateClass = 'label-default';
+            if (state == 'Active') {
+                stateClass = 'label-warning';
+            } else if (state == 'Failed') {
+                stateClass = 'label-danger';
+            } else if (state == 'Completed') {
+                stateClass = 'label-success';
+            }
+            $(this).addClass(stateClass);
+        });
+        // Activate import button when a keyword is selected
+        $('#keyword').on('change', function(){
+            var hasSelection = $(this).find('option:selected').val() != '';
+            $('#begin-import').prop('disabled', !hasSelection);
+        });
+        // Refresh to update process states
+        setTimeout(function(){
             window.location.reload();
         }, 5000);
     });

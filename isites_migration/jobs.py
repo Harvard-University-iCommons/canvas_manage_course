@@ -14,9 +14,6 @@ def migrate_files(process_id, keyword, canvas_course_id):
     try:
         process = Process.objects.get(id=process_id)
     except Process.DoesNotExist:
-        print process_id
-        print keyword
-        print canvas_course_id
         logger.exception("Failed to find Process with id %d", process_id)
         raise
 
