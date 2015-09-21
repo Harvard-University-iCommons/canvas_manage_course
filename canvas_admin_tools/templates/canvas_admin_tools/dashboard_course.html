@@ -1,0 +1,31 @@
+{% extends 'canvas_admin_tools/base.html' %}
+
+{% load static %}
+
+{% block stylesheets %}
+<link href="{% static 'canvas_admin_tools/css/dashboard.css' %}" rel="stylesheet" />
+{% endblock stylesheets %}
+
+{% block content %}
+<header>
+    <div class="row lti-header">
+        <h1>Administration Tasks</h1>
+    </div>
+</header>
+
+<main>
+    <div class="col-md-6">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <h3>Manage Course</h3>
+                <div class="list-group">
+                    <a href="{% url 'isites_migration:index' %}" class="list-group-item active">
+                        <h4 class="list-group-item-heading">iSites Content Migration</h4>
+                        <p class="list-group-item-text">Migrate content from a previous term's iSite to this Canvas course</p>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock content %}

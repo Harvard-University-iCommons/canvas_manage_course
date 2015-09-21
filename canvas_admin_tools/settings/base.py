@@ -34,9 +34,13 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django_auth_lti',
     'icommons_common',
+    'lti_permissions',
+    'async',
+    'django_rq',
     'icommons_ui',
     'djangular',
     'canvas_admin_tools',
+    'isites_migration',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -136,6 +140,22 @@ CACHES = {
     }
 }
 
+# RQ
+# http://python-rq.org/docs/
+
+RQ_QUEUES = {
+    'default': {
+        'HOST': REDIS_HOST,
+        'PORT': REDIS_PORT,
+        'DB': 0,
+    },
+    'isites_file_migration': {
+        'HOST': REDIS_HOST,
+        'PORT': REDIS_PORT,
+        'DB': 0,
+    }
+}
+
 # Sessions
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
@@ -219,11 +239,6 @@ LOGGING = {
         },
     },
     'loggers': {
-        # TODO: remove this catch-all handler in favor of app-specific handlers
-        '': {
-            'handlers': ['console', 'app_logfile'],
-            'level': _DEFAULT_LOG_LEVEL,
-        },
         'django.request': {
             'handlers': ['console', 'app_logfile'],
             'level': 'ERROR',
@@ -235,6 +250,16 @@ LOGGING = {
         },
         'py.warnings': {
             'handlers': ['console'],
+            'propagate': False,
+        },
+        'rq.worker': {
+            'handlers': ['console', 'app_logfile'],
+            'level': 'DEBUG',
+            'propagate': False,
+        },
+        'isites_migration': {
+            'handlers': ['console', 'app_logfile'],
+            'level': 'DEBUG',
             'propagate': False,
         },
     }
@@ -267,7 +292,25 @@ ICOMMONS_COMMON = {
     },
 }
 
+PERMISSION_ISITES_MIGRATION_IMPORT_FILES = 'im_import_files'
+
 CONCLUDE_COURSES_URL = SECURE_SETTINGS.get(
     'conclude_courses_url',
     'https://icommons-tools.dev.tlt.harvard.edu/course_conclusion'
 )
+
+EXPORT_DIR = SECURE_SETTINGS.get('export_dir', os.path.join(BASE_DIR, 'export'))
+EXPORT_FILES_README_FILENAME = '_ReadMe_About_Your_iSites_Archive.html'
+CANVAS_IMPORT_FOLDER_PREFIX = 'unpublished_isites_archive_'
+
+EXPORT_FILES_EXCLUDED_TOOL_IDS = SECURE_SETTINGS.get('export_files_excluded_tool_ids')
+EXPORT_FILES_EXCLUDED_TOPIC_TITLES = [
+    'Syllabus Template (Hidden)',
+    'About Course iSites, About the Library Resources Page'
+]
+
+AWS_ACCESS_KEY_ID = SECURE_SETTINGS.get('aws_access_key_id')
+AWS_ACCESS_KEY = SECURE_SETTINGS.get('aws_access_key')
+AWS_EXPORT_DOWNLOAD_TIMEOUT_SECONDS = 60
+AWS_EXPORT_BUCKET_ISITES_FILES = SECURE_SETTINGS.get('aws_export_bucket_isites_files')
+AWS_EXPORT_BUCKET_SLIDE_TOOL = SECURE_SETTINGS.get('aws_export_bucket_slide_tool')
