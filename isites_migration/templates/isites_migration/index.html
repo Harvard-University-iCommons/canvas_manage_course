@@ -14,7 +14,7 @@
 {% block content %}
 <header>
     <div class="row lti-header">
-        <h1>Course iSites Import</h1>
+        <h1>Course iSites Content Migration</h1>
     </div>
 </header>
 
@@ -61,7 +61,6 @@
 {% endblock content %}
 
 {% block javascript %}
-{% if has_active_process %}
 <script>
     $(document).ready(function(){
         // Add appropriate label class to state column
@@ -83,11 +82,12 @@
             var hasSelection = $(this).find('option:selected').val() != '';
             $('#begin-import').prop('disabled', !hasSelection);
         });
+        {% if has_active_process %}
         // Refresh to update process states
         setTimeout(function(){
             window.location.reload();
         }, 5000);
+        {% endif %}
     });
 </script>
-{% endif %}
 {% endblock javascript %}
