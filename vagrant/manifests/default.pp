@@ -263,8 +263,8 @@ file {'/etc/profile.d/venvwrapper.sh':
     require => Package['virtualenvwrapper'],
 }
 
-# Create a symlink from ~/canvas_admin_tools to /vagrant as a convenience for the developer
-file {'/home/vagrant/canvas_admin_tools':
+# Create a symlink from ~/canvas_course_admin_tools to /vagrant as a convenience for the developer
+file {'/home/vagrant/canvas_course_admin_tools':
     ensure => link,
     target => '/vagrant',
 }
@@ -274,25 +274,25 @@ exec {'create-virtualenv':
     provider => 'shell',
     user => 'vagrant',
     group => 'vagrant',
-    require => [ Package['virtualenvwrapper'], File['/home/vagrant/canvas_admin_tools'], File['/etc/profile.d/oracle.sh'],
+    require => [ Package['virtualenvwrapper'], File['/home/vagrant/canvas_course_admin_tools'], File['/etc/profile.d/oracle.sh'],
                  Exec['known_hosts'], ],
     environment => ["ORACLE_HOME=/opt/oracle/instantclient_11_2","LD_LIBRARY_PATH=/opt/oracle/instantclient_11_2","HOME=/home/vagrant","WORKON_HOME=/home/vagrant/.virtualenvs"],
     command => '/vagrant/vagrant/venv_bootstrap.sh',
-    creates => '/home/vagrant/.virtualenvs/canvas_admin_tools',
+    creates => '/home/vagrant/.virtualenvs/canvas_course_admin_tools',
 }
 
 # set the DJANGO_SETTINGS_MODULE environment variable
 file_line {'add DJANGO_SETTINGS_MODULE env to postactivate':
     ensure => present,
-    line => 'export DJANGO_SETTINGS_MODULE=canvas_admin_tools.settings.local',
-    path => '/home/vagrant/.virtualenvs/canvas_admin_tools/bin/postactivate',
+    line => 'export DJANGO_SETTINGS_MODULE=canvas_course_admin_tools.settings.local',
+    path => '/home/vagrant/.virtualenvs/canvas_course_admin_tools/bin/postactivate',
     require => Exec['create-virtualenv'],
 }
 
 file_line {'add DJANGO_SETTINGS_MODULE env to postdeactivate':
     ensure => present,
     line => 'unset DJANGO_SETTINGS_MODULE',
-    path => '/home/vagrant/.virtualenvs/canvas_admin_tools/bin/postdeactivate',
+    path => '/home/vagrant/.virtualenvs/canvas_course_admin_tools/bin/postdeactivate',
     require => Exec['create-virtualenv'],
 }
 
@@ -304,7 +304,7 @@ exec {'init-db-and-migrate':
     require => [ File_line['add DJANGO_SETTINGS_MODULE env to postactivate'], ],
     environment => ["ORACLE_HOME=/opt/oracle/instantclient_11_2","LD_LIBRARY_PATH=/opt/oracle/instantclient_11_2","HOME=/home/vagrant","WORKON_HOME=/home/vagrant/.virtualenvs"],
     command => '/vagrant/vagrant/django_postgres_bootstrap.sh',
-    unless => 'psql -lqt | cut -d \| -f 1 | grep -wq canvas_admin_tools',
+    unless => 'psql -lqt | cut -d \| -f 1 | grep -wq canvas_course_admin_tools',
     logoutput => true,
 }
 
@@ -318,8 +318,8 @@ parse_git_branch() {
 }
 PS1="${debian_chroot:+($debian_chroot)}\u@\h:\w\$(parse_git_branch) $ "
 
-echo "Activating python virtual environment \"canvas_admin_tools\""
-workon canvas_admin_tools
+echo "Activating python virtual environment \"canvas_course_admin_tools\""
+workon canvas_course_admin_tools
     ',
     require => Exec['create-virtualenv'],
 }
