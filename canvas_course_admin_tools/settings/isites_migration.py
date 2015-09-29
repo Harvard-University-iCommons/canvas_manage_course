@@ -1,5 +1,4 @@
-from .base import *
-
+from .aws import *
 
 INSTALLED_APPS = (
     'icommons_common',

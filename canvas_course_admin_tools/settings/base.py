@@ -188,7 +188,7 @@ STATIC_ROOT = os.path.normpath(os.path.join(BASE_DIR, 'http_static'))
 
 # Logging
 
-_DEFAULT_LOG_LEVEL = SECURE_SETTINGS.get('log_level', 'DEBUG')
+_DEFAULT_LOG_LEVEL = SECURE_SETTINGS.get('log_level', logging.DEBUG)
 _LOG_ROOT = SECURE_SETTINGS.get('log_root', '')  # Default to current directory
 
 # Turn off default Django logging
@@ -207,12 +207,6 @@ LOGGING = {
             'format': '%(levelname)s\t%(name)s:%(lineno)s\t%(message)s',
         }
     },
-    # Borrowing some default filters for app loggers
-    'filters': {
-        'require_debug_true': {
-            '()': 'django.utils.log.RequireDebugTrue',
-        },
-    },
     # This is the default logger for any apps or libraries that use the logger
     # package, but are not represented in the `loggers` dict below.  A level
     # must be set and handlers defined.  Setting this logger is equivalent to
@@ -221,45 +215,26 @@ LOGGING = {
     # https://docs.python.org/2.7/library/logging.config.html#dictionary-schema-details
     'root': {
         'level': logging.WARNING,
-        'handlers': ['console', 'app_logfile'],
+        'handlers': ['default'],
     },
     'handlers': {
-        # Log to a text file that can be rotated by logrotate
-        'app_logfile': {
-            'level': _DEFAULT_LOG_LEVEL,
+        # Log to a file by default that can be rotated by logrotate
+        'default': {
             'class': 'logging.handlers.WatchedFileHandler',
-            'filename': os.path.join(_LOG_ROOT, 'django-canvas_course_admin_tools.log'),
+            'level': _DEFAULT_LOG_LEVEL,
             'formatter': 'verbose',
-        },
-        'console': {
-            'level': logging.DEBUG,
-            'class': 'logging.StreamHandler',
-            'formatter': 'simple',
-            'filters': ['require_debug_true'],
-        },
+            'filename': os.path.join(_LOG_ROOT, 'django-canvas_course_admin_tools.log'),
+        }
     },
     'loggers': {
-        'django.request': {
-            'handlers': ['console', 'app_logfile'],
-            'level': 'ERROR',
-            'propagate': False,
-        },
-        'django': {
-            'handlers': ['console'],
-            'propagate': False,
-        },
-        'py.warnings': {
-            'handlers': ['console'],
-            'propagate': False,
-        },
         'rq.worker': {
-            'handlers': ['console', 'app_logfile'],
-            'level': 'DEBUG',
+            'handlers': ['default'],
+            'level': _DEFAULT_LOG_LEVEL,
             'propagate': False,
         },
         'isites_migration': {
-            'handlers': ['console', 'app_logfile'],
-            'level': 'DEBUG',
+            'handlers': ['default'],
+            'level': _DEFAULT_LOG_LEVEL,
             'propagate': False,
         },
     }
