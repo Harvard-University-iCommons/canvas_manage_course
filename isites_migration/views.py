@@ -29,7 +29,11 @@ def index(request):
         )
         return redirect('isites_migration:index')
 
-    processes = Process.objects.filter(name='isites_migration.jobs.migrate_files').order_by('-date_created')
+    processes = Process.objects.filter(
+        name='isites_migration.jobs.migrate_files',
+        details__at_canvas_course_id=canvas_course_id
+    ).order_by('-date_created')
+
     has_active_process = len([p for p in processes if p.state != Process.COMPLETE]) > 0
     return render(request, 'isites_migration/index.html', {
         'keywords': get_previous_isites_keywords(course_instance_id),

@@ -19,11 +19,16 @@
             <div class="panel-body">
                 <h3>Manage Course</h3>
                 <div class="list-group">
-                    <a href="{% url 'isites_migration:index' %}" class="list-group-item active">
-                        <h4 class="list-group-item-heading">iSites Content Migration</h4>
-                        <p class="list-group-item-text">Migrate content from a previous term's iSite to this Canvas course</p>
+                    <a href="{% if icm_active %}{% url 'isites_migration:index' %}{% else %}#{% endif %}" class="list-group-item {% if icm_active %}active{% else %}disabled{% endif %}">
+                        <h4 class="list-group-item-heading">Course iSites Content Migration</h4>
+                        <p class="list-group-item-text">Migrate content from a previous term's Course iSite to this Canvas course</p>
                     </a>
                 </div>
+                {% if not icm_active %}
+                <div class="alert alert-info" role="alert">
+                    This Canvas course is not associated with any Course iSites.
+                </div>
+                {% endif %}
             </div>
         </div>
     </div>
