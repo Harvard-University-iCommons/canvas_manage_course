@@ -39,7 +39,7 @@ INSTALLED_APPS = (
     'django_rq',
     'icommons_ui',
     'djangular',
-    'canvas_admin_tools',
+    'canvas_course_admin_tools',
     'isites_migration',
 )
 
@@ -61,7 +61,7 @@ AUTHENTICATION_BACKENDS = (
 
 LOGIN_URL = reverse_lazy('lti_auth_error')
 
-ROOT_URLCONF = 'canvas_admin_tools.urls'
+ROOT_URLCONF = 'canvas_course_admin_tools.urls'
 
 TEMPLATES = [
     {
@@ -80,7 +80,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'canvas_admin_tools.wsgi.application'
+WSGI_APPLICATION = 'canvas_course_admin_tools.wsgi.application'
 
 
 # Database
@@ -91,7 +91,7 @@ DATABASE_ROUTERS = ['icommons_common.routers.CourseSchemaDatabaseRouter']
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': SECURE_SETTINGS.get('db_default_name', 'canvas_admin_tools'),
+        'NAME': SECURE_SETTINGS.get('db_default_name', 'canvas_course_admin_tools'),
         'USER': SECURE_SETTINGS.get('db_default_user', 'postgres'),
         'PASSWORD': SECURE_SETTINGS.get('db_default_password'),
         'HOST': SECURE_SETTINGS.get('db_default_host', '127.0.0.1'),
@@ -124,7 +124,7 @@ CACHES = {
         'OPTIONS': {
             'PARSER_CLASS': 'redis.connection.HiredisParser'
         },
-        'KEY_PREFIX': 'canvas_admin_tools',  # Provide a unique value for intra-app cache
+        'KEY_PREFIX': 'canvas_course_admin_tools',  # Provide a unique value for intra-app cache
         # See following for default timeout (5 minutes as of 1.7):
         # https://docs.djangoproject.com/en/1.8/ref/settings/#std:setting-CACHES-TIMEOUT
         'TIMEOUT': SECURE_SETTINGS.get('default_cache_timeout_secs', 300),
@@ -223,7 +223,7 @@ LOGGING = {
             'class': 'logging.handlers.WatchedFileHandler',
             'level': _DEFAULT_LOG_LEVEL,
             'formatter': 'verbose',
-            'filename': os.path.join(_LOG_ROOT, 'django-canvas_admin_tools.log'),
+            'filename': os.path.join(_LOG_ROOT, 'django-canvas_course_admin_tools.log'),
         }
     },
     'loggers': {
