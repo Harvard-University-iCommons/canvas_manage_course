@@ -43,7 +43,7 @@
             <form class="form-inline" method="POST" action="{% url 'isites_migration:index' %}">
                 {% csrf_token %}
 
-                <table class="table table-striped">
+                <table id="select-site-table" class="table table-striped">
                     <thead>
                         <tr>
                             <th><i class="fa fa-download"></i></th>
@@ -110,6 +110,14 @@
 <script>
     $(document).ready(function(){
 
+        // only show the more button if there are more than 3 rows
+        var rowCount = $('#select-site-table tr').length;
+        if(rowCount <= 3) {
+            console.log('boo');
+            $('#show-more').addClass('hidden');
+        }
+
+        // control how the more and less button are displayed
         $('#show-more').click(function(){
             $(this).addClass('hidden');
             $('#show-less').removeClass('hidden');
@@ -142,6 +150,7 @@
             $('#hidden-term-id').val($(this).data("term"));
             $('#hidden-title-id').val($(this).data("title"));
 
+            // only enable the submit button if a radio option is checked
             if($('input[name="keyword"]:checked').size() > 0) {
                 $('#begin-import').prop('disabled', false);
             }
