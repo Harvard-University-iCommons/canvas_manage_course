@@ -165,7 +165,7 @@ def lock_canvas_folder(canvas_course_id, folder_name):
         raise
 
 
-def get_previous_isites_keywords(course_instance_id):
+def get_previous_isites(course_instance_id):
     """
     Given a course_instance_id, finds iSite keywords mapped to previous offerings of the course
 
@@ -177,6 +177,7 @@ def get_previous_isites_keywords(course_instance_id):
     :return: The set of iSite keywords
     """
     previous_keywords = set()
+    previous_sites = []
     try:
         course_instance = CourseInstance.objects.get(course_instance_id=course_instance_id)
     except CourseInstance.DoesNotExist:
@@ -209,17 +210,24 @@ def get_previous_isites_keywords(course_instance_id):
     # the course instance's list of enrollment viewer managers intersects
     # with the current course instance's list of enrollment viewer managers
     for previous_instance_id in previous_instance_ids:
-        keywords = {m.course_site.external_id for m in SiteMap.objects.filter(
+        sites = [{'keyword' : m.course_site.external_id,
+                  'title': m.course_instance.title,
+                  'term': m.course_instance.term.display_name,
+                  'calendar_year': m.course_instance.term.calendar_year } for m in SiteMap.objects.filter(
             course_instance_id=previous_instance_id,
             course_site__site_type_id='isite'
-        )}
-        if keywords:
+        )]
+        if sites:
             cursor.execute(evm_sql_query, [previous_instance_id])
             previous_evm_user_ids = {user_id for (ci_id, user_id) in cursor.fetchall()}
             if previous_evm_user_ids & evm_user_ids:
-                previous_keywords = previous_keywords | keywords
+                for site in sites:
+                    previous_sites.append(site)
 
-    return previous_keywords
+    # case insensitive sort the sections in alpha order
+    previous_sites = sorted(previous_sites, key=lambda x: x[u'calendar_year'], reverse=True)
+
+    return previous_sites
 
 
 def _export_file_repository(file_repository, keyword, topic_title):
