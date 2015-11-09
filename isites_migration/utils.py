@@ -174,14 +174,13 @@ def get_previous_isites(course_instance_id):
     repname=Perl.CourseManager&path=%2Fbranches%2Fmod_perl2_2%2Flib%2FCourseTools%2FNewCourseSiteWizard.pm
 
     :param course_instance_id:
-    :return: The set of iSite keywords
+    :return: The list of dicts that contain the keyword, title, and term.
     """
-    previous_keywords = set()
     previous_sites = []
     try:
         course_instance = CourseInstance.objects.get(course_instance_id=course_instance_id)
     except CourseInstance.DoesNotExist:
-        return previous_keywords
+        return previous_sites
 
     # Collect the iSites keywords associated with previous offerings of the given course instance
     course = course_instance.course
@@ -224,8 +223,9 @@ def get_previous_isites(course_instance_id):
                 for site in sites:
                     previous_sites.append(site)
 
-    # case insensitive sort the sections in alpha order
-    previous_sites = sorted(previous_sites, key=lambda x: x[u'calendar_year'], reverse=True)
+    # sort the dicts by calendar_year in descending order
+    if previous_sites:
+        previous_sites = sorted(previous_sites, key=lambda x: x[u'calendar_year'], reverse=True)
 
     return previous_sites
 

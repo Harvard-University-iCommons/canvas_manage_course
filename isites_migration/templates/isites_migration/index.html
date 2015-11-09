@@ -55,7 +55,7 @@
                     <tbody>
                     {% for site in isites %}
                          <tr align="left" {% if forloop.counter > 3 %} class="collapsible" {% endif %}>
-                             <th scope="row"><input type="radio" name="keyword" value="site.keyword"></th>
+                             <th scope="row"><input type="radio" name="keyword" value="site.keyword" data-title="{{ site.title }}" data-term="{{ site.term }}"></th>
                              <td><a href="http://isites.harvard.edu/{{ site.keyword }}" target="_blank">{{ site.keyword }}</a></td>
                              <td>{{ site.title }}</td>
                              <td>{{ site.term }}</td>
@@ -63,10 +63,9 @@
                     {% endfor %}
                     </tbody>
                 </table>
-
+                <input id="hidden-title-id" type="hidden" name="title" value="None">
+                <input id="hidden-term-id" type="hidden" name="term" value="None">
                 <button id="begin-import" type="submit" class="btn btn-primary pull-left" title="Migrate files from selected iSites Course" disabled="disabled"><i class="fa fa-download"></i> Import</button>
-
-                <button id="cancel-import" type="submit" class="btn btn-default pull-left hidden" title="Migrate files from selected iSites Course"><i class="fa fa-times"></i> Cancel Content Import</button>
 
                 <a href="#" id="show-more" class="pull-right">More <i class="fa fa-arrow-down"></i></a>
                 <a href="#" id="show-less" class="pull-right hidden">Less <i class="fa fa-arrow-up"></i></a>
@@ -74,13 +73,16 @@
             </div>
         </div>
 
+        <h3 class="">Imported iSite(s)</h3>
 
         <table class="table table-striped">
             <thead>
                 <tr>
                     <th>Started At</th>
-                    <th>iSites Keyword</th>
-                    <th>Status</th>
+                    <th>iSite</th>
+                    <th>iSite Course Title</th>
+                    <th>iSite Course Term</th>
+                    <th>Status of Import</th>
                 </tr>
             </thead>
             <tbody>
@@ -88,6 +90,8 @@
                 <tr>
                     <td>{{ p.date_created|format_datetime }}</td>
                     <td>{{ p.details.keyword }}</td>
+                    <td>{{ p.details.title }}</td>
+                    <td>{{ p.details.term }}</td>
                     <td><span class="process-state label">{{ p.status_display }}</span></td>
                 </tr>
                 {% endfor %}
@@ -135,7 +139,15 @@
 
         // Activate import button when a keyword is selected
         $('input[name="keyword"]:radio').change(function(){
-            $('#begin-import').prop('disabled', false);
+            $('#hidden-term-id').val($(this).data("term"));
+            $('#hidden-title-id').val($(this).data("title"));
+
+            if($('input[name="keyword"]:checked').size() > 0) {
+                $('#begin-import').prop('disabled', false);
+            }
+            else {
+                $('#begin-import').prop('disabled', true);
+            }
         });
 
         {% if has_active_process %}

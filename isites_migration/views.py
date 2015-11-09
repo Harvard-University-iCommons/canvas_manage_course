@@ -21,10 +21,14 @@ def index(request):
     canvas_course_id = request.LTI.get('custom_canvas_course_id')
     if request.method == 'POST':
         keyword = request.POST.get('keyword')
+        title = request.POST.get('title')
+        term = request.POST.get('term')
         Process.enqueue(
             migrate_files,
             'isites_file_migration',
             keyword=keyword,
+            title=title,
+            term=term,
             canvas_course_id=canvas_course_id
         )
         return redirect('isites_migration:index')
