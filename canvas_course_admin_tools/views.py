@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 def tool_config(request):
     url = "%s://%s%s" % (request.scheme, request.get_host(),
                          reverse('lti_launch', exclude_resource_link_id=True))
-    title = 'Course Admin Tasks'
+    title = 'Import iSites Content'
     lti_tool_config = ToolConfig(
         title=title,
         launch_url=url,
@@ -48,7 +48,7 @@ def tool_config(request):
 @require_http_methods(['POST'])
 @csrf_exempt
 def lti_launch(request):
-    return redirect('dashboard_course')
+    return redirect('isites_migration:index')
 
 
 @login_required
