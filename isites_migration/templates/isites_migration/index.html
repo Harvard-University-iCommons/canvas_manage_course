@@ -8,6 +8,9 @@
     .content form {
         text-align: center;
     }
+    .collapsible {
+        display: none;
+    }
 </style>
 {% endblock stylesheets %}
 
@@ -20,33 +23,66 @@
 
 <main>
     <div class="content">
-        {% if keywords %}
-        <form class="form-inline" method="POST" action="{% url 'isites_migration:index' %}">
-            {% csrf_token %}
-            <div class="form-group">
-                <select id="keyword" name="keyword" class="form-control">
-                    <option value="">Select a Course iSite</option>
-                    {% for keyword in keywords %}
-                    <option value="{{ keyword }}">{{ keyword }}</option>
+
+        <div class="alert alert-warning" role="alert" hidden="">
+          This Canvas course is not associated with any Course iSites.
+        </div>
+
+        <div class="alert alert-info alert-dismissible" role="alert">
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
+          This migration will include files (e.g. pdfs, Word documents, etc.) and text box content (e.g. iSites text areas). It will not include web links, single images, students' submitted dropbox content, videos from the Video Publishing Tool, lecture videos, discussions, student-generated content (dropbox, video submissions, quizzes) and web links (including linked YouTube videos in Video Publishing Tool.)
+          <br />&nbsp;<br />
+          iSites listed here are those that you’ve been associated with in a teaching staff role. All the imported material can be found in the <a href="#" class="alert-link">Files</a> area of this Canvas course site. The folder named with the imported iSite’s keyword is set as unpublished, you will have to publish it manually by selecting the cloud icon. You can also add these files directly to your Canvas <a href="#" class="alert-link">Pages</a>, <a href="#" class="alert-link">Announcements</a>, etc… using the File Browser, shown in the right hand panel when you enter into edit mode in these tools.
+        </div>
+
+
+        <div class="panel panel-default ">
+
+            <div class="panel-body"><h3>Choose an iSite to Import</h3>
+            {% if isites %}
+            <form class="form-inline" method="POST" action="{% url 'isites_migration:index' %}">
+                {% csrf_token %}
+
+                <table id="select-site-table" class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th><i class="fa fa-download"></i></th>
+                            <th>iSites Keyword</th>
+                            <th>Course Title</th>
+                            <th>Term</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for site in isites %}
+                         <tr align="left" {% if forloop.counter > 3 %} class="collapsible" {% endif %}>
+                             <th scope="row"><input type="radio" name="keyword" value="site.keyword" data-title="{{ site.title }}" data-term="{{ site.term }}"></th>
+                             <td><a href="http://isites.harvard.edu/{{ site.keyword }}" target="_blank">{{ site.keyword }}</a></td>
+                             <td>{{ site.title }}</td>
+                             <td>{{ site.term }}</td>
+                        </tr>
                     {% endfor %}
-                </select>
+                    </tbody>
+                </table>
+                <input id="hidden-title-id" type="hidden" name="title" value="None">
+                <input id="hidden-term-id" type="hidden" name="term" value="None">
+                <button id="begin-import" type="submit" class="btn btn-primary pull-left" title="Migrate files from selected iSites Course" disabled="disabled"><i class="fa fa-download"></i> Import</button>
+
+                <a href="#" id="show-more" class="pull-right">More <i class="fa fa-arrow-down"></i></a>
+                <a href="#" id="show-less" class="pull-right hidden">Less <i class="fa fa-arrow-up"></i></a>
+            </form>
             </div>
-            <button id="begin-import" type="submit" class="btn btn-primary" disabled="disabled"><i class="fa fa-download"></i>Import</button>
-        </form>
-        <p>
-            <div class="alert alert-info alert-dismissible" role="alert">
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
-                This migration will include files (e.g. pdfs, Word documents, etc.) and text box content (e.g. iSites text areas). It will not include web links, single images, students' submitted dropbox content, videos from the Video Publishing Tool, lecture videos, discussions, student-generated content (dropbox, video submissions, quizzes) and web links (including linked YouTube videos in Video Publishing Tool.)
-                <br />&nbsp;<br />
-                iSites listed here are those that you’ve been associated with in a teaching staff role. All the imported material can be found in the <a href="#" class="alert-link">Files</a> area of this Canvas course site. The folder named with the imported iSite’s keyword is set as unpublished, you will have to publish it manually by selecting the cloud icon. You can also add these files directly to your Canvas <a href="#" class="alert-link">Pages</a>, <a href="#" class="alert-link">Announcements</a>, etc… using the File Browser, shown in the right hand panel when you enter into edit mode in these tools.
-            </div>
-        </p>
+        </div>
+
+        <h3 class="">Imported iSite(s)</h3>
+
         <table class="table table-striped">
             <thead>
                 <tr>
                     <th>Started At</th>
-                    <th>iSites Keyword</th>
-                    <th>Status</th>
+                    <th>iSite</th>
+                    <th>iSite Course Title</th>
+                    <th>iSite Course Term</th>
+                    <th>Status of Import</th>
                 </tr>
             </thead>
             <tbody>
@@ -54,6 +90,8 @@
                 <tr>
                     <td>{{ p.date_created|format_datetime }}</td>
                     <td>{{ p.details.keyword }}</td>
+                    <td>{{ p.details.title }}</td>
+                    <td>{{ p.details.term }}</td>
                     <td><span class="process-state label">{{ p.status_display }}</span></td>
                 </tr>
                 {% endfor %}
@@ -71,6 +109,27 @@
 {% block javascript %}
 <script>
     $(document).ready(function(){
+
+        // only show the more button if there are more than 3 rows
+        var rowCount = $('#select-site-table tr').length;
+        if(rowCount <= 3) {
+            console.log('boo');
+            $('#show-more').addClass('hidden');
+        }
+
+        // control how the more and less button are displayed
+        $('#show-more').click(function(){
+            $(this).addClass('hidden');
+            $('#show-less').removeClass('hidden');
+            $('.collapsible').toggle();
+        });
+
+        $('#show-less').click(function(){
+            $(this).addClass('hidden');
+            $('#show-more').removeClass('hidden');
+            $('.collapsible').toggle();
+        });
+
         // Add appropriate label class to state column
         $('.process-state').each(function(){
             var $label = $(this);
@@ -85,11 +144,21 @@
             }
             $(this).addClass(stateClass);
         });
+
         // Activate import button when a keyword is selected
-        $('#keyword').on('change', function(){
-            var hasSelection = $(this).find('option:selected').val() != '';
-            $('#begin-import').prop('disabled', !hasSelection);
+        $('input[name="keyword"]:radio').change(function(){
+            $('#hidden-term-id').val($(this).data("term"));
+            $('#hidden-title-id').val($(this).data("title"));
+
+            // only enable the submit button if a radio option is checked
+            if($('input[name="keyword"]:checked').size() > 0) {
+                $('#begin-import').prop('disabled', false);
+            }
+            else {
+                $('#begin-import').prop('disabled', true);
+            }
         });
+
         {% if has_active_process %}
         // Refresh to update process states
         setTimeout(function(){

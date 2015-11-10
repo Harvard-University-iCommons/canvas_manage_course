@@ -11,7 +11,7 @@ from ims_lti_py.tool_config import ToolConfig
 
 from async.models import Process
 
-from isites_migration.utils import get_previous_isites_keywords
+from isites_migration.utils import get_previous_isites
 
 
 logger = logging.getLogger(__name__)
@@ -55,7 +55,7 @@ def lti_launch(request):
 def dashboard_course(request):
     course_instance_id = request.LTI.get('lis_course_offering_sourcedid')
     # Check to see if we have any iSites that are available for migration to this Canvas course
-    icm_active = len(get_previous_isites_keywords(course_instance_id)) > 0
+    icm_active = len(get_previous_isites(course_instance_id)) > 0
     return render(request, 'canvas_course_admin_tools/dashboard_course.html', {
         'icm_active': icm_active
     })
