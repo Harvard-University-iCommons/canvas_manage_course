@@ -220,8 +220,7 @@ def get_previous_isites(course_instance_id):
             cursor.execute(evm_sql_query, [previous_instance_id])
             previous_evm_user_ids = {user_id for (ci_id, user_id) in cursor.fetchall()}
             if previous_evm_user_ids & evm_user_ids:
-                for site in sites:
-                    previous_sites.append(site)
+                previous_sites.extend(sites)
 
     # sort the dicts by calendar_year in descending order
     if previous_sites:
