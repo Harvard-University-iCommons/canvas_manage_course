@@ -30,9 +30,16 @@
 
         <div class="alert alert-info alert-dismissible" role="alert">
           <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
-          This migration will include files (e.g. pdfs, Word documents, etc.) and text box content (e.g. iSites text areas). It will not include web links, single images, students' submitted dropbox content, videos from the Video Publishing Tool, lecture videos, discussions, student-generated content (dropbox, video submissions, quizzes) and web links (including linked YouTube videos in Video Publishing Tool.)
-          <br />&nbsp;<br />
-          iSites listed here are those that you’ve been associated with in a teaching staff role. All the imported material can be found in the <a href="#" class="alert-link">Files</a> area of this Canvas course site. The folder named with the imported iSite’s keyword is set as unpublished, you will have to publish it manually by selecting the cloud icon. You can also add these files directly to your Canvas <a href="#" class="alert-link">Pages</a>, <a href="#" class="alert-link">Announcements</a>, etc… using the File Browser, shown in the right hand panel when you enter into edit mode in these tools.
+
+            The iSites listed here are previous offerings of this course that share at least one teaching staff member
+            with the current offering. Once the import is complete, visit the <a href="{{link_to_files_page}}" target="_blank" class="alert-link">Files</a> area in this Canvas
+            course site and look for the main archive folder named “unpublished_isites_archive_kxxxxxx.” This folder is
+            unpublished, and <b>therefore students cannot access the files.</b> To make files available to students, you must
+            first publish this main archive folder.
+            <br />&nbsp;<br />
+            Note: This content import will include files (e.g. pdfs, Word documents, etc.) and text box content
+            (e.g. iSites text areas), but will not include web links, videos, discussions, single images, and students'
+            dropbox submissions.
         </div>
 
 
@@ -67,7 +74,7 @@
                 <input id="hidden-term-id" type="hidden" name="term" value="None">
                 <button id="begin-import" type="submit" class="btn btn-primary pull-left" title="Migrate files from selected iSites Course" disabled="disabled"><i class="fa fa-download"></i> Import</button>
 
-                <a href="#" id="show-more" class="pull-right">More <i class="fa fa-arrow-down"></i></a>
+                <a href="#" id="show-more" class="pull-right hidden">More <i class="fa fa-arrow-down"></i></a>
                 <a href="#" id="show-less" class="pull-right hidden">Less <i class="fa fa-arrow-up"></i></a>
             </form>
             </div>
@@ -112,12 +119,11 @@
 
         // only show the more button if there are more than 3 rows
         var rowCount = $('#select-site-table tr').length;
-        if(rowCount <= 3) {
-            console.log('boo');
-            $('#show-more').addClass('hidden');
-        }
+        if(rowCount > 3) {
+            $('#show-more').removeClass('hidden');
+        };
 
-        // control how the more and less button are displayed
+        //control how the more and less buttons are displayed
         $('#show-more').click(function(){
             $(this).addClass('hidden');
             $('#show-less').removeClass('hidden');
@@ -150,13 +156,14 @@
             $('#hidden-term-id').val($(this).data("term"));
             $('#hidden-title-id').val($(this).data("title"));
 
+            $('#begin-import').prop('disabled', $('input[name="keyword"]:checked').size() == 0);
             // only enable the submit button if a radio option is checked
-            if($('input[name="keyword"]:checked').size() > 0) {
-                $('#begin-import').prop('disabled', false);
-            }
-            else {
-                $('#begin-import').prop('disabled', true);
-            }
+//            if($('input[name="keyword"]:checked').size() > 0) {
+//                $('#begin-import').prop('disabled', false);
+//            }
+//            else {
+//                $('#begin-import').prop('disabled', true);
+//            }
         });
 
         {% if has_active_process %}
