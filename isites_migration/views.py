@@ -6,7 +6,7 @@ from django.shortcuts import render, redirect
 
 from lti_permissions.decorators import lti_permission_required
 from async.models import Process
-
+from icommons_common.models import CourseInstance
 from isites_migration.utils import get_previous_isites
 from isites_migration.jobs import migrate_files
 
@@ -31,6 +31,12 @@ def index(request):
             term=term,
             canvas_course_id=canvas_course_id
         )
+        try:
+            ci = CourseInstance.objects.get(course_instance_id=course_instance_id)
+            school = ci.term.school_id
+        except CourseInstance.DoesNotExist:
+            school = None
+        logger.info(u'migration started by user: %s, keyword:%s, title:%s, term:%s, canvas_course_id:%s,  school:%s' % (request.user.username, keyword, title, term, canvas_course_id, school))
         return redirect('isites_migration:index')
 
     processes = Process.objects.filter(
