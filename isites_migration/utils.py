@@ -92,8 +92,8 @@ def export_files(keyword):
             uncompressed_size += z_info.file_size
         z_file.close()
 
-        logger.info('Compressed: %s bytes' % compressed_size)
-        logger.info('Uncompressed: %s bytes' % uncompressed_size)
+        logger.info('Compressed: %d bytes' % compressed_size)
+        logger.info('Uncompressed: %d bytes' % uncompressed_size)
 
         shutil.rmtree(keyword_export_path)
 
