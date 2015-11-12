@@ -82,15 +82,16 @@ def export_files(keyword):
                 file_path = os.path.join(root, file)
                 z_file.write(file_path, file_path[zip_path_index:])
         z_file.close()
-        logger.info('Created zip file %s' % zip_filename)
+
+        logger.info('Creating zip file %s' % zip_filename)
         zf_info = zipfile.ZipFile(zip_filename)
         compressed_size = 0
         uncompressed_size = 0
         for z_info in zf_info.infolist():
             compressed_size += z_info.compress_size
             uncompressed_size += z_info.file_size
-
         z_file.close()
+
         logger.info('Compressed: %s bytes' % compressed_size)
         logger.info('Uncompressed: %s bytes' % uncompressed_size)
 
@@ -287,7 +288,7 @@ def _export_file_repository(file_repository, keyword, topic_title):
                             d_file.write(to_bytes(line, 'utf8'))
             except IOError:
                 logger.exception(
-                    "Failed to export file node %s from file repository % in keyword %s",
+                    u"Failed to export file node %d from file repository %d in keyword %s",
                     file_node.file_node_id,
                     file_repository.file_repository_id,
                     keyword
