@@ -17,12 +17,15 @@ logger = logging.getLogger(__name__)
 @login_required
 @lti_permission_required(settings.PERMISSION_ISITES_MIGRATION_IMPORT_FILES)
 def index(request):
+
     course_instance_id = request.LTI.get('lis_course_offering_sourcedid')
     canvas_course_id = request.LTI.get('custom_canvas_course_id')
+
     if request.method == 'POST':
         keyword = request.POST.get('keyword')
         title = request.POST.get('title')
         term = request.POST.get('term')
+        school = None
         Process.enqueue(
             migrate_files,
             'isites_file_migration',
@@ -32,7 +35,12 @@ def index(request):
             canvas_course_id=canvas_course_id
         )
 
-        school = get_school(course_instance_id)
+        # try to get the school.
+        # if we have a course instance id, try that first.
+        if course_instance_id:
+            school = get_school(course_instance_id=course_instance_id)
+        elif canvas_course_id:
+            school = get_school(canvas_course_id=canvas_course_id)
 
         logger.info(u'migration started by user: %s, keyword: %s, title: %s, term: %s, canvas_course_id: %s,  school: %s' % (request.user.username, keyword, title, term, canvas_course_id, school))
         return redirect('isites_migration:index')
