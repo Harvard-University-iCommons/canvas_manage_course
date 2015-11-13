@@ -33,10 +33,12 @@ def index(request):
         )
         try:
             ci = CourseInstance.objects.get(course_instance_id=course_instance_id)
-            school = ci.term.school_id
-        except CourseInstance.DoesNotExist:
-            school = None
-        logger.info(u'migration started by user: %s, keyword:%s, title:%s, term:%s, canvas_course_id:%s,  school:%s' % (request.user.username, keyword, title, term, canvas_course_id, school))
+            school = ci.course.school_id
+        except CourseInstance.DoesNotExist as e:
+            school = ''
+            logger.exception(u'course instance id %s does not exist: %s' % course_instance_id, e)
+
+        logger.info(u'migration started by user: %s, keyword: %s, title: %s, term: %s, canvas_course_id: %s,  school: %s' % (request.user.username, keyword, title, term, canvas_course_id, school))
         return redirect('isites_migration:index')
 
     processes = Process.objects.filter(

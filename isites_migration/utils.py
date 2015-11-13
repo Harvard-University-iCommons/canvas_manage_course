@@ -83,7 +83,7 @@ def export_files(keyword):
                 z_file.write(file_path, file_path[zip_path_index:])
         z_file.close()
 
-        # we want to log the size of the data we exporting pr TLT-2099
+        # we want to log the size of the data we exporting per TLT-2099
         logger.info('Creating zip file %s' % zip_filename)
         zf_info = zipfile.ZipFile(zip_filename)
         compressed_size = 0
