@@ -63,7 +63,7 @@
                         <tbody>
                         {% for site in isites %}
                              <tr align="left" {% if forloop.counter > 3 %} class="collapsible" {% endif %}>
-                                 <th scope="row"><input type="radio" name="keyword" value="site.keyword" data-title="{{ site.title }}" data-term="{{ site.term }}"></th>
+                                 <th scope="row"><input type="radio" name="keyword" value="{{ site.keyword }}" data-title="{{ site.title }}" data-term="{{ site.term }}"></th>
                                  <td><a href="http://isites.harvard.edu/{{ site.keyword }}" target="_blank">{{ site.keyword }}</a></td>
                                  <td>{{ site.title }}</td>
                                  <td>{{ site.term }}</td>
