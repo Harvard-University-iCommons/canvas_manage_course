@@ -48,15 +48,19 @@ def get_school(course_instance_id, canvas_course_id):
         ci = CourseInstance.objects.get(course_instance_id=course_instance_id)
         school = ci.course.school_id
     except CourseInstance.DoesNotExist:
-        logger.exception(u'course_instance_id %s does not exist' % course_instance_id)
+        logger.exception(u'Could not determine the course instance for Canvas '
+                         u'course instance id %s' % course_instance_id)
         if canvas_course_id:
-            ci = CourseInstance.objects.get_primary_course_by_canvas_course_id(canvas_course_id)
-            if ci:
-                school = ci.course.school_id
-             else:
-                logger.warning(
-                    u'Could not determine the primary course instance for Canvas '
-                    u'course id %s', canvas_course_id)
+            try:
+                # get_primary_course_by_canvas_course_id could return None or throw
+                # a CourseInstance.DoesNotExist exception
+                ci = CourseInstance.objects.get_primary_course_by_canvas_course_id(canvas_course_id)
+                if ci:
+                    school = ci.course.school_id
+
+            except CourseInstance.DoesNotExist:
+                logger.exception(u'Could not determine the primary course instance for Canvas '
+                                 u'course id %s', canvas_course_id)
     return school
 
 
