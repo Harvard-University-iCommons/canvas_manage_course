@@ -35,6 +35,35 @@ if hasattr(ssl, '_create_unverified_context'):
     ssl._create_default_https_context = ssl._create_unverified_context
 
 
+def get_school(course_instance_id, canvas_course_id):
+    """
+     get the school_id for the course_instance_id or the canvas_course_id provided.
+    :param course_instance_id:
+    :param canvas_course_id:
+    :return school:
+    """
+    school = None
+
+    try:
+        ci = CourseInstance.objects.get(course_instance_id=course_instance_id)
+        school = ci.course.school_id
+    except CourseInstance.DoesNotExist:
+        logger.exception(u'Could not determine the course instance for Canvas '
+                         u'course instance id %s' % course_instance_id)
+        if canvas_course_id:
+            try:
+                # get_primary_course_by_canvas_course_id could return None or throw
+                # a CourseInstance.DoesNotExist exception
+                ci = CourseInstance.objects.get_primary_course_by_canvas_course_id(canvas_course_id)
+                if ci:
+                    school = ci.course.school_id
+
+            except CourseInstance.DoesNotExist:
+                logger.exception(u'Could not determine the primary course instance for Canvas '
+                                 u'course id %s', canvas_course_id)
+    return school
+
+
 def export_files(keyword):
     try:
         s3_bucket = _get_s3_bucket(settings.AWS_EXPORT_BUCKET_ISITES_FILES)
@@ -73,15 +102,29 @@ def export_files(keyword):
 
             _export_topic_text(topic, keyword, topic_title)
 
+
+
         zip_path_index = len(settings.EXPORT_DIR) + 1
         keyword_export_path = os.path.join(settings.EXPORT_DIR, settings.CANVAS_IMPORT_FOLDER_PREFIX + keyword)
         zip_filename = os.path.join(settings.EXPORT_DIR, "%s%s.zip" % (settings.CANVAS_IMPORT_FOLDER_PREFIX, keyword))
+
+        # we want to log the size of the data we exporting per TLT-2099
+        logger.info('Creating zip file %s' % zip_filename)
         z_file = zipfile.ZipFile(zip_filename, 'w')
+        compressed_size = 0
+        uncompressed_size = 0
         for root, dirs, files in os.walk(keyword_export_path):
             for file in files:
                 file_path = os.path.join(root, file)
                 z_file.write(file_path, file_path[zip_path_index:])
+                z_info = z_file.getinfo(file_path[zip_path_index:])
+                compressed_size += z_info.compress_size
+                uncompressed_size += z_info.file_size
         z_file.close()
+
+        logger.info('Compressed: %s bytes' % compressed_size)
+        logger.info('Uncompressed: %s bytes' % uncompressed_size)
+
         shutil.rmtree(keyword_export_path)
 
         export_key = Key(s3_bucket)
@@ -275,7 +318,7 @@ def _export_file_repository(file_repository, keyword, topic_title):
                             d_file.write(to_bytes(line, 'utf8'))
             except IOError:
                 logger.exception(
-                    "Failed to export file node %s from file repository % in keyword %s",
+                    u"Failed to export file node %d from file repository %s in keyword %s",
                     file_node.file_node_id,
                     file_repository.file_repository_id,
                     keyword
