@@ -30,8 +30,6 @@ def index(request):
             migrate_files,
             'isites_file_migration',
             keyword=keyword,
-            title=title,
-            term=term,
             canvas_course_id=canvas_course_id
         )
 
