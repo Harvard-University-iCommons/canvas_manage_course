@@ -8,8 +8,8 @@ from isites_migration.utils import export_files, import_files
 logger = logging.getLogger(__name__)
 
 
-def migrate_files(process_id, keyword, canvas_course_id):
-    logger.info("Starting migrate_files job for keyword %s and canvas_course_id %s", keyword, canvas_course_id)
+def migrate_files(process_id, keyword, canvas_course_id, term, title):
+    logger.info("Starting migrate_files job for keyword %s, canvas_course_id %s, term %s, and %s", keyword, canvas_course_id, term, title)
 
     try:
         process = Process.objects.get(id=process_id)
