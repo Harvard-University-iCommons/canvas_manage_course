@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 
 def migrate_files(process_id, keyword, canvas_course_id, term, title):
-    logger.info("Starting migrate_files job for keyword %s, canvas_course_id %s, term %s, and %s", keyword, canvas_course_id, term, title)
+    logger.info("Starting migrate_files job for keyword %s, canvas_course_id %s, term '%s', and title '%s'", keyword, canvas_course_id, term, title)
 
     try:
         process = Process.objects.get(id=process_id)
