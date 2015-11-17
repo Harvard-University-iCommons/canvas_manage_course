@@ -30,7 +30,9 @@ def index(request):
             migrate_files,
             'isites_file_migration',
             keyword=keyword,
-            canvas_course_id=canvas_course_id
+            canvas_course_id=canvas_course_id,
+            term=term,
+            title=title
         )
 
         # try to get the school.
