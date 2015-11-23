@@ -1,0 +1,36 @@
+{% extends 'canvas_course_admin_tools/base.html' %}
+
+{% load static %}
+
+{% block stylesheets %}
+<link href="{% static 'canvas_course_admin_tools/css/dashboard.css' %}" rel="stylesheet" />
+{% endblock stylesheets %}
+
+{% block content %}
+<header>
+    <div class="row lti-header">
+        <h1>Administration Tasks</h1>
+    </div>
+</header>
+
+<main>
+    <div class="col-md-6">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <h3>Manage Course</h3>
+                <div class="list-group">
+                    <a href="{% if icm_active %}{% url 'isites_migration:index' %}{% else %}#{% endif %}" class="list-group-item {% if icm_active %}active{% else %}disabled{% endif %}">
+                        <h4 class="list-group-item-heading">Import iSites Content</h4>
+                        <p class="list-group-item-text">Migrate content from a previous term's Course iSite to this Canvas course</p>
+                    </a>
+                </div>
+                {% if not icm_active %}
+                <div class="alert alert-info" role="alert">
+                    This Canvas course is not associated with any Course iSites.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock content %}
