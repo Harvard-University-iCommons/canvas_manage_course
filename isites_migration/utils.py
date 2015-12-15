@@ -331,7 +331,8 @@ def _export_file_repository(file_repository, keyword, topic_title):
                 logger.exception("Could not find source file %s", source_file)
                 continue
 
-        logger.info("Copied file %s to export location %s", source_file, export_file)
+        # Encoding source_file so the log string remains a bytestring
+        logger.info("Copied file %s to export location %s", source_file.encode('utf-8'), export_file)
 
 
 def _export_topic_text(topic, keyword, topic_title):
