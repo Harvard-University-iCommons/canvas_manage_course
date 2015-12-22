@@ -24,8 +24,6 @@ class Command(BaseCommand):
         parser.add_argument('--term_id', type=int, help='Provide an SIS term ID')
         parser.add_argument('--keyword', help='Provide an iSites keyword')
         parser.add_argument('--csv', dest='csv_path', help='Provide the path to a csv file containing iSites keyword/Canvas course ID pairs')
-        parser.add_argument('--')
-
         parser.add_argument('--print-keyword-results', action='store_true', help='Print results of a keyword export to stdout')
 
     def handle(self, *args, **options):
