@@ -99,7 +99,7 @@
                 <tbody>
                     {% for p in processes %}
                     <tr>
-                        <td>{{ p.date_created|format_datetime }}</td>
+                        <td>{{ p.date_created|timezone:user_timezone }}</td>
                         <td>{{ p.details.keyword }}</td>
                         <td>{{ p.details.title }}</td>
                         <td>{{ p.details.term }}</td>

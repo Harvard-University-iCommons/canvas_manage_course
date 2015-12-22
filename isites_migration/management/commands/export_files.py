@@ -15,33 +15,16 @@ logger = logging.getLogger(__name__)
 
 class Command(BaseCommand):
     help = 'Exports iSites file repositories to AWS S3'
-    option_list = BaseCommand.option_list + (
-        make_option(
-            '--term_id',
-            action='store',
-            dest='term_id',
-            default=None,
-            help='Provide an SIS term ID'
-        ),
-        make_option(
-            '--keyword',
-            action='store',
-            dest='keyword',
-            default=None,
-            help='Provide an iSites keyword'
-        ),
-        make_option(
-            '--csv',
-            action='store',
-            dest='csv_path',
-            default=None,
-            help='Provide the path to a csv file containing iSites keyword/Canvas course ID pairs'
-        ),
-    )
 
     def __init__(self, *args, **kwargs):
         super(Command, self).__init__(*args, **kwargs)
         self.failures = []
+
+    def add_arguments(self, parser):
+        parser.add_argument('--term_id', type=int, help='Provide an SIS term ID')
+        parser.add_argument('--keyword', help='Provide an iSites keyword')
+        parser.add_argument('--csv', dest='csv_path', help='Provide the path to a csv file containing iSites keyword/Canvas course ID pairs')
+        parser.add_argument('--print-keyword-results', action='store_true', help='Print results of a keyword export to stdout')
 
     def handle(self, *args, **options):
         term_id = options.get('term_id')
@@ -58,6 +41,12 @@ class Command(BaseCommand):
 
         if self.failures:
             logger.error("Failed to export files for keywords: %s", self.failures)
+
+        if options.get('print_keyword_results') and keyword:
+            if self.failures:
+                print "Failed to export %s: %s" % (keyword, self.failures)
+            else:
+                print "Success|%s.zip" % keyword
 
     def _export_term(self, term_id):
         keyword_sql_query = """

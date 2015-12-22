@@ -153,6 +153,7 @@ RQ_QUEUES = {
         'HOST': REDIS_HOST,
         'PORT': REDIS_PORT,
         'DB': 0,
+        'DEFAULT_TIMEOUT': SECURE_SETTINGS.get('default_isites_migration_rq_timeout_secs', 180),
     }
 }
 
