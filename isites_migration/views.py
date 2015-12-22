@@ -52,6 +52,8 @@ def index(request):
     return render(request, 'isites_migration/index.html', {
         'isites': get_previous_isites(course_instance_id),
         'processes': processes,
-        'link_to_files_page': settings.CANVAS_URL+'/courses/%s/files' % canvas_course_id,
-        'has_active_process': has_active_process
+        'link_to_files_page': settings.CANVAS_URL + '/courses/%s/files' % canvas_course_id,
+        'has_active_process': has_active_process,
+        # Harcode to EST for now, but eventually set based on the launch user's profile setting
+        'user_timezone': 'America/New_York',
     })
