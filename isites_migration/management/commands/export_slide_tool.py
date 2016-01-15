@@ -3,14 +3,10 @@ import os
 import mimetypes
 import json
 import ssl
-
-from optparse import make_option
+import boto3
 
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
-
-from boto.s3.connection import S3Connection
-from boto.s3.key import Key
 
 from icommons_common.models import (
     Site, Topic, FileRepository, FileNode, FileNodeAttribute, ImageMetadata
@@ -24,34 +20,27 @@ if hasattr(ssl, '_create_unverified_context'):
 
 class Command(BaseCommand):
     help = 'Exports iSites Slide Tool topic file repositories to AWS S3'
-    option_list = BaseCommand.option_list + (
-        make_option(
-            '--keyword',
-            action='store',
-            dest='keyword',
-            default=None,
-            help='Provide an iSite keyword'
-        ),
-    )
+    requires_system_checks = True
 
     def __init__(self, *args, **kwargs):
         super(Command, self).__init__(*args, **kwargs)
-        self.connection = S3Connection(settings.AWS_ACCESS_KEY_ID, settings.AWS_ACCESS_KEY)
-        self.bucket = self.connection.get_bucket(settings.AWS_EXPORT_BUCKET_SLIDE_TOOL, validate=False)
+        self.s3_bucket = settings.AWS_EXPORT_BUCKET_SLIDE_TOOL
+
+    def add_arguments(self, parser):
+        parser.add_argument('keyword', help='the iSites keyword containing the slide tool to export')
 
     def handle(self, *args, **options):
         keyword = options['keyword']
-        if not keyword:
-            # Prompt for iSite keyword
-            keyword = raw_input('iSite Keyword: ')
-            if not keyword:
-                raise CommandError('You must provide an iSite keyword.')
 
         logger.info("Beginning export_slide_tool for keyword %s to S3 bucket %s", keyword, self.bucket.name)
         try:
             site = Site.objects.get(keyword=keyword)
         except Site.DoesNotExist:
             raise CommandError('Could not find iSite for the keyword provided.')
+
+        # Establish a boto session for uploads
+        boto_session = boto3.session.Session(profile_name=settings.AWS_PROFILE)
+        s3 = boto_session.resource('s3')
 
         topic_sql_query = """
         SELECT t.topic_id AS topic_id, t.title AS title
@@ -91,16 +80,21 @@ class Command(BaseCommand):
                         continue
 
                     file_name = os.path.basename(file_node.physical_location)
-                    file_key = Key(self.bucket)
-                    file_key.key = "%s/%d/%s" % (keyword, topic.topic_id, file_name)
-
+                    s3_key = "%s/%d/%s" % (keyword, topic.topic_id, file_name)
                     content_type, _ = mimetypes.guess_type(file_name)
+                    s3_extra_args = {}
                     if content_type is not None:
-                        file_key.set_metadata('Content-Type', content_type)
-                    file_key.set_contents_from_filename(storage_node_location + file_node.physical_location)
-                    logger.info("Uploaded image to S3 Key %s", file_key.key)
+                        s3_extra_args = {'ContentType': content_type}
 
-                    url = file_key.key
+                    s3.meta.client.upload_file(
+                        storage_node_location + file_node.physical_location,
+                        self.s3_bucket,
+                        s3_key,
+                        ExtraArgs=s3_extra_args
+                    )
+                    logger.info("Uploaded image to S3 Key %s", s3_key)
+
+                    url = s3_key
                 elif file_node.file_type == 'link':
                     try:
                         url = FileNodeAttribute.objects.get(file_node_id=file_node.file_node_id, attribute='url').value
@@ -129,10 +123,15 @@ class Command(BaseCommand):
 
                 topic_data['files'].append(file_data)
 
-            data_key = Key(self.bucket)
-            data_key.key = "%s/%d/data.json" % (keyword, topic.topic_id)
-            data_key.set_metadata('Content-Type', 'application/json')
-            data_key.set_contents_from_string(json.dumps(topic_data))
-            logger.info("Uploaded file repository data to S3 Key %s", data_key.key)
+            data_key = "%s/%d/data.json" % (keyword, topic.topic_id)
+            json_data = json.dumps(topic_data)
 
-        logger.info("Finished export_slide_tool for keyword %s to S3 bucket %s", keyword, self.bucket.name)
+            # Store the data.json file with the slide data folder
+            s3.Object(self.s3_bucket, data_key).put(
+                Body=json_data,
+                ContentType='application/json'
+            )
+
+            logger.info("Uploaded file repository data to S3 Key %s", data_key)
+
+        logger.info("Finished export_slide_tool for keyword %s to S3 bucket %s", keyword, self.s3_bucket)
