@@ -21,3 +21,5 @@ EXPORT_FILES_EXCLUDED_TOPIC_TITLES = [
     'Syllabus Template (Hidden)',
     'About Course iSites, About the Library Resources Page'
 ]
+
+SLIDE_TOOL_ID = 10864  # PROD tool ID
