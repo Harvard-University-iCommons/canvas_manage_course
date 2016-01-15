@@ -125,13 +125,15 @@ def export_files(keyword):
 
         shutil.rmtree(keyword_export_path)
 
-        _upload_zip_file_to_s3(zip_filename, s3_bucket, "%s.zip" % keyword)
+        export_key = "%s.zip" % keyword
 
-        logger.info("Uploaded file export for keyword %s to S3 Key %s", keyword, export_key.key)
+        _upload_zip_file_to_s3(zip_filename, s3_bucket, export_key)
+
+        logger.info("Uploaded file export for keyword %s to S3 Key %s", keyword, export_key)
 
         os.remove(zip_filename)
 
-        logger.info("Finished exporting files for keyword %s to S3 bucket %s", keyword, s3_bucket.name)
+        logger.info("Finished exporting files for keyword %s to S3 bucket %s", keyword, s3_bucket)
     except Exception:
         message = "Failed to complete file export for keyword %s", keyword
         logger.exception(message)
@@ -287,15 +289,17 @@ def _export_file_repository(file_repository, keyword, topic_title):
             logger.error("Failed to find storage node for file node %d", file_node.file_node_id)
             continue
 
-        physical_location = file_node.physical_location.lstrip('/')
+        physical_location = file_node.physical_location
         if not physical_location:
             # Assume non fs-cow file and use file_path and file_name to construct physical location
             physical_location = os.path.join(
-                file_node.file_path.lstrip('/'),
-                file_node.file_name.lstrip('/')
+                storage_node_location,
+                file_repository.file_repository_id,
+                file_node.file_path,
+                file_node.file_name
             )
 
-        source_file = os.path.join(storage_node_location, physical_location)
+        source_file = os.path.join(storage_node_location, physical_location.lstrip('/'))
         export_file = to_bytes(os.path.join(
             settings.EXPORT_DIR,
             settings.EXPORT_ARCHIVE_FILENAME_PREFIX + keyword,
