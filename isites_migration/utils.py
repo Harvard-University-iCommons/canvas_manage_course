@@ -289,17 +289,15 @@ def _export_file_repository(file_repository, keyword, topic_title):
             logger.error("Failed to find storage node for file node %d", file_node.file_node_id)
             continue
 
-        physical_location = file_node.physical_location
+        physical_location = file_node.physical_location.lstrip('/')
         if not physical_location:
             # Assume non fs-cow file and use file_path and file_name to construct physical location
-            physical_location = os.path.join(
-                storage_node_location,
+            physical_location = u"%s%s%s".format(
                 file_repository.file_repository_id,
                 file_node.file_path,
                 file_node.file_name
             )
-
-        source_file = os.path.join(storage_node_location, physical_location.lstrip('/'))
+        source_file = os.path.join(storage_node_location, physical_location)
         export_file = to_bytes(os.path.join(
             settings.EXPORT_DIR,
             settings.EXPORT_ARCHIVE_FILENAME_PREFIX + keyword,
