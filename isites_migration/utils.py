@@ -292,7 +292,7 @@ def _export_file_repository(file_repository, keyword, topic_title):
         physical_location = file_node.physical_location.lstrip('/')
         if not physical_location:
             # Assume non fs-cow file and use file_path and file_name to construct physical location
-            physical_location = u"%s%s%s".format(
+            physical_location = u"{}{}{}".format(
                 file_repository.file_repository_id,
                 file_node.file_path,
                 file_node.file_name
