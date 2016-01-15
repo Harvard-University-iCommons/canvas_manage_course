@@ -32,7 +32,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         keyword = options['keyword']
 
-        logger.info("Beginning export_slide_tool for keyword %s to S3 bucket %s", keyword, self.bucket.name)
+        logger.info("Beginning export_slide_tool for keyword %s to S3 bucket %s", keyword, self.s3_bucket)
         try:
             site = Site.objects.get(keyword=keyword)
         except Site.DoesNotExist:
