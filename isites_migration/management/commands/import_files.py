@@ -71,7 +71,7 @@ class Command(BaseCommand):
                 progress = SDK_CONTEXT.session.request('GET', progress_url).json()
                 workflow_state = progress['workflow_state']
                 if workflow_state == 'completed':
-                    lock_canvas_folder(canvas_course_id, settings.CANVAS_IMPORT_FOLDER_PREFIX + keyword)
+                    lock_canvas_folder(canvas_course_id, settings.EXPORT_ARCHIVE_FILENAME_PREFIX + keyword)
                     completed_imports.append((keyword, canvas_course_id))
                 elif workflow_state == 'failed':
                     failed_imports.append((keyword, canvas_course_id))
