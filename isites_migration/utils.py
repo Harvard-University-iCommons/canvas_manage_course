@@ -6,15 +6,13 @@ import time
 import gzip
 import json
 import ssl
+import boto3
 
 from django.conf import settings
 from django.db.models import Q
 from django.template.loader import get_template
 from django.template import Context
 from django.db import connections
-
-from boto.s3.connection import S3Connection
-from boto.s3.key import Key
 
 from kitchen.text.converters import to_bytes, to_unicode
 
@@ -66,16 +64,18 @@ def get_school(course_instance_id, canvas_course_id):
 
 def export_files(keyword):
     try:
-        s3_bucket = _get_s3_bucket(settings.AWS_EXPORT_BUCKET_ISITES_FILES)
-        logger.info("Beginning iSites file export for keyword %s to S3 bucket %s", keyword, s3_bucket.name)
+        s3_bucket = settings.AWS_EXPORT_BUCKET_ISITES_FILES
+        logger.info("Beginning iSites file export for keyword %s to S3 bucket %s", keyword, s3_bucket)
         try:
-            os.makedirs(os.path.join(settings.EXPORT_DIR, settings.CANVAS_IMPORT_FOLDER_PREFIX + keyword))
+            os.makedirs(os.path.join(settings.EXPORT_DIR, settings.EXPORT_ARCHIVE_FILENAME_PREFIX + keyword))
         except os.error:
             pass
 
         site = Site.objects.get(keyword=keyword)
 
-        _export_readme(keyword)
+        # Only include the README if defined
+        if hasattr(settings, 'EXPORT_FILES_README_FILENAME'):
+            _export_readme(keyword)
 
         query_set = Topic.objects.filter(site=site).exclude(
             Q(tool_id__in=settings.EXPORT_FILES_EXCLUDED_TOOL_IDS) |
@@ -102,11 +102,9 @@ def export_files(keyword):
 
             _export_topic_text(topic, keyword, topic_title)
 
-
-
         zip_path_index = len(settings.EXPORT_DIR) + 1
-        keyword_export_path = os.path.join(settings.EXPORT_DIR, settings.CANVAS_IMPORT_FOLDER_PREFIX + keyword)
-        zip_filename = os.path.join(settings.EXPORT_DIR, "%s%s.zip" % (settings.CANVAS_IMPORT_FOLDER_PREFIX, keyword))
+        keyword_export_path = os.path.join(settings.EXPORT_DIR, settings.EXPORT_ARCHIVE_FILENAME_PREFIX + keyword)
+        zip_filename = os.path.join(settings.EXPORT_DIR, "%s%s.zip" % (settings.EXPORT_ARCHIVE_FILENAME_PREFIX, keyword))
 
         # we want to log the size of the data we exporting per TLT-2099
         logger.info('Creating zip file %s' % zip_filename)
@@ -127,15 +125,15 @@ def export_files(keyword):
 
         shutil.rmtree(keyword_export_path)
 
-        export_key = Key(s3_bucket)
-        export_key.key = "%s.zip" % keyword
-        export_key.set_metadata('Content-Type', 'application/zip')
-        export_key.set_contents_from_filename(zip_filename)
-        logger.info("Uploaded file export for keyword %s to S3 Key %s", keyword, export_key.key)
+        export_key = "%s.zip" % keyword
+
+        _upload_zip_file_to_s3(zip_filename, s3_bucket, export_key)
+
+        logger.info("Uploaded file export for keyword %s to S3 Key %s", keyword, export_key)
 
         os.remove(zip_filename)
 
-        logger.info("Finished exporting files for keyword %s to S3 bucket %s", keyword, s3_bucket.name)
+        logger.info("Finished exporting files for keyword %s to S3 bucket %s", keyword, s3_bucket)
     except Exception:
         message = "Failed to complete file export for keyword %s", keyword
         logger.exception(message)
@@ -152,7 +150,7 @@ def import_files(keyword, canvas_course_id):
             progress = SDK_CONTEXT.session.request('GET', progress_url).json()
             workflow_state = progress['workflow_state']
             if workflow_state == 'completed':
-                lock_canvas_folder(canvas_course_id, settings.CANVAS_IMPORT_FOLDER_PREFIX + keyword)
+                lock_canvas_folder(canvas_course_id, settings.EXPORT_ARCHIVE_FILENAME_PREFIX + keyword)
     except Exception:
         message = "Failed to complete file import for keyword %s", keyword
         logger.exception(message)
@@ -164,7 +162,9 @@ def import_files(keyword, canvas_course_id):
 def create_canvas_content_migration(keyword, canvas_course_id):
     try:
         root_folder = _get_root_folder_for_canvas_course(canvas_course_id)
-        export_file_url = _get_export_s3_url(keyword)
+        export_file_url = _get_s3_download_url(settings.AWS_EXPORT_BUCKET_ISITES_FILES,
+                                               "%s.zip" % keyword,
+                                               settings.AWS_EXPORT_DOWNLOAD_TIMEOUT_SECONDS)
         logger.info("Importing iSites file export from %s to Canvas course %s", export_file_url, canvas_course_id)
         response = content_migrations.create_content_migration_courses(
             SDK_CONTEXT,
@@ -292,15 +292,15 @@ def _export_file_repository(file_repository, keyword, topic_title):
         physical_location = file_node.physical_location.lstrip('/')
         if not physical_location:
             # Assume non fs-cow file and use file_path and file_name to construct physical location
-            physical_location = os.path.join(
-                file_node.file_path.lstrip('/'),
-                file_node.file_name.lstrip('/')
+            physical_location = u"{}{}{}".format(
+                file_repository.file_repository_id,
+                file_node.file_path,
+                file_node.file_name
             )
-
         source_file = os.path.join(storage_node_location, physical_location)
         export_file = to_bytes(os.path.join(
             settings.EXPORT_DIR,
-            settings.CANVAS_IMPORT_FOLDER_PREFIX + keyword,
+            settings.EXPORT_ARCHIVE_FILENAME_PREFIX + keyword,
             to_unicode(topic_title),
             to_unicode(file_node.file_path.lstrip('/')),
             to_unicode(file_node.file_name.lstrip('/'))
@@ -340,7 +340,7 @@ def _export_topic_text(topic, keyword, topic_title):
     for topic_text in TopicText.objects.filter(topic_id=topic.topic_id).only('text_id', 'name', 'source_text'):
         export_file = to_bytes(os.path.join(
             settings.EXPORT_DIR,
-            settings.CANVAS_IMPORT_FOLDER_PREFIX + keyword,
+            settings.EXPORT_ARCHIVE_FILENAME_PREFIX + keyword,
             to_unicode(topic_title),
             to_unicode(topic_text.name.lstrip('/'))
         ))
@@ -360,7 +360,7 @@ def _export_readme(keyword):
     content = readme_template.render(Context({}))
     readme_file = os.path.join(
         settings.EXPORT_DIR,
-        settings.CANVAS_IMPORT_FOLDER_PREFIX + keyword,
+        settings.EXPORT_ARCHIVE_FILENAME_PREFIX + keyword,
         settings.EXPORT_FILES_README_FILENAME
     )
     try:
@@ -371,15 +371,32 @@ def _export_readme(keyword):
         f.write(content)
 
 
-def _get_s3_bucket(bucket_name):
-    s3_connection = S3Connection(settings.AWS_ACCESS_KEY_ID, settings.AWS_ACCESS_KEY)
-    return s3_connection.get_bucket(bucket_name, validate=False)
+def _upload_zip_file_to_s3(filename, s3_bucket, s3_key):
+    logger.debug("uploading %s to %s/%s in s3", filename, s3_bucket, s3_key)
+    s3 = _get_boto_session().resource('s3')
+    s3.meta.client.upload_file(
+        filename,
+        s3_bucket,
+        s3_key,
+        ExtraArgs={'ContentType': 'application/zip'}
+    )
 
 
-def _get_export_s3_url(keyword):
-    s3_bucket = _get_s3_bucket(settings.AWS_EXPORT_BUCKET_ISITES_FILES)
-    key = s3_bucket.get_key("%s.zip" % keyword)
-    return key.generate_url(settings.AWS_EXPORT_DOWNLOAD_TIMEOUT_SECONDS)
+def _get_boto_session():
+    return boto3.session.Session(profile_name=settings.AWS_PROFILE)
+
+
+def _get_s3_download_url(s3_bucket, s3_key, url_download_timeout_secs):
+    logger.debug("generating temporary download url for %s in bucket %s that will be good for %d seconds",
+                 s3_bucket, s3_key, url_download_timeout_secs)
+    s3 = _get_boto_session().resource('s3')
+    url = s3.meta.client.generate_presigned_url(
+        "get_object",
+        Params={'Bucket': s3_bucket, 'Key': s3_key},
+        ExpiresIn=url_download_timeout_secs
+    )
+    logger.debug("url is %s", url)
+    return url
 
 
 def _get_root_folder_for_canvas_course(canvas_course_id):
