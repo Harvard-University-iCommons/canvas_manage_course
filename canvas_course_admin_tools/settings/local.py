@@ -21,4 +21,9 @@ LOGGING['handlers']['default'] = {
     'formatter': 'simple',
 }
 
+CONCLUDE_COURSES_URL = SECURE_SETTINGS.get(
+    'conclude_courses_url',
+    'https://icommons-tools.dev.tlt.harvard.edu/course_conclusion'
+)
+
 dictConfig(LOGGING)

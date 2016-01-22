@@ -270,7 +270,3 @@ ICOMMONS_COMMON = {
 
 PERMISSION_ISITES_MIGRATION_IMPORT_FILES = 'im_import_files'
 
-CONCLUDE_COURSES_URL = SECURE_SETTINGS.get(
-    'conclude_courses_url',
-    'https://icommons-tools.dev.tlt.harvard.edu/course_conclusion'
-)
