@@ -94,7 +94,7 @@ def export_files(keyword):
             if os.path.isdir(
                 os.path.join(settings.EXPORT_DIR,
                              settings.EXPORT_ARCHIVE_FILENAME_PREFIX + keyword,
-                             topic_title)):
+                             topic_title.encode("utf-8"))):
                 topic_title += "_%d" % topic.topic_id
 
             file_repository_id = "icb.topic%s.files" % topic.topic_id
