@@ -88,7 +88,14 @@ def export_files(keyword):
             if topic.title:
                 topic_title = topic.title.strip().replace(' ', '_')
             else:
-                topic_title = 'no_title_%s' % topic.topic_id
+                topic_title = u'no_title'
+
+            # Check to see if this topic directory already exists
+            if os.path.isdir(
+                os.path.join(settings.EXPORT_DIR,
+                             settings.EXPORT_ARCHIVE_FILENAME_PREFIX + keyword,
+                             topic_title)):
+                topic_title += "_%d" % topic.topic_id
 
             file_repository_id = "icb.topic%s.files" % topic.topic_id
             try:
@@ -301,9 +308,9 @@ def _export_file_repository(file_repository, keyword, topic_title):
         export_file = to_bytes(os.path.join(
             settings.EXPORT_DIR,
             settings.EXPORT_ARCHIVE_FILENAME_PREFIX + keyword,
-            to_unicode(topic_title),
-            to_unicode(file_node.file_path.lstrip('/')),
-            to_unicode(file_node.file_name.lstrip('/'))
+            topic_title,
+            file_node.file_path.lstrip('/'),
+            file_node.file_name.lstrip('/')
         ))
         try:
             os.makedirs(os.path.dirname(export_file))
@@ -341,8 +348,8 @@ def _export_topic_text(topic, keyword, topic_title):
         export_file = to_bytes(os.path.join(
             settings.EXPORT_DIR,
             settings.EXPORT_ARCHIVE_FILENAME_PREFIX + keyword,
-            to_unicode(topic_title),
-            to_unicode(topic_text.name.lstrip('/'))
+            topic_title,
+            topic_text.name.lstrip('/')
         ))
         try:
             os.makedirs(os.path.dirname(export_file))
