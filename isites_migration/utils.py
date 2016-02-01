@@ -115,7 +115,7 @@ def export_files(keyword):
 
         # we want to log the size of the data we exporting per TLT-2099
         logger.info('Creating zip file %s' % zip_filename)
-        z_file = zipfile.ZipFile(zip_filename, 'w')
+        z_file = zipfile.ZipFile(zip_filename, 'w', zipfile.ZIP_DEFLATED)
         compressed_size = 0
         uncompressed_size = 0
         for root, dirs, files in os.walk(keyword_export_path):
