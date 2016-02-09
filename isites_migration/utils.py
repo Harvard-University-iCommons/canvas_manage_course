@@ -7,13 +7,13 @@ import json
 import ssl
 import boto3
 import re
-import string
 
 from django.conf import settings
 from django.db.models import Q
 from django.template.loader import get_template
 from django.template import Context
 from django.db import connections
+from django.utils.text import get_valid_filename
 from icommons_common.models import (
     Topic, FileNode, TopicText, CourseInstance, SiteMap, Course
 )
@@ -59,19 +59,6 @@ def get_school(course_instance_id, canvas_course_id):
     return school
 
 
-def _sanitize_str(s):
-    pattern = re.compile('[%s]' % re.escape(string.punctuation))
-    return pattern.sub('_', s.strip())
-
-
-def _get_archive_title_for_topic(topic):
-    """Coerce topic title into a directory safe structure."""
-    topic_title = _sanitize_str(topic['title'])
-    # Append id to prevent overwriting files in topics named the same
-    topic_title += "_%d" % topic['topic_id']
-    return topic_title
-
-
 def _get_topic_text_by_topic_id(topic_ids):
     """Filter topic text on list of topic ids."""
     return TopicText.objects.filter(
@@ -113,7 +100,9 @@ def export_files(keyword):
     topic_titles_by_id = {}
     for topic in topics:
         topic_id = topic['topic_id']
-        topic_title = _get_archive_title_for_topic(topic)
+        topic_title = get_valid_filename(topic['title'])
+        # Prevent overwriting of files within topics that are named the same
+        topic_title += "_%d" % topic_id
         topic_titles_by_id[topic_id] = topic_title
         topic_file_repo_ids.append("icb.topic%d.files" % topic_id)
 
@@ -133,11 +122,11 @@ def export_files(keyword):
             logger.debug("topic id for file node %d is %s",
                          file_node.file_node_id, topic_id_str)
             _export_topic_file(file_node, topic_titles_by_id[int(topic_id_str)],
-                               z_file)
+                               keyword, z_file)
         # Export all text
         for text in _get_topic_text_by_topic_id(list(topic_titles_by_id)):
             _export_topic_text(text, topic_titles_by_id[text.topic_id],
-                               z_file)
+                               keyword, z_file)
 
         # Only include the README if defined
         if hasattr(settings, 'EXPORT_FILES_README_FILENAME'):
@@ -277,12 +266,13 @@ def get_previous_isites(course_instance_id):
 
     # sort the dicts by calendar_year in descending order
     if previous_sites:
-        previous_sites = sorted(previous_sites, key=lambda x: x[u'calendar_year'], reverse=True)
+        previous_sites = sorted(previous_sites, key=lambda x: x[u'calendar_year'],
+                                reverse=True)
 
     return previous_sites
 
 
-def _export_topic_file(file_node, topic_title, zip_file):
+def _export_topic_file(file_node, topic_title, keyword, zip_file):
     logger.debug(u"Exporting file node %s for topic %s",
                  file_node.file_node_id, topic_title)
     # There should always be a storage node for topic files, either in the node
@@ -305,13 +295,11 @@ def _export_topic_file(file_node, topic_title, zip_file):
         physical_file_loc = file_node.physical_location.lstrip('/')
 
     source_file = os.path.join(
-        storage_node_loc,
-        physical_file_loc
+        keyword, storage_node_loc, physical_file_loc
     ).encode('utf8')
 
     export_file = os.path.join(
-        topic_title,
-        file_node.file_path.lstrip('/'),
+        keyword, topic_title, file_node.file_path.lstrip('/'),
         file_node.file_name
     ).encode('utf8')
 
@@ -334,13 +322,15 @@ def _export_topic_file(file_node, topic_title, zip_file):
         )
 
 
-def _export_topic_text(topic_text, topic_title, zip_file):
+def _export_topic_text(topic_text, topic_title, keyword, zip_file):
     logger.debug(u"Exporting text for topic %d %s",
                  topic_text.topic_id, topic_title)
 
     export_file = os.path.join(
+        keyword,
         topic_title,
-        _sanitize_str(topic_text.name.lstrip('/'))
+        # Prevent overwriting of text with same name within a topic
+        get_valid_filename(topic_text.name) + "_%d" % topic_text.text_id
     ).encode('utf-8')
 
     zip_file.writestr(export_file, topic_text.processed_text.encode('utf8'))
@@ -354,7 +344,7 @@ def _export_readme(keyword, zip_file):
     readme_template = get_template('isites_migration/export_files_readme.html')
     content = readme_template.render(Context({}))
     readme_file = settings.EXPORT_FILES_README_FILENAME
-    zip_file.writestr(readme_file, content)
+    zip_file.writestr(os.path.join(keyword, readme_file), content)
     logging.debug("Copied Readme file to export location %s", readme_file)
 
 
