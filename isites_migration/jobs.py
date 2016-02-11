@@ -25,7 +25,9 @@ def migrate_files(process_id, keyword, canvas_course_id, term, title):
         process.status = import_files(keyword, canvas_course_id)
         if process.status == 'failed':
             process.details['error'] = 'Canvas content migration failed'
-    except RuntimeError as e:
+    except Exception as e:
+        logger.exception("Failed to complete content migration for keyword %s",
+                         keyword)
         process.status = 'failed'
         process.details['error'] = str(e)
 
