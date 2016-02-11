@@ -30,23 +30,15 @@ class Command(BaseCommand):
         term_id = options.get('term_id')
         csv_path = options.get('csv_path')
         keyword = options.get('keyword')
+        print_results = options.get('print_keyword_results')
         if term_id:
             self._export_term(term_id)
         elif csv_path:
             self._export_csv(csv_path)
         elif keyword:
-            self._export_keyword(keyword)
+            self._export_keyword(keyword, print_results)
         else:
             raise CommandError('You must provide one of the --term_id, --keyword, or --csv options.')
-
-        if self.failures:
-            logger.error("Failed to export files for keywords: %s", self.failures)
-
-        if options.get('print_keyword_results') and keyword:
-            if self.failures:
-                print "Failed to export %s: %s" % (keyword, self.failures)
-            else:
-                print "Success|%s.zip" % keyword
 
     def _export_term(self, term_id):
         keyword_sql_query = """
@@ -71,9 +63,12 @@ class Command(BaseCommand):
         except (IOError, IndexError):
             raise CommandError("Failed to read csv file %s", csv_path)
 
-    def _export_keyword(self, keyword):
+    def _export_keyword(self, keyword, print_results):
         try:
             export_files(keyword)
-        except RuntimeError:
-            logger.exception("Failed to complete export for keyword %s", keyword)
-            self.failures.append(keyword)
+            if print_results:
+                print "Success|%s.zip" % keyword
+        except Exception as e:
+            logger.exception("Failed to complete export for keyword %s",
+                             keyword)
+            raise CommandError("Failed to export %s: %s" % (keyword, str(e)))

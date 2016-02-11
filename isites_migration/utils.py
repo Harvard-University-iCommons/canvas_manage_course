@@ -1,29 +1,26 @@
 import logging
 import os
 import zipfile
-import shutil
 import time
 import gzip
 import json
 import ssl
 import boto3
+import re
 
 from django.conf import settings
 from django.db.models import Q
 from django.template.loader import get_template
 from django.template import Context
 from django.db import connections
-
-from kitchen.text.converters import to_bytes, to_unicode
-
+from django.utils.text import get_valid_filename
 from icommons_common.models import (
-    Site, Topic, FileRepository, FileNode, TopicText, CourseInstance, SiteMap, Course
+    Topic, FileNode, TopicText, CourseInstance, SiteMap, Course
 )
 from icommons_common.canvas_utils import SessionInactivityExpirationRC
 
 from canvas_sdk.methods import content_migrations, files
 from canvas_sdk.exceptions import CanvasAPIError
-
 
 logger = logging.getLogger(__name__)
 SDK_CONTEXT = SessionInactivityExpirationRC(**settings.CANVAS_SDK_SETTINGS)
@@ -62,100 +59,105 @@ def get_school(course_instance_id, canvas_course_id):
     return school
 
 
-def export_files(keyword):
-    try:
-        s3_bucket = settings.AWS_EXPORT_BUCKET_ISITES_FILES
-        logger.info("Beginning iSites file export for keyword %s to S3 bucket %s", keyword, s3_bucket)
-        try:
-            os.makedirs(os.path.join(settings.EXPORT_DIR, settings.EXPORT_ARCHIVE_FILENAME_PREFIX + keyword))
-        except os.error:
-            pass
+def _get_topic_text_by_topic_id(topic_ids):
+    """Filter topic text on list of topic ids."""
+    return TopicText.objects.filter(
+        topic_id__in=topic_ids,
+        source_text__isnull=False,
+    ).only('text_id', 'topic_id', 'name', 'processed_text')
 
-        site = Site.objects.get(keyword=keyword)
+
+def _get_file_nodes_by_file_repo_id(file_repo_ids):
+    """Filter file nodes on list of file repository ids."""
+    return FileNode.objects.filter(
+        file_type='file', file_repository_id__in=file_repo_ids
+    ).select_related('file_repository', 'file_repository__storage_node',
+                     'storage_node')
+
+
+def export_files(keyword):
+    """Export iSite archive of files and text to an s3 bucket."""
+    s3_bucket = settings.AWS_EXPORT_BUCKET_ISITES_FILES
+    logger.info("Beginning iSites file export for keyword %s to S3 bucket %s",
+                keyword, s3_bucket)
+
+    # Topics by keyword - iteration returns a simple dict with id and title
+    topics = Topic.objects.filter(site__keyword=keyword).exclude(
+        Q(tool_id__in=settings.EXPORT_FILES_EXCLUDED_TOOL_IDS) |
+        Q(title__in=settings.EXPORT_FILES_EXCLUDED_TOPIC_TITLES)
+    ).values('topic_id', 'title')
+
+    topic_count = topics.count()
+
+    if not topic_count:
+        raise Exception("No topics exist for site keyword %s" % keyword)
+
+    logger.info('Attempting to export files and text for %d topics',
+                topic_count)
+
+    # Construct a dict lookup of cleaned up title by topic id
+    topic_file_repo_ids = []
+    topic_titles_by_id = {}
+    for topic in topics:
+        topic_id = topic['topic_id']
+        topic_title = get_valid_filename(topic['title'])
+        # Prevent overwriting of files within topics that are named the same
+        topic_title += "_%d" % topic_id
+        topic_titles_by_id[topic_id] = topic_title
+        topic_file_repo_ids.append("icb.topic%d.files" % topic_id)
+
+    zip_filename = os.path.join(settings.EXPORT_DIR, "%s%s.zip" %
+                                (settings.EXPORT_ARCHIVE_FILENAME_PREFIX,
+                                 keyword))
+    logger.info('Creating zip file %s to store archive' % zip_filename)
+
+    # Write files and text directly to the archive as we go.  Allow for ZIP64
+    # extension to accomodate zip files > 2GB
+    with zipfile.ZipFile(zip_filename, 'w', zipfile.ZIP_STORED, True) as z_file:
+        # Export all files
+        for file_node in _get_file_nodes_by_file_repo_id(topic_file_repo_ids):
+            # Use some regex magic to extract the numeric topic id string
+            # from the file repository id (i.e. "icb.topic123.files")
+            # http://stackoverflow.com/questions/10365225
+            topic_id_str = re.findall(r'\d+', file_node.file_repository_id)[0]
+            logger.debug("topic id for file node %d is %s",
+                         file_node.file_node_id, topic_id_str)
+            _export_topic_file(file_node, topic_titles_by_id[int(topic_id_str)],
+                               keyword, z_file)
+        # Export all text
+        for text in _get_topic_text_by_topic_id(list(topic_titles_by_id)):
+            _export_topic_text(text, topic_titles_by_id[text.topic_id],
+                               keyword, z_file)
 
         # Only include the README if defined
         if hasattr(settings, 'EXPORT_FILES_README_FILENAME'):
-            _export_readme(keyword)
+            _export_readme(keyword, z_file)
 
-        query_set = Topic.objects.filter(site=site).exclude(
-            Q(tool_id__in=settings.EXPORT_FILES_EXCLUDED_TOOL_IDS) |
-            Q(title__in=settings.EXPORT_FILES_EXCLUDED_TOPIC_TITLES)
-        ).only(
-            'topic_id', 'title'
-        )
-        logger.info('Attempting to export files for %d topics', query_set.count())
-        for topic in query_set:
-            if topic.title:
-                topic_title = topic.title.strip().replace(' ', '_')
-            else:
-                topic_title = 'no_title_%s' % topic.topic_id
+    # Calculate the size of the archive for log purposes
+    uncompressed_size = os.stat(zip_filename).st_size
 
-            file_repository_id = "icb.topic%s.files" % topic.topic_id
-            try:
-                file_repository = FileRepository.objects.select_related('storage_node').only(
-                    'file_repository_id', 'storage_node'
-                ).get(file_repository_id=file_repository_id)
-                _export_file_repository(file_repository, keyword, topic_title)
-            except FileRepository.DoesNotExist:
-                logger.info("FileRepository does not exist for %s", file_repository_id)
-                continue
+    logger.info('Uncompressed: %s bytes' % uncompressed_size)
 
-            _export_topic_text(topic, keyword, topic_title)
+    _upload_zip_file_to_s3(zip_filename, s3_bucket, "%s.zip" % keyword)
 
-        zip_path_index = len(settings.EXPORT_DIR) + 1
-        keyword_export_path = os.path.join(settings.EXPORT_DIR, settings.EXPORT_ARCHIVE_FILENAME_PREFIX + keyword)
-        zip_filename = os.path.join(settings.EXPORT_DIR, "%s%s.zip" % (settings.EXPORT_ARCHIVE_FILENAME_PREFIX, keyword))
+    os.remove(zip_filename)  # Cleanup the archive on disk
 
-        # we want to log the size of the data we exporting per TLT-2099
-        logger.info('Creating zip file %s' % zip_filename)
-        z_file = zipfile.ZipFile(zip_filename, 'w')
-        compressed_size = 0
-        uncompressed_size = 0
-        for root, dirs, files in os.walk(keyword_export_path):
-            for file in files:
-                file_path = os.path.join(root, file)
-                z_file.write(file_path, file_path[zip_path_index:])
-                z_info = z_file.getinfo(file_path[zip_path_index:])
-                compressed_size += z_info.compress_size
-                uncompressed_size += z_info.file_size
-        z_file.close()
+    logger.info("Finished exporting files for keyword %s to S3 bucket %s",
+                keyword, s3_bucket)
 
-        logger.info('Compressed: %s bytes' % compressed_size)
-        logger.info('Uncompressed: %s bytes' % uncompressed_size)
-
-        shutil.rmtree(keyword_export_path)
-
-        export_key = "%s.zip" % keyword
-
-        _upload_zip_file_to_s3(zip_filename, s3_bucket, export_key)
-
-        logger.info("Uploaded file export for keyword %s to S3 Key %s", keyword, export_key)
-
-        os.remove(zip_filename)
-
-        logger.info("Finished exporting files for keyword %s to S3 bucket %s", keyword, s3_bucket)
-    except Exception:
-        message = "Failed to complete file export for keyword %s", keyword
-        logger.exception(message)
-        raise RuntimeError(message)
+    return ("%s.zip", uncompressed_size)
 
 
 def import_files(keyword, canvas_course_id):
-    try:
-        progress_url = create_canvas_content_migration(keyword, canvas_course_id)
+    progress_url = create_canvas_content_migration(keyword, canvas_course_id)
 
-        workflow_state = 'processing'
-        while workflow_state not in ['completed', 'failed']:
-            time.sleep(2)
-            progress = SDK_CONTEXT.session.request('GET', progress_url).json()
-            workflow_state = progress['workflow_state']
-            if workflow_state == 'completed':
-                lock_canvas_folder(canvas_course_id, settings.EXPORT_ARCHIVE_FILENAME_PREFIX + keyword)
-    except Exception:
-        message = "Failed to complete file import for keyword %s", keyword
-        logger.exception(message)
-        raise RuntimeError(message)
-
+    workflow_state = 'processing'
+    while workflow_state not in ['completed', 'failed']:
+        time.sleep(2)
+        progress = SDK_CONTEXT.session.request('GET', progress_url).json()
+        workflow_state = progress['workflow_state']
+        if workflow_state == 'completed':
+            lock_canvas_folder(canvas_course_id, settings.EXPORT_ARCHIVE_FILENAME_PREFIX + keyword)
     return workflow_state
 
 
@@ -252,7 +254,7 @@ def get_previous_isites(course_instance_id):
     # the course instance's list of enrollment viewer managers intersects
     # with the current course instance's list of enrollment viewer managers
     for previous_instance_id in previous_instance_ids:
-        sites = [{'keyword' : m.course_site.external_id,
+        sites = [{'keyword': m.course_site.external_id,
                   'title': m.course_instance.title,
                   'term': m.course_instance.term.display_name,
                   'calendar_year': m.course_instance.term.calendar_year } for m in SiteMap.objects.filter(
@@ -267,108 +269,86 @@ def get_previous_isites(course_instance_id):
 
     # sort the dicts by calendar_year in descending order
     if previous_sites:
-        previous_sites = sorted(previous_sites, key=lambda x: x[u'calendar_year'], reverse=True)
+        previous_sites = sorted(previous_sites, key=lambda x: x[u'calendar_year'],
+                                reverse=True)
 
     return previous_sites
 
 
-def _export_file_repository(file_repository, keyword, topic_title):
-    logger.info("Exporting files for file_repository %s", file_repository.file_repository_id)
-    query_set = FileNode.objects.filter(
-        file_repository=file_repository,
-        file_type='file'
-    ).select_related('storage_node').only(
-        'file_node_id', 'file_type', 'storage_node', 'physical_location', 'file_path', 'file_name', 'encoding'
-    )
-    for file_node in query_set:
-        if file_node.storage_node:
-            storage_node_location = file_node.storage_node.physical_location
-        elif file_repository.storage_node:
-            storage_node_location = file_repository.storage_node.physical_location
-        else:
-            logger.error("Failed to find storage node for file node %d", file_node.file_node_id)
-            continue
+def _export_topic_file(file_node, topic_title, keyword, zip_file):
+    logger.debug(u"Exporting file node %s for topic %s",
+                 file_node.file_node_id, topic_title)
+    # There should always be a storage node for topic files, either in the node
+    # itself or in the repository
+    if file_node.storage_node:
+        storage_node_loc = file_node.storage_node.physical_location
+    else:
+        storage_node_loc = file_node.file_repository.storage_node.physical_location
 
-        physical_location = file_node.physical_location.lstrip('/')
-        if not physical_location:
-            # Assume non fs-cow file and use file_path and file_name to construct physical location
-            physical_location = u"{}{}{}".format(
-                file_repository.file_repository_id,
-                file_node.file_path,
-                file_node.file_name
-            )
-        source_file = os.path.join(storage_node_location, physical_location)
-        export_file = to_bytes(os.path.join(
-            settings.EXPORT_DIR,
-            settings.EXPORT_ARCHIVE_FILENAME_PREFIX + keyword,
-            to_unicode(topic_title),
-            to_unicode(file_node.file_path.lstrip('/')),
-            to_unicode(file_node.file_name.lstrip('/'))
-        ))
-        try:
-            os.makedirs(os.path.dirname(export_file))
-        except os.error:
-            pass
+    # Determine if we're dealing with an fs-docs storage node or an fs-cow
+    if 'fs-docs' in storage_node_loc:
+        # For pre-COW files, we need to construct the physical file location
+        # ourselves
+        physical_file_loc = os.path.join(
+            file_node.file_repository_id,
+            file_node.file_path.lstrip('/'),
+            file_node.file_name
+        )
+    else:
+        physical_file_loc = file_node.physical_location.lstrip('/')
 
+    source_file = os.path.join(
+        keyword, storage_node_loc, physical_file_loc
+    ).encode('utf8')
+
+    export_file = os.path.join(
+        keyword, topic_title, file_node.file_path.lstrip('/'),
+        file_node.file_name
+    ).encode('utf8')
+
+    try:
         if file_node.encoding == 'gzip':
-            try:
-                with gzip.open(source_file, 'rb') as s_file:
-                    with open(export_file, 'w') as d_file:
-                        for line in s_file:
-                            d_file.write(to_bytes(line, 'utf8'))
-            except IOError:
-                logger.exception(
-                    u"Failed to export file node %d from file repository %s in keyword %s",
-                    file_node.file_node_id,
-                    file_repository.file_repository_id,
-                    keyword
-                )
-                continue
+            #  Read the whole file as a byte string and write it to the archive
+            with gzip.open(source_file, 'rb') as s_file:
+                zip_file.writestr(export_file, s_file.read())
         else:
-            try:
-                shutil.copy(source_file, export_file)
-            except IOError:
-                logger.exception("Could not find source file %s", source_file)
-                continue
+            zip_file.write(source_file, export_file)
 
         # Encoding source_file so the log string remains a bytestring
-        logger.info("Copied file %s to export location %s", source_file.encode('utf-8'), export_file)
+        logger.debug("Copied file %s to archive location %s",
+                     source_file, export_file)
+    except (IOError, OSError):
+        logger.exception(
+            u"Failed to export file node %d from file repository %s",
+            file_node.file_node_id,
+            file_node.file_repository_id
+        )
 
 
-def _export_topic_text(topic, keyword, topic_title):
-    logger.info("Exporting text for topic %d %s", topic.topic_id, topic_title)
-    for topic_text in TopicText.objects.filter(topic_id=topic.topic_id).only('text_id', 'name', 'source_text'):
-        export_file = to_bytes(os.path.join(
-            settings.EXPORT_DIR,
-            settings.EXPORT_ARCHIVE_FILENAME_PREFIX + keyword,
-            to_unicode(topic_title),
-            to_unicode(topic_text.name.lstrip('/'))
-        ))
-        try:
-            os.makedirs(os.path.dirname(export_file))
-        except os.error:
-            pass
+def _export_topic_text(topic_text, topic_title, keyword, zip_file):
+    logger.debug(u"Exporting text for topic %d %s",
+                 topic_text.topic_id, topic_title)
 
-        with open(export_file, 'w') as f:
-            f.write(to_bytes(topic_text.source_text, 'utf8'))
+    export_file = os.path.join(
+        keyword,
+        topic_title,
+        # Prevent overwriting of text with same name within a topic
+        "%d_" % topic_text.text_id + get_valid_filename(topic_text.name)
+    ).encode('utf-8')
 
-        logger.info("Copied TopicText %d to export location %s", topic_text.text_id, export_file)
+    zip_file.writestr(export_file, topic_text.processed_text.encode('utf8'))
+
+    logger.debug("Copied TopicText %d to export location %s",
+                 topic_text.text_id, export_file)
 
 
-def _export_readme(keyword):
+def _export_readme(keyword, zip_file):
+    logger.debug("Exporting readme file for keyword %s", keyword)
     readme_template = get_template('isites_migration/export_files_readme.html')
     content = readme_template.render(Context({}))
-    readme_file = os.path.join(
-        settings.EXPORT_DIR,
-        settings.EXPORT_ARCHIVE_FILENAME_PREFIX + keyword,
-        settings.EXPORT_FILES_README_FILENAME
-    )
-    try:
-        os.makedirs(os.path.dirname(readme_file))
-    except os.error:
-        pass
-    with open(readme_file, 'w') as f:
-        f.write(content)
+    readme_file = settings.EXPORT_FILES_README_FILENAME
+    zip_file.writestr(os.path.join(keyword, readme_file), content)
+    logging.debug("Copied Readme file to export location %s", readme_file)
 
 
 def _upload_zip_file_to_s3(filename, s3_bucket, s3_key):
