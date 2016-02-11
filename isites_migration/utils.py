@@ -111,8 +111,9 @@ def export_files(keyword):
                                  keyword))
     logger.info('Creating zip file %s to store archive' % zip_filename)
 
-    # Write files and text directly to the archive as we go
-    with zipfile.ZipFile(zip_filename, 'w') as z_file:
+    # Write files and text directly to the archive as we go.  Allow for ZIP64
+    # extension to accomodate zip files > 2GB
+    with zipfile.ZipFile(zip_filename, 'w', zipfile.ZIP_STORED, True) as z_file:
         # Export all files
         for file_node in _get_file_nodes_by_file_repo_id(topic_file_repo_ids):
             # Use some regex magic to extract the numeric topic id string
@@ -132,8 +133,8 @@ def export_files(keyword):
         if hasattr(settings, 'EXPORT_FILES_README_FILENAME'):
             _export_readme(keyword, z_file)
 
-        # Calculate the size of the archive for log purposes
-        uncompressed_size = sum(info.file_size for info in z_file.infolist())
+    # Calculate the size of the archive for log purposes
+    uncompressed_size = os.stat(zip_filename).st_size
 
     logger.info('Uncompressed: %s bytes' % uncompressed_size)
 
@@ -143,6 +144,8 @@ def export_files(keyword):
 
     logger.info("Finished exporting files for keyword %s to S3 bucket %s",
                 keyword, s3_bucket)
+
+    return ("%s.zip", uncompressed_size)
 
 
 def import_files(keyword, canvas_course_id):
@@ -330,7 +333,7 @@ def _export_topic_text(topic_text, topic_title, keyword, zip_file):
         keyword,
         topic_title,
         # Prevent overwriting of text with same name within a topic
-        get_valid_filename(topic_text.name) + "_%d" % topic_text.text_id
+        "%d_" % topic_text.text_id + get_valid_filename(topic_text.name)
     ).encode('utf-8')
 
     zip_file.writestr(export_file, topic_text.processed_text.encode('utf8'))
