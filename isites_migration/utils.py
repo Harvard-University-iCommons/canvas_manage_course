@@ -330,13 +330,20 @@ def _export_topic_text(topic_text, topic_title, keyword, zip_file):
     logger.debug(u"Exporting text for topic %d %s",
                  topic_text.topic_id, topic_title)
 
+    # Prevent overwriting of text with same name within a topic by
+    # prepending topic text id.
+    topic_text_filename = "%d_%s" % (topic_text.text_id,
+                                     get_valid_filename(topic_text.name))
+
+    # Processed topic text is HTML, so append the .html extension if not already
+    # present
+    if not topic_text_filename.endswith(".html"):
+        topic_text_filename += ".html"
+
     export_file = os.path.join(
         keyword,
         topic_title,
-        # Prevent overwriting of text with same name within a topic by
-        # prepending topic text id.
-        "%d_%s.html" % (topic_text.text_id,
-                        get_valid_filename(topic_text.name))
+        topic_text_filename,
     ).encode('utf-8')
 
     zip_file.writestr(export_file, topic_text.processed_text.encode('utf8'))
