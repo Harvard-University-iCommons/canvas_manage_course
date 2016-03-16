@@ -5,22 +5,22 @@ import time
 import gzip
 import json
 import ssl
-import boto3
 import re
 
+import boto3
 from django.conf import settings
 from django.db.models import Q
 from django.template.loader import get_template
 from django.template import Context
 from django.db import connections
 from django.utils.text import get_valid_filename
+from canvas_sdk.methods import content_migrations, files
+from canvas_sdk.exceptions import CanvasAPIError
+
 from icommons_common.models import (
     Topic, FileNode, TopicText, CourseInstance, SiteMap, Course
 )
 from icommons_common.canvas_utils import SessionInactivityExpirationRC
-
-from canvas_sdk.methods import content_migrations, files
-from canvas_sdk.exceptions import CanvasAPIError
 
 logger = logging.getLogger(__name__)
 SDK_CONTEXT = SessionInactivityExpirationRC(**settings.CANVAS_SDK_SETTINGS)
@@ -62,6 +62,7 @@ def get_school(course_instance_id, canvas_course_id):
 def _get_topic_text_by_topic_id(topic_ids):
     """Filter topic text on list of topic ids."""
     return TopicText.objects.filter(
+
         topic_id__in=topic_ids,
         source_text__isnull=False,
     ).only('text_id', 'topic_id', 'name', 'processed_text')
@@ -114,7 +115,7 @@ def export_files(keyword):
     # Write files and text directly to the archive as we go.  Allow for ZIP64
     # extension to accomodate zip files > 2GB
     with zipfile.ZipFile(zip_filename, 'w', zipfile.ZIP_STORED, True) as z_file:
-        # Export all files
+        # Export all files 
         for file_node in _get_file_nodes_by_file_repo_id(topic_file_repo_ids):
             # Use some regex magic to extract the numeric topic id string
             # from the file repository id (i.e. "icb.topic123.files")
@@ -329,11 +330,20 @@ def _export_topic_text(topic_text, topic_title, keyword, zip_file):
     logger.debug(u"Exporting text for topic %d %s",
                  topic_text.topic_id, topic_title)
 
+    # Prevent overwriting of text with same name within a topic by
+    # prepending topic text id.
+    topic_text_filename = "%d_%s" % (topic_text.text_id,
+                                     get_valid_filename(topic_text.name))
+
+    # Processed topic text is HTML, so append the .html extension if not already
+    # present
+    if not topic_text_filename.endswith(".html"):
+        topic_text_filename += ".html"
+
     export_file = os.path.join(
         keyword,
         topic_title,
-        # Prevent overwriting of text with same name within a topic
-        "%d_" % topic_text.text_id + get_valid_filename(topic_text.name)
+        topic_text_filename,
     ).encode('utf-8')
 
     zip_file.writestr(export_file, topic_text.processed_text.encode('utf8'))
