@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 def tool_config(request):
     url = "%s://%s%s" % (request.scheme, request.get_host(),
                          reverse('lti_launch', exclude_resource_link_id=True))
-    title = 'Course Admin Tasks'
+    title = 'Manage Course'
     lti_tool_config = ToolConfig(
         title=title,
         launch_url=url,
