@@ -4,11 +4,11 @@
  
 # below are requirements specific to the local environment
 
-django-debug-toolbar==1.3.2
-django-sslserver==0.15
+django-debug-toolbar==1.4
+django-sslserver==0.18
 mock==1.3.0
-pep8==1.6.2
-flake8==2.4.1
+pep8==1.7.0
+flake8==2.5.1
 
 # icommons_common unit tests depend on ccsw, and ccsw depends on icommons_common.
 # until ccsw gets its own proper project, and we move the delete command out of
