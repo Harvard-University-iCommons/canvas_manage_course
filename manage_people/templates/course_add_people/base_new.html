@@ -1,0 +1,78 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="{% static "favicon.ico" %}" rel="icon" type="image/x-icon">
+    {% block stylesheet %}
+        {% block fonts %}{% endblock fonts %}
+        <link rel="stylesheet" type="text/css" href="{% static "lti-css/manage-people.css" %}" media="screen"/>
+        <link rel="stylesheet" type="text/css" href="{% static "font-awesome-4.2.0/css/font-awesome.min.css" %}" media="screen"/>
+        <link rel="stylesheet" type="text/css" href="{% static "manage_people/css/base.css" %}" media="screen"/>
+    {% endblock stylesheet %}
+    <title>{% block page_title %}{% endblock page_title %}</title>
+</head>
+{% block bodytag %}<body class="lti-tool" role="application">{% endblock bodytag %}
+    {% if messages %}
+        {% for message in messages %}
+            {% if message.tags == 'error' %}
+                <div class="alert alert-danger alert-dismissable">
+            {% else %}
+                <div class="alert alert-{{ message.tags }} alert-dismissable">
+            {% endif %}
+            <button type="button" class="close" data-dismiss="alert">&times;</button>
+
+            {% comment %}
+                {% if message.tags == 'success' %}
+                    <i class="h3 fa fa-check-circle"></i>
+                {% endif %}
+
+                {% if message.tags == 'info' %}
+                    <i class="h3 fa fa-info-circle"></i>
+                {% endif %}
+
+                {% if message.tags == 'warning' %}
+                    <i class="h3 fa fa-exclamation-circle"></i>
+                {% endif %}
+
+                {% if message.tags == 'error' %}
+                    <i class="h3 fa fa-times-circle"></i>
+                {% endif %}
+            {% endcomment %}
+
+            {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    {% if not_found %}
+        <div class="alert-danger"><p><strong>This Canvas course site has not been properly configured: it is not associated with a valid course record.</strong></p></div>
+    {% else %}
+        <header>
+            <h1>{% block breadcrumbs %}{% endblock breadcrumbs %}</h1>
+        </header>
+        <main class="float-left col-60">
+          {% block content %}{% endblock content %}
+        </main>
+        <aside class="float-left col-40 clearfix">
+            <p>
+                The University has a legal responsibility to protect the privacy of students and the confidentiality of student records. Adding a member to the teaching staff of this course will allow them to view both "directory information" (i.e. student's name) and "non-directory information" (i.e. student's Harvard University ID#) for the students included in this course. The course list may include students who have asked that we not release any information about them, including the fact that they attend classes at Harvard. By adding a person to the teaching staff you are granting them access to view this information; others are not permitted to view these records. For these reasons, all members of the teaching staff should be reminded to keep this information confidential. If you have any questions, please contact the Office of the Registrar.
+            </p>
+        </aside>
+
+        {% block footer %}{% endblock footer %}
+
+        {% block javascript %}
+            {% if debug %}
+                <script src="{% static "harvard-bootstrap/js/less-1.5.0.min.js" %}"></script>
+            {% endif %}
+            <script src="{% static "jquery-1.10.2/jquery-1.10.2.min.js" %}"></script>
+            <script src="{% static "underscore-1.8.2/underscore.min.js" %}"></script>
+            <script src="{% static "bootstrap-3.0.3/dist/js/bootstrap.min.js" %}"></script>
+            <script src="{% static "bootstrap-datepicker/js/bootstrap-datepicker.js" %}"></script>
+            <script src="{% static "listjs/list.min.js" %}"></script>
+        {% endblock javascript %}
+    {% endif %}
+</body>
+</html>

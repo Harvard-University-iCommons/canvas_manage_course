@@ -1,0 +1,165 @@
+{% extends "manage_people/base_new.html" %}
+
+{% load manage_people_tags %}
+{% load static %}
+
+{% block breadcrumbs %}<a href="{% url 'mp:user_form' %}">Manage People</a> <i class="fa fa-chevron-right"></i> Add People{% endblock breadcrumbs %}
+
+{% block content %}
+    <div class="infoBlock-error alert-lti hidden">
+        <ul>
+            <li class="email hidden"><strong>You must choose at least one directory record</strong></li>
+            <li class="missing-role hidden"><strong>You must choose a role for the directory records you have selected.</strong></li>
+        </ul>
+    </div>
+
+    {% if error_messages %}
+        <div class="infoBlock-error">
+            {% for error in error_messages %}
+                <ul>
+                    <li><strong>{{ error }}</strong></li>
+                </ul>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    {% if results|length == 1 %}
+
+        {% for univ_id, person in results.items %}
+            {% if univ_id in enrolled_roles_by_id %}
+                <p><strong>{{ user_search_term }}</strong> was found in the course:</p>
+                <p>{{ person.name_first }} {{ person.name_last }} has the following email/id and role associated with this course:</p>
+            {% else %}
+                <p><strong>{{ user_search_term }}</strong> was found in the directory.</p>
+                <h3>Choose a role for {{ person.name_first }} {{ person.name_last }} to be added to this course</h3>
+            {% endif %}
+        {% endfor %}
+
+    {% else %}
+
+        {% if enrolled_roles_by_id|length != 0 %}
+            <!-- if the user is already in course AND has other available IDs -->
+            <p><strong>{{ user_search_term }}</strong> was found in the course:</p>
+            <p>{{ found_person.name_first }} {{ found_person.name_last }} has the following email/ids and roles associated with this course:</p>
+        {% else %}
+            <p><strong>{{ user_search_term }}</strong> was found in the directory and has {{ results|length }} IDs that can be added to this course</p>
+            <h3>Add to course by selecting <span class="label">ID</span>(s) and by choosing a role</h3>
+        {% endif %}
+
+    {% endif %}
+
+    <!-- list of ids already in course -->
+    {% if enrolled_roles_by_id|length != 0 %}
+        <ul id="existing_enrollments_list" class="list-with-floats">
+          {% for _, person in results.items %}
+            {% for univ_id, roles in enrolled_roles_by_id.items %}
+              {% for role_canvas_name in roles %}
+                <li data-univ-id="{{ univ_id }}" data-role="{{ role_canvas_name }}">
+                  {{ person.email_address }} <span class="label">{{ person.badge_label_name }}</span>
+                  <span class="float-right text-strong">
+                    Enrolled as a {{ role_canvas_name|get_role_display_name }}
+                  </span>
+                </li>
+              {% endfor %}
+            {% endfor %}
+          {% endfor %}
+        </ul>
+
+        {% if unique_results %}
+            <!-- if the user is already in course AND has other available IDs -->
+            <h3>Additional IDs found:</h3>
+            <p>
+                {% if found_person %} {{ found_person.name_first }} {{ found_person.name_last }} {% else %} {{ user_search_term }} {% endif %}
+                has additional IDs that could be added to this course.
+            </p>
+            <a id="form-show" href="#" class="btn-toggle show-inline"><i class="fa fa-toggle-down"></i> Show Additional IDs</a>
+        {% endif %}
+
+    {% endif %}
+
+    <form id="add_users_form" class="form {% if enrolled_roles_by_id|length != 0 and unique_results %} hidden {% endif %}" method="post" action="{% url 'mp:add_users' %}" role="form">{% csrf_token %}
+        <input type="hidden" name="user_search_term" value="{{ user_search_term }}" >
+        <input type="hidden" name="users_to_add" value="{}" >
+
+        {% if unique_results %}
+            <fieldset id="matching-records" class="users-found hidden">
+                
+                <ul class="list-with-floats">
+                    {% for key, result in unique_results.items %}
+                        <li>
+                            {% if results|length == 1 %}
+                                <input id="record-{{ forloop.counter }}" type="checkbox" class="sr-only" name="add_user_id_{{ forloop.counter }}" value="{{ result.univ_id }}" checked>
+                            {% else %}
+                                <input id="record-{{ forloop.counter }}" type="checkbox" name="add_user_id_{{ forloop.counter }}" value="{{ result.univ_id }}">
+                            {% endif %}
+                            <label class="plain" for="record-{{ forloop.counter }}">
+                                {{ result.name_first }} {{ result.name_last }} ({{ result.email_address }})
+                                <span class="label">{{ result.badge_label_name }}</span>
+                            </label>
+                            
+                            <div class="float-right">
+                                <label for="select-role-{{ forloop.counter }}"><span class="sr-only">Add as a:</span></label>
+                                {# todo: Consider user id data directly into id param; need to check where id is used in current code #}
+                                <select id="select-role-{{ forloop.counter }}" class="disabled" name="select_role_id_{{ forloop.counter }}" data-selenium-user-id="{{ result.univ_id }}">
+                                    <option value="choose">Choose role</option>
+                                    {% for user_role in available_roles %}
+                                        {% if result.badge_label_name != 'XID' or user_role.xid_allowed %}
+                                            <option value={{ user_role.role_id }}
+                                                    data-role="{{ user_role.role_id }}">
+                                              {{ user_role.role_name|tf_to_ta_filter }}
+                                            </option>
+                                        {% endif %}
+                                     {% endfor %}
+                                </select>
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </fieldset>
+        {% endif %}
+
+        <div class="text-right">
+            {% if enrolled_roles_by_id|length != 0 and unique_results %}
+                <a id="form-hide" href="#" class="btn-toggle float-left"><i class="fa fa-toggle-up"></i> Hide Additional IDs</a>
+            {% endif %}
+            <a id="cancel_add_to_course" href="{% url 'mp:user_form' %}" class="users-found hidden">Cancel</a>
+            <button id="user_create_button" class="btn-disabled users-found hidden" type="submit" data-loading-text="Adding to course...">Add to course</button>
+            <a id="find_another_user" href="{% url 'mp:find_user' %}" class="users-not-found hidden">Search for a different person</a>
+            <a id="back_to_user_form" href="{% url 'mp:user_form' %}" class="users-not-found hidden">Go back to Manage People</a>
+        </div>
+        
+    </form>
+
+
+    <div class="infoBlock-help users-found hidden">
+        <p>Not who you were searching for? <a href="{% url 'mp:find_user' %}">Search for a different person</a></p>
+    </div>
+
+    {% if enrolled_roles_by_id|length != 0 and unique_results %}
+        <div class="text-right">
+            <a id="back_to_user_form" href="{% url 'mp:user_form' %}" class="users-not-found">Go back to Manage People</a>
+        </div>
+    {% endif %}
+
+{% endblock content %}
+
+{% block footer %}
+    <iframe allowfullscreen="true"
+            class="legend-roles"
+            frameBorder="0"
+            height="600em"
+            id="role-info"
+            mozallowfullscreen="true"
+            name="role-info"
+            src="https://wiki.harvard.edu/confluence/plugins/viewsource/viewpagesrc.action?pageId=181077213"
+            style="margin-top: 2em;"
+            tabindex="0"
+            webkitallowfullscreen="true" width="100%">
+    </iframe>
+{% endblock footer %}
+
+{% block javascript %}
+    {{ block.super }}
+    <script src="{% static "manage_people/js/results_list.js" %}"></script>
+
+{% endblock javascript %}
