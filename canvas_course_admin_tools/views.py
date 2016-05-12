@@ -9,8 +9,6 @@ from django.views.decorators.http import require_http_methods
 
 from ims_lti_py.tool_config import ToolConfig
 
-from async.models import Process
-
 from isites_migration.utils import get_previous_isites
 
 
@@ -21,7 +19,7 @@ logger = logging.getLogger(__name__)
 def tool_config(request):
     url = "%s://%s%s" % (request.scheme, request.get_host(),
                          reverse('lti_launch', exclude_resource_link_id=True))
-    title = 'Import iSites Content'
+    title = 'Course Admin Tasks'
     lti_tool_config = ToolConfig(
         title=title,
         launch_url=url,
@@ -48,13 +46,14 @@ def tool_config(request):
 @require_http_methods(['POST'])
 @csrf_exempt
 def lti_launch(request):
-    return redirect('isites_migration:index')
+    return redirect('dashboard_course')
 
 
 @login_required
 def dashboard_course(request):
     course_instance_id = request.LTI.get('lis_course_offering_sourcedid')
-    # Check to see if we have any iSites that are available for migration to this Canvas course
+    # Check to see if we have any iSites that are available for migration to
+    # this Canvas course
     icm_active = len(get_previous_isites(course_instance_id)) > 0
     return render(request, 'canvas_course_admin_tools/dashboard_course.html', {
         'icm_active': icm_active
