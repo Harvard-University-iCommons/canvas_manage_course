@@ -17,18 +17,25 @@
 <main>
 <div class="row">
   <div class="col-md-6">
-    {% if icm_active %}
+
       <div class="list-group">
+        {% if icm_active %}
         <a href="{% url 'isites_migration:index' %}"
            class="list-group-item active">
           <h4 class="list-group-item-heading"> Import iSites Content </h4>
           <p class="list-group-item-text">
             Migrate content from a previous term's Course iSite to this
-            Canvas course
+            Canvas course<br />
           </p>
         </a>
+        {% else %}
+        <div class="list-group-item active">
+          <h4 class="list-group-item-heading"> Import iSites Content </h4>
+          <p class="list-group-item-text">Course has no previous isites to import from</p>
+          </div>
+        {% endif %}
       </div>
-    {% endif %}
+
     <div class="list-group">
       <a href="{% url 'manage_people:user_form' %}"
          class="list-group-item active">
