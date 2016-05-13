@@ -4,7 +4,6 @@ from .views import MonitorResponseView
 
 urlpatterns = patterns(
     '',
-    url(r'^$', 'manage_sections.views.index', name='index'),
     url(r'^create_section_form$', 'manage_sections.views.create_section_form', name='create_section_form'),
     url(r'^create_section$', 'manage_sections.views.create_section', name='create_section'),
     url(r'^edit_section/(?P<section_id>\d+)$', 'manage_sections.views.edit_section', name='edit_section'),

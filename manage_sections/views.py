@@ -117,51 +117,6 @@ def _add_badge_label_name_to_enrollments(enrollments):
     return enrollments
 
 
-@require_http_methods(['GET'])
-def index(request):
-    logger.info("request to index.")
-    return render(request, 'manage_sections/index.html')
-
-
-@require_http_methods(['GET'])
-def tool_config(request):
-    if request.is_secure():
-        host = 'https://' + request.get_host()
-    else:
-        host = 'http://' + request.get_host()
-
-    url = host + reverse('manage_sections:lti_launch', exclude_resource_link_id=True)
-
-    lti_tool_config = ToolConfig(
-        title='Manage Sections Tool',
-        launch_url=url,
-        secure_launch_url=url,
-    )
-    # this is how to tell Canvas that this tool provides a course navigation link:
-    course_nav_params = {
-        'enabled': 'true',
-        # optionally, supply a different URL for the link:
-        # 'url': 'http://library.harvard.edu',
-        'text': 'Manage Sections',
-        'default': 'disabled',
-        'visibility': 'admins',
-    }
-    lti_tool_config.set_ext_param('canvas.instructure.com', 'course_navigation', course_nav_params)
-    lti_tool_config.set_ext_param('canvas.instructure.com', 'privacy_level', 'public')
-
-    lti_tool_config.description = 'Use this tool to create and manage course sections.'
-
-    resp = HttpResponse(lti_tool_config.to_xml(), content_type='text/xml', status=200)
-    return resp
-
-
-@login_required
-@lti_role_required([const.INSTRUCTOR, const.TEACHING_ASSISTANT, const.ADMINISTRATOR, const.CONTENT_DEVELOPER])
-@require_http_methods(['POST'])
-def lti_launch(request):
-    return redirect('manage_sections:create_section_form')
-
-
 @login_required
 @lti_role_required([const.INSTRUCTOR, const.TEACHING_ASSISTANT, const.ADMINISTRATOR, const.CONTENT_DEVELOPER])
 @require_http_methods(['GET'])
