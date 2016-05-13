@@ -27,20 +27,21 @@ DEBUG = SECURE_SETTINGS.get('enable_debug', False)
 # Application definition
 
 INSTALLED_APPS = (
+    'async',
+    'canvas_course_admin_tools',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_auth_lti',
-    'icommons_common',
-    'lti_permissions',
-    'async',
     'django_rq',
-    'icommons_ui',
     'djangular',
-    'canvas_course_admin_tools',
+    'icommons_common',
+    'icommons_ui',
     'isites_migration',
+    'lti_permissions',
+    'manage_people',
 )
 
 MIDDLEWARE_CLASSES = (
