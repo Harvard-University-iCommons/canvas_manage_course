@@ -38,17 +38,19 @@ INSTALLED_APPS = (
     'django_rq',
     'djangular',
     'icommons_common',
+    'icommons_common.monitor',
     'icommons_ui',
     'isites_migration',
     'lti_permissions',
     'manage_people',
+    'manage_sections',
 )
 
 MIDDLEWARE_CLASSES = (
     'djangular.middleware.DjangularUrlMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+    # 'django.middleware.csrf.CsrfViewMiddleware',
     'cached_auth.Middleware',
     'django_auth_lti.middleware_patched.MultiLTILaunchAuthMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -287,4 +289,6 @@ MANAGE_PEOPLE_BADGE_LABELS = {
     'other': 'OTHER',
 }
 
-
+MANAGE_SECTIONS = {
+    'TEST_STUDENT_ROLE': 'StudentViewEnrollment'
+}

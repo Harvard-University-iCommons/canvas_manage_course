@@ -1,0 +1,24 @@
+<li id="{{section.id}}"  class="list-group-item courseSection">
+    <div class="deleteMenu">
+    {% if section.registrar_section_flag %}
+        <a href="#" class="disable-delete lti-tooltip" rel="tooltip" data-toggle="tooltip" title="You can't delete sections that have been created outside of Canvas" data-original-title="You can't delete sections that have been created outside of Canvas"><i class="fa fa-trash-o"></i></a>
+    {% elif section.enrollment_count|slugify > '0' %}
+        <a href="#" class="disable-delete lti-tooltip" rel="tooltip" data-toggle="tooltip" title="You can't delete sections that have users enrolled. Remove users from this section first." data-original-title="You can't delete sections that have users enrolled. Remove users from this section first."><i class="fa fa-trash-o"></i></a>
+    {% else %}
+        <a href="{% url 'manage_sections:remove_section' section_id=section.id  %}" class="remove_data lti-tooltip" rel="tooltip" data-toggle="tooltip" title="Delete section" data-original-title="Delete section">
+            <i class="fa fa-trash-o"></i><span class="sr-only">Delete Section</span>
+        </a>
+    {% endif %}
+    </div>
+    <a class="listNav-item showSection" href="{% url 'manage_sections:section_details' section_id=section.id %}">
+        <span class="sectionName">{{ section.name }}</span>
+        (<span class="sectionCount">{{section.enrollment_count}}</span> users)
+    </a>
+    <div class="editMenu">
+    {% if section.registrar_section_flag %}
+        <a href="#" class="disable-delete lti-tooltip" rel="tooltip" data-toggle="tooltip" title="You can't edit sections that have been created outside of Canvas" data-original-title="You can't edit sections that have been created outside of Canvas"><i class="fa fa-pencil"></i><span class="sr-only">Edit</span></a>
+    {% else %}
+        <a href="{% url 'manage_sections:edit_section' section_id=section.id %}" class="editSection lti-tooltip" rel="tooltip" data-toggle="tooltip" title="Edit section name" data-original-title="Edit section name"><i class="fa fa-pencil"></i><span class="sr-only">Edit</span></a>
+    {% endif %}
+    </div>
+</li>

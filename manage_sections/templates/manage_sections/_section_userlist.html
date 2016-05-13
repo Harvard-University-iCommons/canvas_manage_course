@@ -1,0 +1,8 @@
+{% if enrollments %} 
+    <ul id="people-list" class="list-group list-section">
+        {% include "manage_sections/_enrollments_list_by_name.html" with allow_delete=allow_edit enroll_count=enroll_count msgID='message-sectionUsers' %}
+    </ul>
+{% endif %}
+<div {% if enrollments %}style="display:none"{% endif %} class="jumbotron jumbotron-lti-emptySection ">
+    <h4>This section is empty.</h4>
+</div>

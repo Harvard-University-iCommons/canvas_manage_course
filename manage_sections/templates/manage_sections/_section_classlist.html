@@ -1,0 +1,9 @@
+{% if enrollments %}
+    <ul id="people-in-course" class="list-group list-section">
+        {% include "manage_sections/_enrollments_list_by_name.html" with allow_add=allow_edit section_id=section_id msgID='message-fullClassList'%}
+    </ul>
+{% else %}
+    <div class="jumbotron jumbotron-lti-emptySection">
+        <h4>Everyone has been added to this section.</h4>
+    </div>
+{% endif %}

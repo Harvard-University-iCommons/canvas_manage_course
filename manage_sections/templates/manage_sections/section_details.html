@@ -1,0 +1,70 @@
+{% extends "icommons_ui/base_lti.html" %}
+{% load static %}
+
+{% block stylesheet %}
+{{ block.super }}
+<link rel="stylesheet" type="text/css" href="{% static "manage_sections/css/manage_sections.css" %}" media="screen"/>
+{% endblock stylesheet %}
+
+{% block content %}
+<div class="container">
+    <header>
+        <div class="row lti-header">
+            <h1>Manage Sections</h1>
+        </div>
+    </header>
+    <main data-section_id="{{ section_id }}">
+        <div class="row row-lti col-md-8 lti-section">
+            <h3><a href={% url 'manage_sections:create_section_form' %}>All Sections</a> &rsaquo; <span>{{section_name}} (<span class="enroll_count"></span>)</span></h3>
+            <div id="pane-container">                
+                <div id="updateOverlay" class="hide"></div>
+                {% if allow_edit %}
+                    <a id="addUsers" class="pull-right action-link" href="#"><i class="fa fa-plus"></i> Add users to section</a>
+                {% endif %}
+                
+                <div id="pane-left">
+                   {{section_name}}: <span class="enroll_count"></span> assigned student<span class="enroll_count_pluralize"></span>
+                   <div id="sectionUsers">
+                   </div>
+                </div>
+                <div id="pane-right" class="close-right-pane">
+                    {% if allow_edit %}
+                        You have selected <span class="selection_count">0</span> unassigned student<span class="selection_count_pluralize">s</span>
+                        <button class="btn btn-primary pull-right add-selected-users" disabled><i class="fa fa-plus"></i> Add Selection</button>
+                    {% endif %}
+                    <div id="fullClassList">
+                    </div>
+                </div>
+            </div>
+            <div class="modal fade" id="confirmDelUser" tabindex="-1" role="dialog" aria-labelledby="confirmDelUserLabel" aria-hidden="true">
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title" id="confirmDelUserLabel">Confirm Removal</h4>
+                  </div>
+                  <div class="modal-body"></div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="btnConfirmDelUser">Yes, Remove</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock content %}
+
+{% block javascript %}
+{{ block.super }}
+<script type="text/javascript">
+    window.globals = window.globals || {};
+    window.globals.userlistURL = '{% url 'manage_sections:section_user_list' section_id=section_id %}';
+    window.globals.classlistURL  = '{% url 'manage_sections:section_class_list' section_id=section_id %}';
+    window.globals.addToSectionURL = '{% url 'manage_sections:add_to_section' %}';
+    window.globals.rmFromSectionURL = '{% url 'manage_sections:remove_from_section' %}';
+</script>
+<script type="text/javascript" src="{% static 'js/jquery.alphabetPagination.js' %}"></script>
+<script type="text/javascript" src="{% static 'manage_sections/js/section_details.js' %}"></script>
+{% endblock javascript %}
