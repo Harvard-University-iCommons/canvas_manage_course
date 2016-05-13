@@ -113,7 +113,7 @@ def results_list(request):
     errors = request.GET.get('errors')
     error_messages = []
     if errors:
-        error_messages = [settings.CAP_MSGS.get(error) for error in errors.split(',')]
+        error_messages = [settings.MANAGE_PEOPLE_MSGS.get(error) for error in errors.split(',')]
 
     # show the find_user page if there was no search term
     if not search_term:
@@ -278,7 +278,7 @@ def add_users(request):
             'errors': 'no_user_selected',
         }
         return HttpResponseRedirect(
-            "%s?%s" % (reverse('mp:results_list'), urllib.urlencode(kwargs))
+            "%s?%s" % (reverse('manage_people:results_list'), urllib.urlencode(kwargs))
         )
 
     # For each selected user id, attempt to create an enrollment
@@ -615,7 +615,7 @@ def remove_user(request):
 
 
 def get_badge_label_name(role_type_cd):
-    return settings.CAP_BADGE_LABELS[get_role_type(role_type_cd)]
+    return settings.MANAGE_PEOPLE_BADGE_LABELS[get_role_type(role_type_cd)]
 
 
 def get_role_type(role_type_cd):
@@ -631,6 +631,6 @@ def get_role_type(role_type_cd):
 
 def lti_key_error_response(request, key_error_exception):
     logger.error(u'Exception: KeyError: %s' % key_error_exception.message)
-    user_error_message = settings.CAP_MSGS['lti_request']
+    user_error_message = settings.MANAGE_PEOPLE_MSGS['lti_request']
     return render(request, 'manage_people/error.html',
                   context={'message': user_error_message}, status=400)

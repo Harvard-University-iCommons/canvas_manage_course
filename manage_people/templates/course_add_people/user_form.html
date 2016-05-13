@@ -55,7 +55,7 @@
     <p>The list below only contains people who have been manually added to this course. <a href="https://{{ canvas_host }}/courses/{{ canvas_course_id }}/users" target="_blank">Go to the People page</a> to see the full class list, which includes enrollment provided by the Registrar.</p>
 
     <div class="text-right">
-        <p><a href="{% url 'mp:find_user' %}" class="link-icon" id="add-people-to-course-id"><i class="fa fa-plus-circle"></i>Add People to course</a></p>
+        <p><a href="{% url 'manage_people:find_user' %}" class="link-icon" id="add-people-to-course-id"><i class="fa fa-plus-circle"></i>Add People to course</a></p>
     </div>
 
     <div id="no-users-added" class="infoBlock infoBlock-empty hidden">
@@ -87,7 +87,7 @@
 {% block javascript %}
     {{ block.super }}
     <script>
-        var removeUserURL = "{% url 'mp:remove_user' %}";
+        var removeUserURL = "{% url 'manage_people:remove_user' %}";
     </script>
     <script src="{% static "manage_people/js/user_form.js" %}"></script>
 {% endblock javascript %}
