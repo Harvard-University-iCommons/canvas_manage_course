@@ -18,44 +18,55 @@
 <div class="row">
   <div class="col-md-6">
 
-      <div class="list-group">
-        {% if icm_active %}
-        <a href="{% url 'isites_migration:index' %}"
-           class="list-group-item active">
-          <h4 class="list-group-item-heading"> Import iSites Content </h4>
-          <p class="list-group-item-text">
-            Migrate content from a previous term's Course iSite to this
-            Canvas course (this text will change)
-          </p>
-        </a>
-        {% else %}
-        <div class="list-group-item active">
-          <h4 class="list-group-item-heading"> Import iSites Content </h4>
-          <p class="list-group-item-text">Course has no previous isites to import from
-          (this text will change)
-          </p>
-          </div>
-        {% endif %}
-      </div>
+  {% if no_tools_visible %}
+    You do not currently have access to any of the tools available in Manage Course. If you think you should have access, please use the ‘Help’ link in the bottom left corner of the screen to contact Canvas support from Harvard.
+  {% else %}
+      {% if isites_migration_visible %}
+        <div class="list-group">
+          {% if isites_migration_active %}
+          <a href="{% url 'isites_migration:index' %}"
+             class="list-group-item active">
+            <h4 class="list-group-item-heading"> Import iSites Content </h4>
+            <p class="list-group-item-text">
+              Migrate content from a previous term's Course iSite to this
+              Canvas course (this text will change)
+            </p>
+          </a>
+          {% else %}
+          <div class="list-group-item active">
+            <h4 class="list-group-item-heading"> Import iSites Content </h4>
+            <p class="list-group-item-text">Course has no previous isites to import from
+            (this text will change)
+            </p>
+            </div>
+          {% endif %}
+        </div>
+      {% endif %}
 
-    <div class="list-group">
-      <a href="{% url 'manage_people:user_form' %}"
-         class="list-group-item active">
-        <h4 class="list-group-item-heading"> Manage People </h4>
-        <p class="list-group-item-text">
-          Add or remove people from your course
-        </p>
-      </a>
-    </div>
-    <div class="list-group">
-      <a href="{% url 'manage_sections:create_section_form' %}"
-         class="list-group-item active">
-        <h4 class="list-group-item-heading"> Manage Sections </h4>
-        <p class="list-group-item-text">
-          Create, edit, and delete course sections
-        </p>
-      </a>
-    </div>
+      {% if manage_people_visible %}
+        <div class="list-group">
+          <a href="{% url 'manage_people:user_form' %}"
+             class="list-group-item active">
+            <h4 class="list-group-item-heading"> Manage People </h4>
+            <p class="list-group-item-text">
+              Add or remove people from your course
+            </p>
+          </a>
+        </div>
+      {% endif %}
+
+      {% if manage_sections_visible %}
+        <div class="list-group">
+          <a href="{% url 'manage_sections:create_section_form' %}"
+             class="list-group-item active">
+            <h4 class="list-group-item-heading"> Manage Sections </h4>
+            <p class="list-group-item-text">
+              Create, edit, and delete course sections
+            </p>
+          </a>
+        </div>
+      {% endif %}
+    {% endif %}
   </div>
 </div>
 </main>
