@@ -25,7 +25,8 @@
         <div class="list-group">
           {% if isites_migration_active %}
           <a href="{% url 'isites_migration:index' %}"
-             class="list-group-item active">
+             class="list-group-item active"
+             id="isites-migration">
             <h4 class="list-group-item-heading"> Import iSites Content </h4>
             <p class="list-group-item-text">
               Migrate content from a previous term's Course iSite to this
@@ -46,7 +47,8 @@
       {% if manage_people_visible %}
         <div class="list-group">
           <a href="{% url 'manage_people:user_form' %}"
-             class="list-group-item active">
+             class="list-group-item active"
+             id="manage-people">
             <h4 class="list-group-item-heading"> Manage People </h4>
             <p class="list-group-item-text">
               Add or remove people from your course
@@ -58,7 +60,8 @@
       {% if manage_sections_visible %}
         <div class="list-group">
           <a href="{% url 'manage_sections:create_section_form' %}"
-             class="list-group-item active">
+             class="list-group-item active"
+             id="manage-sections">
             <h4 class="list-group-item-heading"> Manage Sections </h4>
             <p class="list-group-item-text">
               Create, edit, and delete course sections
