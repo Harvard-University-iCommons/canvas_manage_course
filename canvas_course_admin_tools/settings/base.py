@@ -271,7 +271,14 @@ ICOMMONS_COMMON = {
     },
 }
 
-PERMISSION_ISITES_MIGRATION_IMPORT_FILES = 'im_import_files'
+# lti_permissions.LtiPermission permission field for each app in the project
+# that uses it (this is used on the dashboard to determine which app links to
+# make available to the user
+CUSTOM_LTI_PERMISSIONS = {
+    'isites_migration': 'im_import_files',
+    'manage_course': 'manage_course',  # dashboard (canvas_course_admin_tools)
+    'manage_people': 'manage_people',
+}
 
 MANAGE_PEOPLE_MSGS = {
     'lti_request': 'There was a problem fulfilling your request. Please contact HUIT support.',
