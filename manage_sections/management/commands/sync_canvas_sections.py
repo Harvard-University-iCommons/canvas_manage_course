@@ -272,7 +272,7 @@ def get_account_list_from_canvas():
     and build a list of the account id's.  
     """
     sub_account_list = get_all_list_data(SDK_CONTEXT, accounts.get_sub_accounts_of_account,
-                                         settings.SECTIONS_TOOL.get('ROOT_ACCOUNT', 1), recursive=True)
+                                         settings.MANAGE_SECTIONS.get('ROOT_ACCOUNT', 1), recursive=True)
     sub_list = []
     for a in sub_account_list:
         sub_account_id = a.get('id')
