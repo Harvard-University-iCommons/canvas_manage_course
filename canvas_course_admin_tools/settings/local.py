@@ -42,6 +42,9 @@ SELENIUM_CONFIG = {
     'icommons_rest_api': {
         'base_path': 'api/course/v2'
     },
+    'manage_course': {
+        'relative_url': 'courses/27/external_tools/170',  # dev (Manage Course)
+    },
     'manage_people': {
         'test_course': {
             'cid': '327828',  # courses/27  (see url config below)
