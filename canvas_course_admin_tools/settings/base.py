@@ -273,6 +273,10 @@ ICOMMONS_COMMON = {
 
 PERMISSION_ISITES_MIGRATION_IMPORT_FILES = 'im_import_files'
 
+SECTIONS_TOOL = {
+    'TEST_STUDENT_ROLE': 'StudentViewEnrollment'
+}
+
 MANAGE_PEOPLE_MSGS = {
     'lti_request': 'There was a problem fulfilling your request. Please contact HUIT support.',
     'no_dir_member_chosen': 'You must choose at least one directory record.',

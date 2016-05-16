@@ -1,12 +1,13 @@
-from django.core.management.base import NoArgsCommand
-from django.core.exceptions import ObjectDoesNotExist
-from django.conf import settings
-from django.utils.encoding import smart_text
-from canvas_sdk.methods import (courses, accounts, sections, enrollments) 
-from canvas_sdk.utils import get_all_list_data
-from icommons_common.models import (Section, SectionMember, CourseInstance)
-from icommons_common.canvas_utils import SessionInactivityExpirationRC
 import logging
+
+from canvas_sdk.methods import (accounts, sections, enrollments)
+from canvas_sdk.utils import get_all_list_data
+from django.conf import settings
+from django.core.exceptions import ObjectDoesNotExist
+from django.core.management.base import NoArgsCommand
+from django.utils.encoding import smart_text
+from icommons_common.canvas_utils import SessionInactivityExpirationRC
+from icommons_common.models import (Section, SectionMember, CourseInstance)
 
 SDK_CONTEXT = SessionInactivityExpirationRC(**settings.CANVAS_SDK_SETTINGS)
 
@@ -18,7 +19,8 @@ class Command(NoArgsCommand):
     sync canvas sections and section members to the coursemanager.section 
     and coursemanager.section_member tables
     """
-    help = 'sync canvas sections and section members to the coursemanager.section and coursemanager.section_member tables'
+    help = ('sync canvas sections and section members to the coursemanager.section'
+            'and coursemanager.section_member tables')
     
     def handle_noargs(self, **options):
         """
@@ -40,7 +42,6 @@ class Command(NoArgsCommand):
                     
                     try:
                         ci = CourseInstance.objects.get(pk=sis_course_id)
-                    
                     except ObjectDoesNotExist:
                         """
                         if the course instance id in canvas does not exists in the coursemanager
@@ -48,7 +49,8 @@ class Command(NoArgsCommand):
                         course instance records in the coursemanager db, log the exception and continue
                         """
                         ci = None
-                        logger.info('course_instance %s does not exist for canvas_course_id %s' % (sis_course_id, canvas_course_id))
+                        logger.info('course_instance {} does not exist for canvas_course_id {}'.format(sis_course_id,
+                                                                                                   canvas_course_id))
                         continue
 
                     """
@@ -85,7 +87,8 @@ class Command(NoArgsCommand):
                         section = get_canvas_section(canvas_section_id)
                         section_name = section.get('name')
                         if section_name:
-                            cm_section_id = create_or_update_section(ci, sis_course_id, canvas_section_id, smart_text(section_name))
+                            cm_section_id = create_or_update_section(ci, sis_course_id, canvas_section_id,
+                                                                     smart_text(section_name))
                         
                             """
                             get the list of sis_user_id's of the section from canvas
@@ -108,11 +111,13 @@ class Command(NoArgsCommand):
 
         logger.info('process complete')
 
+
 def remove_user_list_from_section(users, section_id):
     """
     remove all users in the users list from the section
     """
     SectionMember.objects.filter(user_id__in=users, section_id=section_id).delete()
+
 
 def remove_all_users_from_section(section_id):
     """
@@ -121,6 +126,7 @@ def remove_all_users_from_section(section_id):
     users = SectionMember.objects.filter(section_id=section_id).exclude(user_id='')
     remove_user_list_from_section(users, section_id)
 
+
 def add_user_list_to_section(users, section_id):
     """
     add's a list of users to the section
@@ -128,6 +134,7 @@ def add_user_list_to_section(users, section_id):
 
     members = [SectionMember(section_id=section_id, user_id=user_id, role_id=0, source='Canvas') for user_id in users]
     SectionMember.objects.bulk_create(members)
+
 
 def create_or_update_section(course_instance, sis_course_id, canvas_section_id, section_name):
     """
@@ -163,9 +170,12 @@ def create_or_update_section(course_instance, sis_course_id, canvas_section_id, 
         Section.objects.bulk_create(new_section_list)
         cm_section = Section.objects.get(canvas_section_id=canvas_section_id)
         cm_section_id = cm_section.section_id
-        logger.info('created new section \'%s\' in course %s with section_id %s' % (section_name, sis_course_id, cm_section_id))
+        logger.info('created new section \'{}\' in course {} with section_id {}'.format(section_name,
+                                                                                        sis_course_id,
+                                                                                        cm_section_id))
 
     return cm_section_id
+
 
 def remove_sections_from_cm(sections_to_remove, sis_course_id):
     """
@@ -176,7 +186,7 @@ def remove_sections_from_cm(sections_to_remove, sis_course_id):
             cm_section = Section.objects.get(canvas_section_id=canvas_section_id)
             section_id = cm_section.section_id
             remove_all_users_from_section(section_id)
-            logger.info('removing section %s from course %s' % (section_id, sis_course_id))
+            logger.info('removing section {} from course {}'.format(section_id, sis_course_id))
             cm_section.delete()
         except ObjectDoesNotExist:
             """
@@ -184,15 +194,18 @@ def remove_sections_from_cm(sections_to_remove, sis_course_id):
             If the canvas_section_id does not exist in the coursemanager.section table, it may have been
             removed by some other means. Log the exception and continue processing sections.
             """
-            logger.info('section with canvas_section_id %s does not exist' % canvas_section_id)
+            logger.info('section with canvas_section_id {} does not exist'.format(canvas_section_id))
             continue
+
 
 def get_enrollments_from_cm_section(section_id):
     """
     get the list of enrollments for the coursemanager section
     """
-    section_members = SectionMember.objects.filter(section=section_id).values_list('user_id', flat=True).exclude(user_id='')
+    section_members = SectionMember.objects.filter(section=section_id).values_list('user_id',
+                                                                                   flat=True).exclude(user_id='')
     return section_members
+
 
 def get_enrollments_from_canvas_section(canvas_section_id):
     """
@@ -206,6 +219,7 @@ def get_enrollments_from_canvas_section(canvas_section_id):
             sis_user_id_list.append(sis_user_id)
     return sis_user_id_list
 
+
 def get_canvas_section(section_id):
     """
     Get a single canvas section from the given section_id
@@ -213,12 +227,16 @@ def get_canvas_section(section_id):
     section = sections.get_section_information_sections(SDK_CONTEXT, section_id).json()
     return section
 
+
 def get_cm_sections_list(course_instance):
     """
     get the list of sections associated with the coursemanager.sections table
     """
-    course_sections = Section.objects.filter(course_instance=course_instance).values_list('canvas_section_id', flat=True).exclude(canvas_section_id='')
+    course_sections = Section.objects.filter(
+        course_instance=course_instance).values_list('canvas_section_id',
+                                                     flat=True).exclude(canvas_section_id=None)
     return course_sections
+
 
 def get_canvas_sections_list(canvas_course_id):
     """
@@ -238,19 +256,23 @@ def get_canvas_sections_list(canvas_course_id):
             canvas_course_sections_list.append(canvas_section_id)
     return canvas_course_sections_list
 
+
 def get_course_list_from_canvas(account_id):
     """
     Get a list of all the active courses for the give account_id.
     """
-    course_list = get_all_list_data(SDK_CONTEXT, accounts.list_active_courses_in_account, account_id, with_enrollments=True)
+    course_list = get_all_list_data(SDK_CONTEXT, accounts.list_active_courses_in_account,
+                                    account_id, with_enrollments=True)
     return course_list
+
 
 def get_account_list_from_canvas():
     """
     Get the list of all sub-accounts of the Harvard root account 
     and build a list of the account id's.  
     """
-    sub_account_list = get_all_list_data(SDK_CONTEXT, accounts.get_sub_accounts_of_account, settings.SECTIONS_TOOL.get('ROOT_ACCOUNT', 1), recursive=True)
+    sub_account_list = get_all_list_data(SDK_CONTEXT, accounts.get_sub_accounts_of_account,
+                                         settings.SECTIONS_TOOL.get('ROOT_ACCOUNT', 1), recursive=True)
     sub_list = []
     for a in sub_account_list:
         sub_account_id = a.get('id')
