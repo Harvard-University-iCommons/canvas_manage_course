@@ -8,7 +8,7 @@
     {% block stylesheet %}
         {% block fonts %}{% endblock fonts %}
         <link rel="stylesheet" type="text/css" href="{% static "lti-css/manage-people.css" %}" media="screen"/>
-        <link rel="stylesheet" type="text/css" href="{% static "font-awesome-4.2.0/css/font-awesome.min.css" %}" media="screen"/>
+        <link rel="stylesheet" type="text/css" href="{% static "font-awesome-4.5.0/css/font-awesome.min.css" %}" media="screen"/>
         <link rel="stylesheet" type="text/css" href="{% static "manage_people/css/base.css" %}" media="screen"/>
     {% endblock stylesheet %}
     <title>{% block page_title %}{% endblock page_title %}</title>
@@ -67,9 +67,9 @@
             {% if debug %}
                 <script src="{% static "harvard-bootstrap/js/less-1.5.0.min.js" %}"></script>
             {% endif %}
-            <script src="{% static "jquery-1.10.2/jquery-1.10.2.min.js" %}"></script>
+            <script src="{% static "jquery-1.12.0/jquery-1.12.0.min.js" %}"></script>
             <script src="{% static "underscore-1.8.2/underscore.min.js" %}"></script>
-            <script src="{% static "bootstrap-3.0.3/dist/js/bootstrap.min.js" %}"></script>
+            <script src="{% static "bootstrap-3.3.6/dist/js/bootstrap.min.js" %}"></script>
             <script src="{% static "bootstrap-datepicker/js/bootstrap-datepicker.js" %}"></script>
             <script src="{% static "listjs/list.min.js" %}"></script>
         {% endblock javascript %}
