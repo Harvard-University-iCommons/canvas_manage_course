@@ -1,4 +1,186 @@
-.list-group-item.active {
-    background-image: linear-gradient(to bottom, #4e84c4 0%, #3b71b1 100%);
-    background-repeat: repeat-x;
+a {
+    color: #0081bd;
+    text-decoration: none;
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+}
+h1 {
+    font-size: 1.8em;
+    font-weight: 300;
+    line-height: 1.5;
+}
+h2 {
+    display: block;
+    font-size: 1.5em;
+    -webkit-margin-before: 0.83em;
+    -webkit-margin-after: 0.83em;
+    -webkit-margin-start: 0px;
+    -webkit-margin-end: 0px;
+    font-weight: bold;
+}
+p {
+    margin: 0;
+    line-height: 1;
+    font-size: 14px;
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    color: gray;
+    padding-top: 1em;
+}
+
+.alert {
+    margin-top: 1em;
+}
+.ellipsis {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.ic-Dashboard-header {
+    margin: 0 0 12px;
+    padding-bottom: 12px;
+    padding-top: 10px;
+}
+.ic-Dashboard-header_title {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+.ic-DashboardCard_color1 {
+    box-sizing: border-box;
+    box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    border-bottom: 4px solid #eee;
+    background: #fff;
+    width: 262px;
+    display: inline-block;
+    vertical-align: top;
+    margin: 0 36px 36px 0;
+    border-bottom-color: #8996A0;
+}
+.ic-DashboardCard_color2 {
+    box-sizing: border-box;
+    box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    border-bottom: 4px solid #eee;
+    background: #fff;
+    width: 262px;
+    display: inline-block;
+    vertical-align: top;
+    margin: 0 36px 36px 0;
+    border-bottom-color: #4E84C4;
+}
+.ic-DashboardCard_color3 {
+    box-sizing: border-box;
+    box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    border-bottom: 4px solid #eee;
+    background: #fff;
+    width: 262px;
+    display: inline-block;
+    vertical-align: top;
+    margin: 0 36px 36px 0;
+    border-bottom-color: #c44e0b;
+}
+.ic-DashboardCard_disabled {
+    box-sizing: border-box;
+    box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    border-bottom: 4px solid #eee;
+    background: #fff;
+    width: 262px;
+    display: inline-block;
+    vertical-align: top;
+    margin: 0 36px 36px 0;
+    border-bottom-color: #ccc;
+}
+.ic-DashboardCard__action-layout {
+    position: relative;
+    display: inline-block;
+    width: 36px;
+    line-height: 1;
+}
+.ic-DashboardCard__header {
+    position: relative;
+    cursor: pointer;
+    box-sizing: border-box;
+}
+.ic-DashboardCard__header_hero_color1 {
+    box-sizing: border-box;
+    border: 1px solid rgba(0,0,0,0.1);
+    background-color:#8996A0;
+    height:.25em;
+}
+.ic-DashboardCard__header_hero_color2 {
+    box-sizing: border-box;
+    border: 1px solid rgba(0,0,0,0.1);
+    background-color:#4E84C4;
+    height:.25em;
+}
+.ic-DashboardCard__header_hero_color3 {
+    box-sizing: border-box;
+    border: 1px solid rgba(0,0,0,0.1);
+    background-color:#c44e0b;
+    height:.25em;
+}
+.ic-DashboardCard__header_hero_disabled {
+    box-sizing: border-box;
+    border: 1px solid rgba(0,0,0,0);
+    background-color:#ccc;
+    height:.25em;
+}
+.ic-DashboardCard__header_content {
+    box-sizing: border-box;
+    padding: 18px 18px 0;
+    background: #fff;
+    height: 7em;
+}
+/*UI comment - style for disabled cards with alert*/
+.ic-DashboardCard__header_content_alert {
+    box-sizing: border-box;
+    padding: 18px 18px 0;
+    background: #ededed;
+    height: 12.5em;
+}
+.ic-DashboardCard__header-title {
+    transition: all 0.2s ease-out;
+    -webkit-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0);
+    padding: 0;
+    margin: 0;
+    line-height: 1.3;
+    font-size: 14px;
+    font-weight: 500;
+}
+.ic-notification {
+    display: flex;
+    border: 2px solid #ff0000;
+    margin-bottom: 12px;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.2);
+    border-radius: 3px;
+    box-sizing: border-box;
+    margin-top: 1em;
+}
+.ic-notification__content {
+    flex: 1;
+    padding: 12px;
+    box-sizing: border-box;
+    background: #fff;
+}
+.ic-notification__icon {
+    background: #ff0000;
+    color: #fff;
+    font-size: 2em;
+    flex: 0 0 48px;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    -webkit-align-items: center;
+    -ms-flex-align: center;
+    align-items: center;
+    border-top-left-radius: 1px;
+    border-bottom-left-radius: 1px;
+    box-sizing: border-box;
+}
+.ic-notification__message {
+    box-sizing: border-box;
+    line-height: 1;
+    font-size: 12px;
+    color: #333;
+}
+.notification__message {
+    box-sizing: border-box;
 }

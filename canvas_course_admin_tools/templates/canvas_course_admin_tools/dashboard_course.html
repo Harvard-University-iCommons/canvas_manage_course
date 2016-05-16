@@ -21,67 +21,108 @@
 {% if no_tools_visible %}
   {% include 'canvas_course_admin_tools/_no_tools_available.html' %}
 {% else %}
-<header>
-  <div class="row lti-header">
-    <h1>Manage Course</h1>
-  </div>
-</header>
+  <header>
+    <div class="ic-Dashboard-header">
+      <h1 class="ic-Dashboard-header_title">Manage Course</h1>
+    </div>
+  </header>
 
-<main>
-<div class="row">
-  <div class="col-md-6">
+  <main>
 
-      {% if isites_migration_visible %}
-        <div class="list-group">
-          {% if isites_migration_active %}
-          <a href="{% url 'isites_migration:index' %}"
-             class="list-group-item active"
-             id="isites-migration">
-            <h4 class="list-group-item-heading"> Import iSites Content </h4>
-            <p class="list-group-item-text">
-              Migrate content from a previous term's Course iSite to this
-              Canvas course (this text will change)
+  {% if manage_people_visible %}
+    <div class="ic-DashboardCard_color1">
+      <div class="ic-DashboardCard__header">
+        <div class="ic-DashboardCard__header_hero_color1">
+        </div>
+        <div class="ic-DashboardCard__header_content">
+          <h2 class="ic-DashboardCard__header-title ellipsis"
+              title="Manage People">
+            <a href="{% url 'manage_people:user_form' %}"
+               id="manage-people">
+              Manage People
+            </a>
+          </h2>
+          <p title="Manage People">
+            Add or remove people from your course
+          </p>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+
+  {% if manage_sections_visible %}
+    <div class="ic-DashboardCard_color2">
+      <div class="ic-DashboardCard__header">
+        <div class="ic-DashboardCard__header_hero_color2">
+        </div>
+        <div class="ic-DashboardCard__header_content">
+          <h2 class="ic-DashboardCard__header-title ellipsis"
+              title="Manage People">
+            <a href="{% url 'manage_sections:create_section_form' %}"
+               id="manage-sections">
+              Manage Sections
+            </a>
+          </h2>
+          <p title="Manage Sections">
+            Create, edit, and delete course sections
+          </p>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+
+  {% if isites_migration_visible %}
+    {% if isites_migration_active %}
+      <div class="ic-DashboardCard_color3">
+        <div class="ic-DashboardCard__header">
+          <div class="ic-DashboardCard__header_hero_color3">
+          </div>
+          <div class="ic-DashboardCard__header_content">
+            <h2 class="ic-DashboardCard__header-title ellipsis"
+                title="Import iSites Content">
+              <a href="{% url 'isites_migration:index' %}"
+                 id="isites-migration">
+                Import iSites Content
+              </a>
+            </h2>
+            <p title="Import iSites Content">
+              Migrate content from a previous term's
+              Course iSite to this Canvas course
             </p>
-          </a>
-          {% else %}
-          <div class="list-group-item active">
-            <h4 class="list-group-item-heading"> Import iSites Content </h4>
-            <p class="list-group-item-text">Course has no previous isites to import from
-            (this text will change)
+          </div>
+        </div>
+      </div>
+    {% else %}
+      <div class="ic-DashboardCard_disabled">
+        <div class="ic-DashboardCard__header">
+          <div class="ic-DashboardCard__header_hero_disabled">
+          </div>
+          <div class="ic-DashboardCard__header_content_alert">
+            <h2 class="ic-DashboardCard__header-title ellipsis"
+                title="Import iSites Content">
+              Import iSites Content
+            </h2>
+            <p title="Import iSites Content">
+              Migrate content from a previous term's
+              Course iSite to this Canvas course
             </p>
+            <div class="ic-notification">
+              <div class="ic-notification__content">
+                <div class="ic-notification__message">
+                  <span class="notification_message">
+                    This Canvas course is not associated
+                    with any Course iSites.
+                  </span>
+                </div>
+              </div>
             </div>
-          {% endif %}
+          </div>
         </div>
-      {% endif %}
+      </div>
+    {% endif %}
+  {% endif %}
 
-      {% if manage_people_visible %}
-        <div class="list-group">
-          <a href="{% url 'manage_people:user_form' %}"
-             class="list-group-item active"
-             id="manage-people">
-            <h4 class="list-group-item-heading"> Manage People </h4>
-            <p class="list-group-item-text">
-              Add or remove people from your course
-            </p>
-          </a>
-        </div>
-      {% endif %}
-
-      {% if manage_sections_visible %}
-        <div class="list-group">
-          <a href="{% url 'manage_sections:create_section_form' %}"
-             class="list-group-item active"
-             id="manage-sections">
-            <h4 class="list-group-item-heading"> Manage Sections </h4>
-            <p class="list-group-item-text">
-              Create, edit, and delete course sections
-            </p>
-          </a>
-        </div>
-      {% endif %}
-  </div>
-</div>
-</main>
+  </main>
 {% endif %}
 
 {% endblock content %}
