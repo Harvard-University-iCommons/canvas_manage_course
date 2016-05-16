@@ -276,7 +276,6 @@ ICOMMONS_COMMON = {
 # make available to the user
 CUSTOM_LTI_PERMISSIONS = {
     'isites_migration': 'im_import_files',
-    'manage_course': 'manage_course',  # dashboard (canvas_course_admin_tools)
     'manage_people': 'manage_people',
 }
 
