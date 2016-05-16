@@ -251,7 +251,7 @@ ENV_NAME = SECURE_SETTINGS.get('env_name', 'local')
 
 LTI_OAUTH_CREDENTIALS = SECURE_SETTINGS.get('lti_oauth_credentials', None)
 
-CANVAS_URL = SECURE_SETTINGS.get('canvas_url', 'https://canvas.instructure.com')
+CANVAS_URL = SECURE_SETTINGS.get('canvas_url', 'https://canvas.harvard.edu')
 
 CANVAS_SDK_SETTINGS = {
     'auth_token': SECURE_SETTINGS.get('canvas_token', None),
@@ -292,3 +292,13 @@ MANAGE_PEOPLE_BADGE_LABELS = {
 MANAGE_SECTIONS = {
     'TEST_STUDENT_ROLE': 'StudentViewEnrollment'
 }
+
+ICOMMONS_REST_API_TOKEN = SECURE_SETTINGS.get('icommons_rest_api_token')
+ICOMMONS_REST_API_HOST = SECURE_SETTINGS.get('icommons_rest_api_host')
+
+# Allows the REST API passthrough to successfully negotiate an SSL session
+# with an unverified certificate, e.g. the one that ships with django-sslserver
+# Default to False, but if testing locally, set to True
+ICOMMONS_REST_API_SKIP_CERT_VERIFICATION = SECURE_SETTINGS.get(
+    'icommons_rest_api_skip_cert_verification', False)
+
