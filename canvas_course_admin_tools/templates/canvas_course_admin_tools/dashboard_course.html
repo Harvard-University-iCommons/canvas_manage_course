@@ -5,9 +5,22 @@
 {% block stylesheets %}
   <link href="{% static 'canvas_course_admin_tools/css/dashboard.css' %}"
         rel="stylesheet"/>
+  {% if no_tools_visible %}
+    {% if debug == True %}
+      <link rel="stylesheet/less" type="text/css"
+            href="{% static "harvard-bootstrap/less/harvard-bootstrap.less" %}" />
+    {% else %}
+      <link rel="stylesheet" type="text/css"
+            href="{% static "harvard-bootstrap/css/harvard-bootstrap.css" %}" media="screen"/>
+    {% endif %}
+  {% endif %}
 {% endblock stylesheets %}
 
 {% block content %}
+
+{% if no_tools_visible %}
+  {% include 'canvas_course_admin_tools/_no_tools_available.html' %}
+{% else %}
 <header>
   <div class="row lti-header">
     <h1>Manage Course</h1>
@@ -18,9 +31,6 @@
 <div class="row">
   <div class="col-md-6">
 
-  {% if no_tools_visible %}
-    You do not currently have access to any of the tools available in Manage Course. If you think you should have access, please use the ‘Help’ link in the bottom left corner of the screen to contact Canvas support from Harvard.
-  {% else %}
       {% if isites_migration_visible %}
         <div class="list-group">
           {% if isites_migration_active %}
@@ -66,8 +76,15 @@
           </a>
         </div>
       {% endif %}
-    {% endif %}
   </div>
 </div>
 </main>
+{% endif %}
+
 {% endblock content %}
+
+{%  block javascript %}
+  {% if debug and no_tools_visible %}
+    <script src="{% static "harvard-bootstrap/js/less-2.5.3.min.js" %}"></script>
+  {% endif %}
+{%  endblock javascript %}
