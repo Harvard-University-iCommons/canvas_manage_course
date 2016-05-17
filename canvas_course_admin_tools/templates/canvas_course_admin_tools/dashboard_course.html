@@ -22,23 +22,23 @@
   {% include 'canvas_course_admin_tools/_no_tools_available.html' %}
 {% else %}
   <header>
-    <div class="ic-Dashboard-header">
-      <h1 class="ic-Dashboard-header_title">Manage Course</h1>
+    <div class="dashboard-header">
+      <h1 class="dashboard-header_title">Manage Course</h1>
     </div>
   </header>
 
   <main>
 
   {% if manage_people_visible %}
-    <div class="ic-DashboardCard_color1">
-      <div class="ic-DashboardCard__header">
-        <div class="ic-DashboardCard__header_hero_color1">
+    <div class="card card_color1">
+      <div class="card-body">
+        <div class="card-header card-header_color1">
         </div>
-        <div class="ic-DashboardCard__header_content">
-          <h2 class="ic-DashboardCard__header-title ellipsis"
+        <div class="card-content card-content_normal">
+          <h2 class="card-content-title ellipsis"
               title="Manage People">
             <a href="{% url 'manage_people:user_form' %}"
-               id="manage-people">
+               class="content-link" id="manage-people">
               Manage People
             </a>
           </h2>
@@ -51,15 +51,15 @@
   {% endif %}
 
   {% if manage_sections_visible %}
-    <div class="ic-DashboardCard_color2">
-      <div class="ic-DashboardCard__header">
-        <div class="ic-DashboardCard__header_hero_color2">
+    <div class="card card_color2">
+      <div class="card-body">
+        <div class="card-header card-header_color2">
         </div>
-        <div class="ic-DashboardCard__header_content">
-          <h2 class="ic-DashboardCard__header-title ellipsis"
+        <div class="card-content card-content_normal">
+          <h2 class="card-content-title ellipsis"
               title="Manage People">
             <a href="{% url 'manage_sections:create_section_form' %}"
-               id="manage-sections">
+               class="content-link" id="manage-sections">
               Manage Sections
             </a>
           </h2>
@@ -73,15 +73,15 @@
 
   {% if isites_migration_visible %}
     {% if isites_migration_active %}
-      <div class="ic-DashboardCard_color3">
-        <div class="ic-DashboardCard__header">
-          <div class="ic-DashboardCard__header_hero_color3">
+      <div class="card card_color3">
+        <div class="card-body">
+          <div class="card-header card-header_color3">
           </div>
-          <div class="ic-DashboardCard__header_content">
-            <h2 class="ic-DashboardCard__header-title ellipsis"
+          <div class="card-content card-content_normal">
+            <h2 class="card-content-title ellipsis"
                 title="Import iSites Content">
               <a href="{% url 'isites_migration:index' %}"
-                 id="isites-migration">
+                 class="content-link" id="isites-migration">
                 Import iSites Content
               </a>
             </h2>
@@ -93,12 +93,12 @@
         </div>
       </div>
     {% else %}
-      <div class="ic-DashboardCard_disabled">
-        <div class="ic-DashboardCard__header">
-          <div class="ic-DashboardCard__header_hero_disabled">
+      <div class="card card_disabled">
+        <div class="card-body">
+          <div class="card-header card-header_disabled">
           </div>
-          <div class="ic-DashboardCard__header_content_alert">
-            <h2 class="ic-DashboardCard__header-title ellipsis"
+          <div class="card-content card-content_alert">
+            <h2 class="card-content-title ellipsis"
                 title="Import iSites Content">
               Import iSites Content
             </h2>
@@ -106,15 +106,9 @@
               Migrate content from a previous term's
               Course iSite to this Canvas course
             </p>
-            <div class="ic-notification">
-              <div class="ic-notification__content">
-                <div class="ic-notification__message">
-                  <span class="notification_message">
-                    This Canvas course is not associated
-                    with any Course iSites.
-                  </span>
-                </div>
-              </div>
+            <div class="notification">
+              This Canvas course is not associated
+              with any Course iSites.
             </div>
           </div>
         </div>
@@ -128,6 +122,7 @@
 {% endblock content %}
 
 {%  block javascript %}
+  <script src="{% static "canvas_course_admin_tools/js/dashboard.js" %}"></script>
   {% if debug and no_tools_visible %}
     <script src="{% static "harvard-bootstrap/js/less-2.5.3.min.js" %}"></script>
   {% endif %}
