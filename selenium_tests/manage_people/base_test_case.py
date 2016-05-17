@@ -2,37 +2,38 @@ from django.conf import settings
 from os.path import abspath, dirname, join
 from urlparse import urljoin
 
-from selenium_common.base_test_case import BaseSeleniumTestCase
-from selenium_common.pin.page_objects.pin_login_page_object \
-    import PinLoginPageObject
+from selenium_tests.course_admin.course_admin_base_test_case \
+    import CourseAdminBaseTestCase
+from selenium_tests.course_admin.page_objects\
+    .course_admin_dashboard_page_object import CourseAdminDashboardPage
+from selenium_tests.manage_people.page_objects.mp_find_user_page \
+    import FindUserPageObject
+
 
 # Common files used for all Manage People test cases
-MP_TEST_USERS_WITH_ROLES = join(
-    dirname(abspath(__file__)),
-    'test_data', 'mp_test_users_with_roles.xlsx')
+MP_TEST_USERS_WITH_ROLES = join(dirname(abspath(__file__)), 'test_data',
+                                'mp_test_users_with_roles.xlsx')
 
 
-class ManagePeopleBaseTestCase(BaseSeleniumTestCase):
+class ManagePeopleBaseTestCase(CourseAdminBaseTestCase):
 
-    @classmethod
-    def setUpClass(cls):
+    def setUp(self):
         """
         Redirects browser to test course URL and login to PIN using
         specified credentials.
         """
-        super(ManagePeopleBaseTestCase, cls).setUpClass()
-        cls.username = settings.SELENIUM_CONFIG['selenium_username']
-        cls.password = settings.SELENIUM_CONFIG['selenium_password']
-        cls.canvas_base_url = settings.SELENIUM_CONFIG['canvas_base_url']
-        cls.test_settings = settings.SELENIUM_CONFIG['manage_people']
-        cls.tool_relative_url = cls.test_settings['url']
-        cls.base_url = urljoin(cls.canvas_base_url, cls.tool_relative_url)
+        super(CourseAdminBaseTestCase, self).setUp()
 
-        cls.driver.get(cls.base_url)
+        # instantiate
+        self.dashboard_page = CourseAdminDashboardPage(self.driver)
+        self.manage_people = FindUserPageObject(self.driver)
 
-        login_page = PinLoginPageObject(cls.driver)
-        if login_page.is_loaded():
-            print "Logging in XID user {}".format(cls.username)
-            login_page.login_xid(cls.username, cls.password)
-        else:
-            print '(XID user {} already logged in)'.format(cls.username)
+        # initialize
+        if not self.dashboard_page.is_loaded():
+            self.dashboard_page.get(self.TOOL_URL)
+
+        # navigate to cross-list tool
+        self.dashboard_page.select_manage_people_link()
+
+        # check if page is loaded (which will also set the focus on the tool)
+        self.assertTrue(self.manage_people.is_loaded())

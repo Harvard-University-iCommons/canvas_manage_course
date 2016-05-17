@@ -12,7 +12,6 @@ class CourseAdminIsDashboardLoadedTest(CourseAdminBaseTestCase):
         Check if the course dashboard page is loaded
         """
         # initialize
-        self.driver.save_screenshot("is_dashboard_loaded.png")
         dashboard_page = CourseAdminDashboardPage(self.driver)
         self.assertTrue(dashboard_page.is_loaded())
         # The Manage People button should be displayed for the selenium

@@ -20,8 +20,6 @@ class CourseAdminBaseTestCase(BaseSeleniumTestCase):
         cls.TOOL_RELATIVE_URL = settings.SELENIUM_CONFIG['manage_course'][
             'relative_url']
         cls.TOOL_URL = urljoin(cls.CANVAS_BASE_URL, cls.TOOL_RELATIVE_URL)
-
-
         cls.course_admin_dashboard_page = CourseAdminDashboardPage(cls.driver)
         cls.course_admin_dashboard_page.get(cls.TOOL_URL)
 
@@ -30,3 +28,4 @@ class CourseAdminBaseTestCase(BaseSeleniumTestCase):
             login_page.login_xid(cls.USERNAME, cls.PASSWORD)
         else:
             print '(User {} already logged in to PIN)'.format(cls.USERNAME)
+
