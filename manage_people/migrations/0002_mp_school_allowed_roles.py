@@ -76,6 +76,9 @@ def populate_school_allowed_role(apps, schema_editor):
         for values in SCHOOL_ALOWED_ROLE_DATA:
             SchoolAllowedRole.objects.create(**dict(zip(fields, values)))
 
+def reverse_load_school_role(apps, schema_editor):
+    SchoolAllowedRole = apps.get_model('manage_people', 'SchoolAllowedRole')
+    SchoolAllowedRole.objects.all().delete()
 
 class Migration(migrations.Migration):
 
@@ -84,7 +87,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-
         migrations.CreateModel(
             name='SchoolAllowedRole',
             fields=[
@@ -99,7 +101,7 @@ class Migration(migrations.Migration):
         ),
         migrations.RunPython(
             code=populate_school_allowed_role,
-            reverse_code=migrations.RunPython.noop,
+            reverse_code=reverse_load_school_role,
         ),
 
     ]

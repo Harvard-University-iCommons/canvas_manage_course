@@ -74,6 +74,13 @@ def create_lti_permissions(apps, schema_editor):
     for permission in LTI_PERMISSIONS_DATA:
         LtiPermission.objects.create(**dict(zip(fields, permission)))
 
+def reverse_permissions_load(apps, schema_editor):
+    LtiPermission = apps.get_model('lti_permissions', 'LtiPermission')
+    LtiPermission.filter(permission='manage_people').delete()
+
+def reverse_manage_people_role_load(apps, schema_editor):
+    ManagePeopleRole = apps.get_model('manage_people', 'ManagePeopleRole')
+    ManagePeopleRole.objects.all().delete()
 
 class Migration(migrations.Migration):
 
@@ -85,7 +92,7 @@ class Migration(migrations.Migration):
 
         migrations.RunPython(
             code=create_lti_permissions,
-            reverse_code=migrations.RunPython.noop,
+            reverse_code=reverse_permissions_load,
         ),
 
         migrations.CreateModel(
@@ -101,6 +108,6 @@ class Migration(migrations.Migration):
         ),
         migrations.RunPython(
             code=populate_manage_people_role,
-            reverse_code=migrations.RunPython.noop,
+            reverse_code=reverse_manage_people_role_load,
         ),
     ]
