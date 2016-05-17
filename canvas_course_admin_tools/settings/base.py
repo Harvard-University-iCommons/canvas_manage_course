@@ -96,7 +96,6 @@ DATABASE_APPS_MAPPING = {
     'lti_permissions': 'default',
     'manage_people': 'default',
     'manage_sections': 'default',
-    'sessions': 'default',
 }
 
 DATABASE_MIGRATION_WHITELIST = ['default']
