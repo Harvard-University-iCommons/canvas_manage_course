@@ -29,62 +29,97 @@
 {% if no_tools_visible %}
   {% include 'canvas_course_admin_tools/_no_tools_available.html' %}
 {% else %}
+  <main>
 
-<main>
-<div class="row">
-  <div class="col-md-6">
-
-      {% if isites_migration_visible %}
-        <div class="list-group">
-          {% if isites_migration_active %}
-          <a href="{% url 'isites_migration:index' %}"
-             class="list-group-item active"
-             id="isites-migration">
-            <h4 class="list-group-item-heading"> Import iSites Content </h4>
-            <p class="list-group-item-text">
-              Migrate content from a previous term's Course iSite to this
-              Canvas course (this text will change)
-            </p>
-          </a>
-          {% else %}
-          <div class="list-group-item active">
-            <h4 class="list-group-item-heading"> Import iSites Content </h4>
-            <p class="list-group-item-text">Course has no previous isites to import from
-            (this text will change)
-            </p>
-            </div>
-          {% endif %}
-        </div>
-      {% endif %}
-
-      {% if manage_people_visible %}
-        <div class="list-group">
-          <a href="{% url 'manage_people:user_form' %}"
-             class="list-group-item active"
-             id="manage-people">
-            <h4 class="list-group-item-heading"> Manage People </h4>
-            <p class="list-group-item-text">
+  {% if manage_people_visible %}
+    <div class="card card_color1">
+      <a href="{% url 'manage_people:user_form' %}" id="manage-people">
+        <div class="card-body">
+          <div class="card-header card-header_color1">
+          </div>
+          <div class="card-content card-content_normal">
+            <h2 class="card-content-title ellipsis" title="Manage People">
+              <span class="content-link">
+                Manage People
+              </span>
+            </h2>
+            <p title="Manage People">
               Add or remove people from your course
             </p>
-          </a>
+          </div>
         </div>
-      {% endif %}
+      </a>
+    </div>
+  {% endif %}
 
-      {% if manage_sections_visible %}
-        <div class="list-group">
-          <a href="{% url 'manage_sections:create_section_form' %}"
-             class="list-group-item active"
-             id="manage-sections">
-            <h4 class="list-group-item-heading"> Manage Sections </h4>
-            <p class="list-group-item-text">
+  {% if manage_sections_visible %}
+    <div class="card card_color2">
+      <a href="{% url 'manage_sections:create_section_form' %}" id="manage-sections">
+        <div class="card-body">
+          <div class="card-header card-header_color2">
+          </div>
+          <div class="card-content card-content_normal">
+            <h2 class="card-content-title ellipsis" title="Manage Sections">
+              <span class="content-link">
+                Manage Sections
+              </span>
+            </h2>
+            <p title="Manage Sections">
               Create, edit, and delete course sections
             </p>
-          </a>
+          </div>
         </div>
-      {% endif %}
-  </div>
-</div>
-</main>
+      </a>
+    </div>
+  {% endif %}
+
+  {% if isites_migration_visible %}
+    {% if isites_migration_active %}
+      <div class="card card_color3">
+        <a href="{% url 'isites_migration:index' %}" id="isites-migration">
+          <div class="card-body">
+            <div class="card-header card-header_color3">
+            </div>
+            <div class="card-content card-content_normal">
+              <h2 class="card-content-title ellipsis"
+                  title="Import iSites Content">
+                <span class="content-link">
+                  Import iSites Content
+                </span>
+              </h2>
+              <p title="Import iSites Content">
+                Migrate content from a previous term's
+                Course iSite to this Canvas course
+              </p>
+            </div>
+          </div>
+        </a>
+      </div>
+    {% else %}
+      <div class="card card_disabled">
+        <div class="card-body">
+          <div class="card-header card-header_disabled">
+          </div>
+          <div class="card-content card-content_alert">
+            <h2 class="card-content-title ellipsis"
+                title="Import iSites Content">
+              Import iSites Content
+            </h2>
+            <p title="Import iSites Content">
+              Migrate content from a previous term's
+              Course iSite to this Canvas course
+            </p>
+            <div class="notification">
+              This Canvas course is not associated
+              with any Course iSites.
+            </div>
+          </div>
+        </div>
+      </div>
+    {% endif %}
+  {% endif %}
+
+  </main>
 {% endif %}
 
 {% endblock content %}
