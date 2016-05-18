@@ -58,12 +58,6 @@ SELENIUM_CONFIG = {
                 'user_id': '12345678'
             }
         },
-        # Note: for manage_people tests to work as expected the
-        # ICOMMONS_REST_API_HOST environment needs to match the LTI tool
-        # environment (because of shared cache interactions)
-        # 'url': '/courses/27/external_tools/109',  # local cap tool
-        'url': '/courses/27/external_tools/72',  # dev cap tool
-        # 'url': '/courses/27/external_tools/38',  # qa cap tool
     },
     'run_locally': SECURE_SETTINGS.get('selenium_run_locally', False),
     'selenium_grid_url': SECURE_SETTINGS.get('selenium_grid_url'),
