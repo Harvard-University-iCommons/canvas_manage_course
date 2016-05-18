@@ -6,8 +6,8 @@ from selenium_tests.course_admin.course_admin_base_test_case \
     import CourseAdminBaseTestCase
 from selenium_tests.course_admin.page_objects\
     .course_admin_dashboard_page_object import CourseAdminDashboardPage
-from selenium_tests.manage_people.page_objects.mp_find_user_page \
-    import FindUserPageObject
+from selenium_tests.manage_people.page_objects.mp_user_form_page \
+    import UserListPageObject
 
 
 # Common files used for all Manage People test cases
@@ -26,7 +26,8 @@ class ManagePeopleBaseTestCase(CourseAdminBaseTestCase):
 
         # instantiate
         self.dashboard_page = CourseAdminDashboardPage(self.driver)
-        self.manage_people = FindUserPageObject(self.driver)
+        self.manage_people = UserListPageObject(self.driver)
+        self.test_settings = settings.SELENIUM_CONFIG['manage_people']
 
         # initialize
         if not self.dashboard_page.is_loaded():
