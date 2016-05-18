@@ -51,7 +51,7 @@ SELENIUM_CONFIG = {
         },
         'test_users': {
             '1': {
-                'user_id': '01204905',
+                'user_id': '01819033',
                 'role_id': '10',
             },
             'fake': {
