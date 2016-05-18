@@ -4,13 +4,22 @@
 {{ block.super }}
 {% endblock %}
 
+{% block breadcrumb %}
+<nav>
+    <h3>
+        <a href="{% url 'dashboard_course' %}">Manage Course</a>&nbsp;<i class="fa fa-chevron-right"></i>&nbsp;Manage Sections
+    </h3>
+</nav>
+{% endblock %}
+
 {% block content %}
+
+
 
 <div class="container">
 
     <div class="row lti-header">
-        <h1>Manage Sections</h1>
-         <div id="message"></div>
+        <div id="message"></div>
     </div>
 
     <div class="row row-lti col-md-8">

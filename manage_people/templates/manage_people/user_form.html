@@ -17,7 +17,13 @@
     </style>
 {% endblock %}
 
-{% block breadcrumbs %}Manage People{% endblock breadcrumbs %}
+{% block breadcrumbs %}
+<nav>
+    <h3>
+        <a href="{% url 'dashboard_course' %}">Manage Course</a>&nbsp;<i class="fa fa-chevron-right"></i>&nbsp;Manage People
+    </h3>
+</nav>
+{% endblock breadcrumbs %}
 
 {% block content %}
     <div id="user-removed-success" class="infoBlock-success alert-lti hidden">
