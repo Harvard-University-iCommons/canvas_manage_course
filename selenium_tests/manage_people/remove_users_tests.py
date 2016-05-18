@@ -46,7 +46,6 @@ class RemovePeopleTests(ManagePeopleBaseTestCase):
         self.api.add_user(
             self.test_settings['test_course']['cid'], test_univ_id, role_id)
 
-        self.driver.get(self.base_url)
         user_list_page = UserListPageObject(self.driver)
 
         # note delete_user() requires the Canvas role name, not our display
