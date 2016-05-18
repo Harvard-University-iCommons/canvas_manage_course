@@ -16,16 +16,19 @@
   {% endif %}
 {% endblock stylesheets %}
 
-{% block content %}
 
+{% block breadcrumb %}
+<nav>
+    <h3>
+        Manage Course
+    </h3>
+</nav>
+{% endblock %}
+
+{% block content %}
 {% if no_tools_visible %}
   {% include 'canvas_course_admin_tools/_no_tools_available.html' %}
 {% else %}
-<header>
-  <div class="row lti-header">
-    <h1>Manage Course</h1>
-  </div>
-</header>
 
 <main>
 <div class="row">
