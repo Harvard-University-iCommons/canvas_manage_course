@@ -16,7 +16,7 @@ class SearchTests(ManagePeopleBaseTestCase):
         This searches for an existing ID and asserts the search results page is
         loaded after search
         """
-        self.driver.get(self.base_url)
+
         user_list_page = UserListPageObject(self.driver)
         search_page = FindUserPageObject(self.driver)
         results_page = ResultsListPageObject(self.driver)
@@ -24,11 +24,10 @@ class SearchTests(ManagePeopleBaseTestCase):
 
         # ensure person isn't in course before attempting to search
         self.api.remove_user(self.test_settings['test_course']['cid'],
-                                  test_user['user_id'], test_user['role_id'])
+                             test_user['user_id'], test_user['role_id'])
 
         user_list_page.add_user()
         search_page.find_user(test_user['user_id'])
-
         self.assertTrue(results_page.is_loaded())
 
     def test_search_by_huid_unsuccessful(self):
@@ -36,7 +35,7 @@ class SearchTests(ManagePeopleBaseTestCase):
         This searches for an invalid id and asserts that search page is not
         loaded and user is not found
         """
-        self.driver.get(self.base_url)
+
         user_list_page = UserListPageObject(self.driver)
         search_page = FindUserPageObject(self.driver)
 

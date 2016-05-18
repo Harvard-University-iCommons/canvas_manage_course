@@ -42,25 +42,22 @@ SELENIUM_CONFIG = {
     'icommons_rest_api': {
         'base_path': 'api/course/v2'
     },
+    'manage_course': {
+        'relative_url': 'courses/27/external_tools/170',  # dev (Manage Course)
+    },
     'manage_people': {
         'test_course': {
             'cid': '327828',  # courses/27  (see url config below)
         },
         'test_users': {
             '1': {
-                'user_id': '01204905',
+                'user_id': '01819033',
                 'role_id': '10',
             },
             'fake': {
                 'user_id': '12345678'
             }
         },
-        # Note: for manage_people tests to work as expected the
-        # ICOMMONS_REST_API_HOST environment needs to match the LTI tool
-        # environment (because of shared cache interactions)
-        # 'url': '/courses/27/external_tools/109',  # local cap tool
-        'url': '/courses/27/external_tools/72',  # dev cap tool
-        # 'url': '/courses/27/external_tools/38',  # qa cap tool
     },
     'run_locally': SECURE_SETTINGS.get('selenium_run_locally', False),
     'selenium_grid_url': SECURE_SETTINGS.get('selenium_grid_url'),
