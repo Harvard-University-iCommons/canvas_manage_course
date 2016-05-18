@@ -46,11 +46,17 @@ class RemovePeopleTests(ManagePeopleBaseTestCase):
         self.api.add_user(
             self.test_settings['test_course']['cid'], test_univ_id, role_id)
 
-        self.driver.get(self.base_url)
         user_list_page = UserListPageObject(self.driver)
 
         # note delete_user() requires the Canvas role name, not our display
         # name (e.g. ObserverEnrollment, not Observer)
+
+        # Note: the refresh has been added due to issues with remove.  If
+        # user is added via the api but the page isn't reload, the tests will
+        # sporadically fail out with NoSuchElementException.
+        self.driver.refresh()
+        self.setUp()
+
         user_list_page.delete_user(test_univ_id, canvas_role)
 
         # Verify that user is not on the page after getting removed

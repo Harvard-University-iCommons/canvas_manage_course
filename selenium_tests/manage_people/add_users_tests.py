@@ -48,8 +48,6 @@ class AddingTests(ManagePeopleBaseTestCase):
         self.api.remove_user(
             self.test_settings['test_course']['cid'], test_univ_id)
 
-        self.driver.get(self.base_url)
-
         user_list_page = UserListPageObject(self.driver)
         search_page = FindUserPageObject(self.driver)
         results_page = ResultsListPageObject(self.driver)
