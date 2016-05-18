@@ -92,11 +92,12 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('school_id', models.CharField(max_length=10)),
-                ('user_role', models.ForeignKey(default=-1, to='manage_people.ManagePeopleRole')),
+                ('user_role', models.ForeignKey(to='manage_people.ManagePeopleRole')),
                 ('xid_allowed', models.BooleanField(default=False)),
             ],
             options={
                 'db_table': 'school_allowed_role',
+                'unique_together': set([('school_id', 'user_role')]),
             },
         ),
         migrations.RunPython(

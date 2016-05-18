@@ -76,7 +76,7 @@ def create_lti_permissions(apps, schema_editor):
 
 def reverse_permissions_load(apps, schema_editor):
     LtiPermission = apps.get_model('lti_permissions', 'LtiPermission')
-    LtiPermission.filter(permission='manage_people').delete()
+    LtiPermission.objects.filter(permission='manage_people').delete()
 
 def reverse_manage_people_role_load(apps, schema_editor):
     ManagePeopleRole = apps.get_model('manage_people', 'ManagePeopleRole')
