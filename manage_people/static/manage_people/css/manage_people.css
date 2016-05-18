@@ -1078,3 +1078,11 @@ ul#existing_enrollments_list {
 a#find_another_user {
   margin-right: 1em;
 }
+
+/* code from base.css*/
+table td {
+    padding: .5em;
+}
+.controls {
+    margin: 1em 0 0 0;
+}
