@@ -103,5 +103,4 @@ class Migration(migrations.Migration):
             code=populate_school_allowed_role,
             reverse_code=reverse_load_school_role,
         ),
-
     ]
