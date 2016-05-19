@@ -1,0 +1,101 @@
+[
+{
+    "fields": {
+        "user_role_id": 0,
+        "canvas_role_label": "StudentEnrollment",
+        "xid_allowed": false
+    },
+    "model": "manage_people.ManagePeopleRole",
+    "pk": 0
+},
+{
+    "fields": {
+        "user_role_id": 1,
+        "canvas_role_label": "Course Head",
+        "xid_allowed": false
+    },
+    "model": "manage_people.ManagePeopleRole",
+    "pk": 1
+},
+{
+    "fields": {
+        "user_role_id": 2,
+        "canvas_role_label": "Faculty",
+        "xid_allowed": false
+    },
+    "model": "manage_people.ManagePeopleRole",
+    "pk": 2
+},
+{
+    "fields": {
+        "user_role_id": 5,
+        "canvas_role_label": "TaEnrollment",
+        "xid_allowed": false
+    },
+    "model": "manage_people.ManagePeopleRole",
+    "pk": 5
+},
+{
+    "fields": {
+        "user_role_id": 7,
+        "canvas_role_label": "DesignerEnrollment",
+        "xid_allowed": false
+    },
+    "model": "manage_people.ManagePeopleRole",
+    "pk": 7
+},
+{
+    "fields": {
+        "user_role_id": 9,
+        "canvas_role_label": "TeacherEnrollment",
+        "xid_allowed": false
+    },
+    "model": "manage_people.ManagePeopleRole",
+    "pk": 9
+},
+{
+    "fields": {
+        "user_role_id": 10,
+        "canvas_role_label": "Guest",
+        "xid_allowed": true
+    },
+    "model": "manage_people.ManagePeopleRole",
+    "pk": 10
+},
+{
+    "fields": {
+        "user_role_id": 11,
+        "canvas_role_label": "Course Support Staff",
+        "xid_allowed": false
+    },
+    "model": "manage_people.ManagePeopleRole",
+    "pk": 11
+},
+{
+    "fields": {
+        "user_role_id": 12,
+        "canvas_role_label": "Teaching Staff",
+        "xid_allowed": false
+    },
+    "model": "manage_people.ManagePeopleRole",
+    "pk": 12
+},
+{
+    "fields": {
+        "user_role_id": 14,
+        "canvas_role_label": "Shopper",
+        "xid_allowed": false
+    },
+    "model": "manage_people.ManagePeopleRole",
+    "pk": 14
+},
+{
+    "fields": {
+        "user_role_id": 15,
+        "canvas_role_label": "ObserverEnrollment",
+        "xid_allowed": false
+    },
+    "model": "manage_people.ManagePeopleRole",
+    "pk": 15
+}
+]
