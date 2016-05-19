@@ -19,8 +19,6 @@ class GetAvailableRolesTest(TestCase):
     fixtures = [
         'manage_people_role.json',
         'user_role.json',
-        # 'school_allowed_role.json',
-
     ]
     longMessage = True
 
@@ -40,18 +38,19 @@ class GetAvailableRolesTest(TestCase):
                          [0, 1, 2, 5, 7, 9, 10, 11, 12, 14, 15],
                          'List of manage people role user_role_ids')
 
-    @skip("Skipping till fixture is fixed")
     @patch('manage_people.utils.CourseInstance.objects.get')
     def test_get_available_roles_on_school_with_overridden_roles(self, mock_ci_get):
         """
-        Test that get_available_roles returns just the overriden roles for
+        Test that get_available_roles returns just the overridden roles for
         a school which overrides the defaults.
         """
         mock_ci_get.return_value.course.school.school_id = 'gse'
+        expected_role_ids = [9, 10, 11, 12, 15]
         result = get_available_roles(self.course_instance_id)
-        self.assertEqual(len(result), 4, 'Count of manage people roles')
+        self.assertEqual(len(result), len(expected_role_ids),
+                         'Count of manage people roles')
         self.assertEqual(sorted([r['role_id'] for r in result]),
-                         [5, 7, 9, 10],
+                         expected_role_ids,
                          'List of manage people role user_role_ids')
 
     @patch('manage_people.utils.logger.exception')
