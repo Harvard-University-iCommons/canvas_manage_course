@@ -1,9 +1,9 @@
 from django.test import TestCase
 
-# from icommons_common.models import UserRole
+
 
 from manage_people.templatetags import manage_people_tags
-# from manage_people.models import ManagePeopleRole
+
 
 
 class GetRoleNameTestCase(TestCase):
