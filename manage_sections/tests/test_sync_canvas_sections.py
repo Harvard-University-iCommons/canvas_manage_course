@@ -1,11 +1,8 @@
-import logging
-
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase
-from mock import ANY, Mock, call, patch
-
 from icommons_common.models import Section, SectionMember
 from icommons_common.tests.test_mock_helpers import set_disappearing_side_effect
+from mock import ANY, Mock, call, patch
 
 from manage_sections.management.commands.sync_canvas_sections import (
     Command,
