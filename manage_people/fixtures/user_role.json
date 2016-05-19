@@ -1,0 +1,548 @@
+[
+{
+    "fields": {
+        "canvas_role_id": 3,
+        "guest": "0",
+        "list_order": 0,
+        "role_name": "Student",
+        "student": "1",
+        "staff": "0",
+        "canvas_role": "student",
+        "description": "Regular Student"
+    },
+    "model": "icommons_common.UserRole",
+    "pk": 0
+},
+{
+    "fields": {
+        "canvas_role_id": 12,
+        "guest": "0",
+        "list_order": 1,
+        "role_name": "Course Head",
+        "student": "0",
+        "staff": "1",
+        "canvas_role": "Course Head",
+        "description": ""
+    },
+    "model": "icommons_common.UserRole",
+    "pk": 1
+},
+{
+    "fields": {
+        "canvas_role_id": 13,
+        "guest": "0",
+        "list_order": 2,
+        "role_name": "Faculty",
+        "student": "0",
+        "staff": "1",
+        "canvas_role": "Faculty",
+        "description": ""
+    },
+    "model": "icommons_common.UserRole",
+    "pk": 2
+},
+{
+    "fields": {
+        "canvas_role_id": null,
+        "guest": "0",
+        "list_order": 3,
+        "role_name": "Section Leader",
+        "student": "0",
+        "staff": "1",
+        "canvas_role": "",
+        "description": ""
+    },
+    "model": "icommons_common.UserRole",
+    "pk": 3
+},
+{
+    "fields": {
+        "canvas_role_id": null,
+        "guest": "0",
+        "list_order": 4,
+        "role_name": "Head Teaching Fellow",
+        "student": "0",
+        "staff": "1",
+        "canvas_role": "",
+        "description": ""
+    },
+    "model": "icommons_common.UserRole",
+    "pk": 4
+},
+{
+    "fields": {
+        "canvas_role_id": 5,
+        "guest": "0",
+        "list_order": 5,
+        "role_name": "Teaching Fellow",
+        "student": "0",
+        "staff": "1",
+        "canvas_role": "ta",
+        "description": ""
+    },
+    "model": "icommons_common.UserRole",
+    "pk": 5
+},
+{
+    "fields": {
+        "canvas_role_id": 6,
+        "guest": "0",
+        "list_order": 2,
+        "role_name": "Designer",
+        "student": "0",
+        "staff": "1",
+        "canvas_role": "designer",
+        "description": "Course Designer"
+    },
+    "model": "icommons_common.UserRole",
+    "pk": 7
+},
+{
+    "fields": {
+        "canvas_role_id": null,
+        "guest": "0",
+        "list_order": 8,
+        "role_name": "Web Admin",
+        "student": "0",
+        "staff": "1",
+        "canvas_role": "",
+        "description": ""
+    },
+    "model": "icommons_common.UserRole",
+    "pk": 8
+},
+{
+    "fields": {
+        "canvas_role_id": 4,
+        "guest": "0",
+        "list_order": 0,
+        "role_name": "Teacher",
+        "student": "0",
+        "staff": "1",
+        "canvas_role": "teacher",
+        "description": "Teaching staff"
+    },
+    "model": "icommons_common.UserRole",
+    "pk": 9
+},
+{
+    "fields": {
+        "canvas_role_id": 9,
+        "guest": "1",
+        "list_order": 0,
+        "role_name": "Guest",
+        "student": "0",
+        "staff": "0",
+        "canvas_role": "Guest",
+        "description": "Guest"
+    },
+    "model": "icommons_common.UserRole",
+    "pk": 10
+},
+{
+    "fields": {
+        "canvas_role_id": 21,
+        "guest": "0",
+        "list_order": 22,
+        "role_name": "Course Support Staff",
+        "student": "0",
+        "staff": "1",
+        "canvas_role": "Course Support Staff",
+        "description": "Course support staff"
+    },
+    "model": "icommons_common.UserRole",
+    "pk": 11
+},
+{
+    "fields": {
+        "canvas_role_id": 14,
+        "guest": "0",
+        "list_order": 23,
+        "role_name": "Teaching Staff",
+        "student": "0",
+        "staff": "1",
+        "canvas_role": "Teaching Staff",
+        "description": "Teaching Staff"
+    },
+    "model": "icommons_common.UserRole",
+    "pk": 12
+},
+{
+    "fields": {
+        "canvas_role_id": 11,
+        "guest": "0",
+        "list_order": 14,
+        "role_name": "Shopper",
+        "student": "1",
+        "staff": "0",
+        "canvas_role": "Shopper",
+        "description": "Shopper"
+    },
+    "model": "icommons_common.UserRole",
+    "pk": 14
+},
+{
+    "fields": {
+        "canvas_role_id": 7,
+        "guest": "1",
+        "list_order": 25,
+        "role_name": "Observer",
+        "student": "0",
+        "staff": "0",
+        "canvas_role": "observer",
+        "description": "Observer"
+    },
+    "model": "icommons_common.UserRole",
+    "pk": 15
+},
+{
+    "fields": {
+        "canvas_role_id": null,
+        "guest": "0",
+        "list_order": 1,
+        "role_name": "Enrolled",
+        "student": "1",
+        "staff": "0",
+        "canvas_role": "student",
+        "description": ""
+    },
+    "model": "icommons_common.UserRole",
+    "pk": 101
+},
+{
+    "fields": {
+        "canvas_role_id": null,
+        "guest": "0",
+        "list_order": 2,
+        "role_name": "Section Member",
+        "student": "1",
+        "staff": "0",
+        "canvas_role": "",
+        "description": ""
+    },
+    "model": "icommons_common.UserRole",
+    "pk": 102
+},
+{
+    "fields": {
+        "canvas_role_id": null,
+        "guest": "0",
+        "list_order": 3,
+        "role_name": "Withdrawn",
+        "student": "1",
+        "staff": "0",
+        "canvas_role": "",
+        "description": ""
+    },
+    "model": "icommons_common.UserRole",
+    "pk": 103
+},
+{
+    "fields": {
+        "canvas_role_id": null,
+        "guest": "0",
+        "list_order": 4,
+        "role_name": "Excluded",
+        "student": "1",
+        "staff": "0",
+        "canvas_role": "",
+        "description": ""
+    },
+    "model": "icommons_common.UserRole",
+    "pk": 104
+},
+{
+    "fields": {
+        "canvas_role_id": null,
+        "guest": "0",
+        "list_order": 5,
+        "role_name": "Suspended",
+        "student": "1",
+        "staff": "0",
+        "canvas_role": "",
+        "description": ""
+    },
+    "model": "icommons_common.UserRole",
+    "pk": 105
+},
+{
+    "fields": {
+        "canvas_role_id": null,
+        "guest": "0",
+        "list_order": 0,
+        "role_name": "Student",
+        "student": "1",
+        "staff": "0",
+        "canvas_role": "",
+        "description": "Regular Student"
+    },
+    "model": "icommons_common.UserRole",
+    "pk": 200
+},
+{
+    "fields": {
+        "canvas_role_id": null,
+        "guest": "0",
+        "list_order": 1,
+        "role_name": "SAT/NCR",
+        "student": "1",
+        "staff": "0",
+        "canvas_role": "student",
+        "description": "Satisfactory/No Credit Student"
+    },
+    "model": "icommons_common.UserRole",
+    "pk": 201
+},
+{
+    "fields": {
+        "canvas_role_id": null,
+        "guest": "0",
+        "list_order": 2,
+        "role_name": "Member",
+        "student": "1",
+        "staff": "0",
+        "canvas_role": "",
+        "description": "Participating Member"
+    },
+    "model": "icommons_common.UserRole",
+    "pk": 202
+},
+{
+    "fields": {
+        "canvas_role_id": null,
+        "guest": "0",
+        "list_order": 5,
+        "role_name": "HDS-Reg ",
+        "student": "1",
+        "staff": "0",
+        "canvas_role": "",
+        "description": "HDS Registered Students (for HDS use)"
+    },
+    "model": "icommons_common.UserRole",
+    "pk": 205
+},
+{
+    "fields": {
+        "canvas_role_id": null,
+        "guest": "0",
+        "list_order": 6,
+        "role_name": "FAS-Reg ",
+        "student": "1",
+        "staff": "0",
+        "canvas_role": "",
+        "description": "FAS Registered Students taking an HDS course."
+    },
+    "model": "icommons_common.UserRole",
+    "pk": 206
+},
+{
+    "fields": {
+        "canvas_role_id": null,
+        "guest": "0",
+        "list_order": 7,
+        "role_name": "KSG-Reg ",
+        "student": "1",
+        "staff": "0",
+        "canvas_role": "",
+        "description": "KSG Registered Students taking an HDS course."
+    },
+    "model": "icommons_common.UserRole",
+    "pk": 207
+},
+{
+    "fields": {
+        "canvas_role_id": null,
+        "guest": "0",
+        "list_order": 8,
+        "role_name": "HGSE-Reg",
+        "student": "1",
+        "staff": "0",
+        "canvas_role": "",
+        "description": "GSE Registered Students taking an HDS course"
+    },
+    "model": "icommons_common.UserRole",
+    "pk": 208
+},
+{
+    "fields": {
+        "canvas_role_id": null,
+        "guest": "0",
+        "list_order": 9,
+        "role_name": "HLS-Reg ",
+        "student": "1",
+        "staff": "0",
+        "canvas_role": "",
+        "description": "HLS Registered Students taking an HDS course."
+    },
+    "model": "icommons_common.UserRole",
+    "pk": 209
+},
+{
+    "fields": {
+        "canvas_role_id": null,
+        "guest": "0",
+        "list_order": 10,
+        "role_name": "HBS-Reg ",
+        "student": "1",
+        "staff": "0",
+        "canvas_role": "",
+        "description": "HBS Registered Students taking an HDS course."
+    },
+    "model": "icommons_common.UserRole",
+    "pk": 210
+},
+{
+    "fields": {
+        "canvas_role_id": null,
+        "guest": "0",
+        "list_order": 11,
+        "role_name": "GSD-Reg ",
+        "student": "1",
+        "staff": "0",
+        "canvas_role": "",
+        "description": "GSD Registered Students taking an HDS course."
+    },
+    "model": "icommons_common.UserRole",
+    "pk": 211
+},
+{
+    "fields": {
+        "canvas_role_id": null,
+        "guest": "0",
+        "list_order": 12,
+        "role_name": "HMS-Reg ",
+        "student": "1",
+        "staff": "0",
+        "canvas_role": "",
+        "description": "HMS Registered Students taking an HDS course."
+    },
+    "model": "icommons_common.UserRole",
+    "pk": 212
+},
+{
+    "fields": {
+        "canvas_role_id": null,
+        "guest": "0",
+        "list_order": 13,
+        "role_name": "SDM-Reg ",
+        "student": "1",
+        "staff": "0",
+        "canvas_role": "",
+        "description": "HSDM Registered Students taking an HDS course."
+    },
+    "model": "icommons_common.UserRole",
+    "pk": 213
+},
+{
+    "fields": {
+        "canvas_role_id": null,
+        "guest": "0",
+        "list_order": 14,
+        "role_name": "SPH-Reg ",
+        "student": "1",
+        "staff": "0",
+        "canvas_role": "",
+        "description": "HSPH Student taking an HDS course."
+    },
+    "model": "icommons_common.UserRole",
+    "pk": 214
+},
+{
+    "fields": {
+        "canvas_role_id": null,
+        "guest": "0",
+        "list_order": 15,
+        "role_name": "MIT-Reg ",
+        "student": "1",
+        "staff": "0",
+        "canvas_role": "",
+        "description": "MIT Student"
+    },
+    "model": "icommons_common.UserRole",
+    "pk": 215
+},
+{
+    "fields": {
+        "canvas_role_id": null,
+        "guest": "0",
+        "list_order": 16,
+        "role_name": "FLCH-Reg",
+        "student": "1",
+        "staff": "0",
+        "canvas_role": "",
+        "description": "FLCH Student"
+    },
+    "model": "icommons_common.UserRole",
+    "pk": 216
+},
+{
+    "fields": {
+        "canvas_role_id": null,
+        "guest": "0",
+        "list_order": 17,
+        "role_name": "BTI-Reg ",
+        "student": "1",
+        "staff": "0",
+        "canvas_role": "",
+        "description": "BTI Student"
+    },
+    "model": "icommons_common.UserRole",
+    "pk": 217
+},
+{
+    "fields": {
+        "canvas_role_id": null,
+        "guest": "0",
+        "list_order": 18,
+        "role_name": "Auditor ",
+        "student": "1",
+        "staff": "0",
+        "canvas_role": "",
+        "description": "Student Auditor"
+    },
+    "model": "icommons_common.UserRole",
+    "pk": 218
+},
+{
+    "fields": {
+        "canvas_role_id": null,
+        "guest": "0",
+        "list_order": 19,
+        "role_name": "DCE-Grad",
+        "student": "1",
+        "staff": "0",
+        "canvas_role": "student",
+        "description": "DCE Graduate Credit Status"
+    },
+    "model": "icommons_common.UserRole",
+    "pk": 301
+},
+{
+    "fields": {
+        "canvas_role_id": null,
+        "guest": "0",
+        "list_order": 20,
+        "role_name": "DCE-Undergrad",
+        "student": "1",
+        "staff": "0",
+        "canvas_role": "student",
+        "description": "DCE Undergraduate Credit Status"
+    },
+    "model": "icommons_common.UserRole",
+    "pk": 302
+},
+{
+    "fields": {
+        "canvas_role_id": null,
+        "guest": "0",
+        "list_order": 21,
+        "role_name": "DCE-noncredit",
+        "student": "1",
+        "staff": "0",
+        "canvas_role": "student",
+        "description": "DCE non credit status"
+    },
+    "model": "icommons_common.UserRole",
+    "pk": 303
+}
+]
