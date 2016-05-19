@@ -1,0 +1,39 @@
+{% extends 'canvas_course_admin_tools/base.html' %}
+
+{% load static %}
+
+{% block stylesheets %}
+  <link href="{% static 'canvas_course_admin_tools/css/dashboard.css' %}"
+        rel="stylesheet"/>
+  <link href="{% static 'class_roster/css/class_roster.css' %}"
+        rel="stylesheet"/>
+{% endblock stylesheets %}
+
+
+{% block breadcrumb %}
+<nav>
+  <h1>
+    Class Roster
+  </h1>
+</nav>
+{% endblock %}
+
+
+{% block content %}
+<main>
+  <div id="content" role="main">
+    {% if num_of_courses > 0 %}
+      <p>
+        Use the link{{ num_of_courses|pluralize }} below to view the class roster
+        in my.harvard, which includes information about enrollees such as email
+        addresses, photos and concentration.
+      </p>
+      {% for course in associated_courses %}
+        <p><a href="{{ course.url }}">Roster for {{ course.code }}</a></p>
+      {% endfor %}
+  {% else %}
+    <p>No class roster could be found.</p>
+  {% endif %}
+  </div>
+</main>
+{% endblock content %}

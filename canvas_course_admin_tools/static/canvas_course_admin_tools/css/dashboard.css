@@ -54,6 +54,9 @@ p {
 .card_color3 {
     border-bottom-color: orangered;
 }
+.card_color4 {
+    border-bottom-color: #ffdd00;
+}
 .card_disabled {
     border-bottom-color: #ccc;
     cursor: default;
@@ -85,7 +88,6 @@ p {
     -webkit-transform: translate3d(0, 0, 0);
 }
 .card-header {
-    border: 1px solid rgba(0,0,0,0.1);
     height:.25em;
 }
 .card-header_color1 {
@@ -97,9 +99,11 @@ p {
 .card-header_color3 {
     background-color: orangered;
 }
+.card-header_color4 {
+    background-color: #ffdd00;
+}
 .card-header_disabled {
     background-color:#ccc;
-    border: 1px solid rgba(0,0,0,0);
 }
 .content-link {
     color: #0081bd;
