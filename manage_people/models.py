@@ -20,7 +20,7 @@ class ManagePeopleRole(models.Model):
         db_table = u'manage_people_role'
 
     def __unicode__(self):
-        return u'user role id {}, canvas role {},  xid {}allowed'.format(
+        return u'user role id:{}, canvas role label:{}, xid:{}allowed'.format(
             self.user_role_id, self.canvas_role_label,
             u'' if self.xid_allowed else u'not ')
 
@@ -44,8 +44,8 @@ class SchoolAllowedRole(models.Model):
         unique_together = ('school_id', 'user_role')
 
     def __unicode__(self):
-        return u'school {}, role {}, xid {}allowed'.format(
+        return u'school:{}, manage people role id:{}, xid:{}allowed'.format(
             self.school_id,
-            self.canvas_role_id,
+            self.user_role.user_role_id,
             '' if self.xid_allowed else 'not '
         )
