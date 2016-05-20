@@ -50,11 +50,9 @@ MIDDLEWARE_CLASSES = (
     'djangular.middleware.DjangularUrlMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    # 'django.middleware.csrf.CsrfViewMiddleware',
     'cached_auth.Middleware',
     'django_auth_lti.middleware_patched.MultiLTILaunchAuthMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
 )
 
@@ -290,20 +288,20 @@ CUSTOM_LTI_PERMISSIONS = {
     'manage_people': 'manage_people',
 }
 
-MANAGE_PEOPLE_MSGS = {
-    'lti_request': 'There was a problem fulfilling your request. Please contact HUIT support.',
-    'no_dir_member_chosen': 'You must choose at least one directory record.',
-    'no_role_selected': 'You must choose a role for each user you select.',
-    'no_user_selected': 'You must select a user for each role you choose.',
-    'success': 'Successful !!!',
-
-}
-
-MANAGE_PEOPLE_BADGE_LABELS = {
-    'huid': 'HUID',
-    'xid': 'XID',
-    'library': 'LIBRARY',
-    'other': 'OTHER',
+MANAGE_PEOPLE = {
+    'BADGE_LABELS': {
+        'huid': 'HUID',
+        'xid': 'XID',
+        'library': 'LIBRARY',
+        'other': 'OTHER',
+    },
+    'MSGS': {
+        'lti_request': 'There was a problem fulfilling your request. Please contact HUIT support.',
+        'no_dir_member_chosen': 'You must choose at least one directory record.',
+        'no_role_selected': 'You must choose a role for each user you select.',
+        'no_user_selected': 'You must select a user for each role you choose.',
+        'success': 'Successful !!!',
+    }
 }
 
 MANAGE_SECTIONS = {
