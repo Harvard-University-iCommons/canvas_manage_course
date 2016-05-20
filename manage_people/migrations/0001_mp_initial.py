@@ -22,6 +22,7 @@ MANAGE_PEOPLE_ROLE_DATA = [
 LTI_PERMISSIONS_DATA = [
     ('manage_people', '*', 'Account Observer', True),
 	('manage_people', '*', 'AccountAdmin', True),
+    ('manage_people', '*', 'Account Admin', True),
 	('manage_people', '*', 'Course Head', True),
 	('manage_people', '*', 'Course Support Staff', True),
 	('manage_people', '*', 'Department Admin', True),
