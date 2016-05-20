@@ -1,0 +1,73 @@
+{% extends "manage_people/base_new.html" %}
+
+{% load static %}
+{% load lti %}
+
+{% block stylesheet %}
+{{ block.super }}
+   <style type="text/css">
+       {# This selector is used in the View code #}
+        .error {
+            color: #A64343;
+        }
+        #canvas_course_id {display: none;}
+        .tlt-alert-info-blue-fg {
+            color: #31708f;
+        }
+    </style>
+{% endblock %}
+
+{% block breadcrumbs %}
+<nav>
+    <h3>
+        <a href="{% url 'dashboard_course' %}">Manage Course</a>&nbsp;<i class="fa fa-chevron-right"></i>&nbsp;
+        <a href="{% url 'manage_people:user_form' %}">Manage People</a>&nbsp;<i class="fa fa-chevron-right"></i>&nbsp;Search for people
+    </h3>
+</nav>
+{% endblock breadcrumbs %}
+
+{% block content %}
+    <form class="form-inline" action="{% url 'manage_people:results_list' %}" id="formName" role="form">
+        {% resource_link_id %}
+        {% if notfound %}
+        <div id="msg-not-found" class="infoBlock-warning">
+            <p><i class="fa fa-warning"></i> {{ search_term }} was not found. Please check the email or Harvard University ID and try again.</p>
+        </div>
+        {% endif %}
+
+        {% if error_message %}
+        <div id="lti-custom-error" class="infoBlock-error alert-lti">
+            {% if error_message == 'Nothing' %}
+                <p><strong>You must enter a valid HUID or email address.</strong></p>
+            {% elif error_message == 'xid' %}
+                <p><strong>{{ search_term }} is an XID and cannot be added as Teacher.</strong></p>
+            {% endif %}
+        </div>
+        {% endif %}
+        <label for="emailHUID" class="{{ lbl_message }}">Search:</label>
+        <span id="alert-invalid-input" class="alert-lti hidden">
+            <strong class="text-strong-error">You must enter a valid HUID or email address.</strong>
+        </span>
+
+        <ul>
+            <li>
+                Enter an official email address or Harvard University ID.
+            </li>
+            <li>
+                <a href="https://connections.harvard.edu" target="_blank">Go to the Harvard Directory</a> to find someone’s official email address.
+            </li>
+        </ul>
+
+        <div class="form-group-inline">
+            <input type="text" name="user_search_term" placeholder="Enter Harvard University ID or email address" class="form-control col-50" id="emailHUID" />
+            <button type="submit" id="user_search_button" data-loading-text="Searching..." class="btn btn-submit">Search</button>
+        </div>
+
+    </form>
+    <p><a href="{% url 'manage_people:user_form' %}">Back to manage people</a></p>
+{% endblock content %}
+
+{% block javascript %}
+    {{ block.super }}
+    <script src="{% static "manage_people/js/find_user.js" %}"></script>
+{% endblock javascript %}

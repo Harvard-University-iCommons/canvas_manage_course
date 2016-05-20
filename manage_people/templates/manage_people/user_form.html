@@ -1,0 +1,99 @@
+{% extends "manage_people/base_new.html" %}
+
+{% load manage_people_tags %}
+{% load static %}
+
+{% block stylesheet %}
+{{ block.super }}
+   <style type="text/css">
+       {# This selector is used in the View code #}
+        .error {
+            color: #A64343;
+        }
+        #canvas_course_id {display: none;}
+        .tlt-alert-info-blue-fg {
+            color: #31708f;
+        }
+    </style>
+{% endblock %}
+
+{% block breadcrumbs %}
+<nav>
+    <h3>
+        <a href="{% url 'dashboard_course' %}">Manage Course</a>&nbsp;<i class="fa fa-chevron-right"></i>&nbsp;Manage People
+    </h3>
+</nav>
+{% endblock breadcrumbs %}
+
+{% block content %}
+    <div id="user-removed-success" class="infoBlock-success alert-lti hidden">
+        <p>User '<span id="success_username"> </span>' successfully removed.</p>
+    </div>
+
+    <div id="user-removed-failed" class="infoBlock-error alert-lti hidden">
+        <p>
+            There was a problem removing '<span id="err_username"> </span>'. Please try again. If the problem persists,
+            please contact your <a href="http://tlt.harvard.edu/learn-more" target="_blank">local support staff</a>.
+        </p>
+    </div>
+
+    {% if success_message %}
+        <div class="server-response-alerts">
+        {% if warning_message %}
+            <div class="infoBlock-warning" >
+                <p><strong>One or more users you attempted to add were already in this course.</strong></p>
+            </div>
+        {% endif %}
+        {% if canvas_users|length > 0 %}
+            <div class="infoBlock-success">
+                <p><strong>The following users have been successfully added:</strong></p>
+                <ul>
+                    {% for key, person in canvas_users.items %}
+                    <li>{{ person.name_first }} {{ person.name_last }} ({{ person.email_address}}) with the role of <strong>{{ person.enroll_role|tf_to_ta_filter }}</strong></li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+        </div>  {# ends div.server-response-alerts #}
+    {% endif %}
+
+
+    <p>The list below only contains people who have been manually added to this course. <a href="https://{{ canvas_host }}/courses/{{ canvas_course_id }}/users" target="_blank">Go to the People page</a> to see the full class list, which includes enrollment provided by the Registrar.</p>
+
+    <div class="text-right">
+        <p><a href="{% url 'manage_people:find_user' %}" class="link-icon" id="add-people-to-course-id"><i class="fa fa-plus-circle"></i>Add People to course</a></p>
+    </div>
+
+    <div id="no-users-added" class="infoBlock infoBlock-empty hidden">
+        <h3>No one has been manually added</h3>
+    </div>
+
+
+
+    <div id="canvas_course_id">{{ canvas_course_id }}</div>
+
+    <ul id="people-added" class="list-with-floats">
+
+        <li class="header"><span>Name / ID type</span><span class="header-right">Role</span></li>
+        {% for enrollee in filtered_enrollments %}
+        <li id="user-index-{{ forloop.counter }}" class="rosterUser al-hover-container StudentEnrollment" data-sisID="{{ enrollee.user.sis_user_id }}" data-role="{{ enrollee.role}}">
+
+            <a class="deleteMenu delete-icon" href="#"><i class="fa fa-trash"></i></a>
+            <span class="roster_user_name">{{ enrollee.user.sortable_name }}</span>
+            <span class="label">{{ enrollee.badge_label_name }}</span>
+            <span class="float-right text-strong">{{ enrollee.role|get_role_display_name }}</span>
+        </li>
+        {% endfor %}
+
+    </ul>
+
+    {% include "icommons_ui/_confirmation_modal.html" with modal_id="confirm-remove-user" title="Confirm Remove User" message="Are you sure you want to remove this user from this course and all of its sections?" confirm_button_label="Yes, Remove User" %}
+{% endblock content %}
+
+{% block javascript %}
+    {{ block.super }}
+    <script>
+        var removeUserURL = "{% url 'manage_people:remove_user' %}";
+    </script>
+    <script src="{% static "manage_people/js/user_form.js" %}"></script>
+{% endblock javascript %}

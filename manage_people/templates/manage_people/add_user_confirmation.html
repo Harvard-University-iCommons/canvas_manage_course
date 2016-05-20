@@ -1,0 +1,29 @@
+{% extends "manage_people/base_new.html" %}
+
+{% load manage_people_tags %}
+{% load static %}
+
+{% block breadcrumbs %}<a href="{% url 'manage_people:user_form' %}">Manage People</a> <i class="fa fa-chevron-right"></i> Add Person{% endblock breadcrumbs %}
+
+{% block content %}
+    <p><strong>{{ person.name_first }} {{ person.name_last }}</strong> has been successfully added as:</p>
+    <ul class="list-with-floats" id="enrollment_confirmations">
+        {% for existing_enrollment, enrollee in enrollment_results %}
+            <li>
+                {{ enrollee.email_address }} <span class="label">{{ enrollee.badge_label }}</span>
+                <div class="float-right">
+                    {% if existing_enrollment %}
+                        <span class="text-strong"><i class="fa fa-check"></i> Already enrolled as a {{ enrollee.role_name|tf_to_ta_filter }}</span>
+                    {% else %}
+                        <span class="text-strong text-success"><i class="fa fa-check"></i> Enrolled as a {{ enrollee.role_name|tf_to_ta_filter }}</span>
+                    {% endif %}
+                </div>
+            </li>
+        {% endfor %}
+    </ul>
+
+    <div class="controls text-right">
+        <a id="find_another_user" href="{% url 'manage_people:find_user' %}" class="users-not-found">Search for a different person</a>
+        <a id="back_to_user_form" href="{% url 'manage_people:user_form' %}" class="users-not-found">Go back to manage people</a>
+    </div>
+{% endblock content %}
