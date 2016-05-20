@@ -9,8 +9,10 @@ django-debug-toolbar==1.4
 django-sslserver==0.19
 flake8==2.5.4
 mock==2.0.0
+oauthlib==1.1.1
 pep8==1.7.0
 pyvirtualdisplay==0.2
+requests-oauthlib==0.6.1
 selenium==2.53.2
 xlrd==0.9.4
 
