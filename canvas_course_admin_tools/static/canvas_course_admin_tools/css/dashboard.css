@@ -85,7 +85,6 @@ p {
     -webkit-transform: translate3d(0, 0, 0);
 }
 .card-header {
-    border: 1px solid rgba(0,0,0,0.1);
     height:.25em;
 }
 .card-header_color1 {
@@ -99,7 +98,6 @@ p {
 }
 .card-header_disabled {
     background-color:#ccc;
-    border: 1px solid rgba(0,0,0,0);
 }
 .content-link {
     color: #0081bd;
