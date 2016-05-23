@@ -3,7 +3,7 @@
 {% load manage_people_tags %}
 {% load static %}
 
-{% block breadcrumbs %}<a href="{% url 'manage_people:user_form' %}">Manage People</a> <i class="fa fa-chevron-right"></i> Add Person{% endblock breadcrumbs %}
+{% block breadcrumbs %}<a href="{% url 'manage_people:user_form' %}">Manage People</a><small><i class="fa fa-chevron-right"></i><small> Add Person{% endblock breadcrumbs %}
 
 {% block content %}
     <p><strong>{{ person.name_first }} {{ person.name_last }}</strong> has been successfully added as:</p>
