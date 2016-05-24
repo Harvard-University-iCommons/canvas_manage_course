@@ -9,8 +9,8 @@
 {% block breadcrumb %}
 <nav>
     <h3>
-        <a href="{% url 'dashboard_course' %}">Manage Course</a>&nbsp;<i class="fa fa-chevron-right"></i>
-        <a href="{% url 'manage_sections:create_section_form' %}">&nbsp;Manage Sections</a>&nbsp;<i class="fa fa-chevron-right"></i>
+        <a href="{% url 'dashboard_course' %}">Manage Course</a>&nbsp;<small><i class="fa fa-chevron-right"></i></small>
+        <a href="{% url 'manage_sections:create_section_form' %}">&nbsp;Manage Sections</a>&nbsp;<small><i class="fa fa-chevron-right"></i></small>
         <span>{{section_name}} (<span class="enroll_count"></span>)</span>
     </h3>
 </nav>
