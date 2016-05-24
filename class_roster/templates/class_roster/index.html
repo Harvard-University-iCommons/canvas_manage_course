@@ -30,7 +30,11 @@
         addresses, photos and concentration.
       </p>
       {% for course in associated_courses %}
-        <p><a href="{{ course.url }}">Roster for {{ course.code }}</a></p>
+        <p>
+          <a href="{{ course.url }}" target="_blank" >
+            Roster for {{ course.code }}
+          </a>
+        </p>
       {% endfor %}
   {% else %}
     <p>No class roster could be found.</p>

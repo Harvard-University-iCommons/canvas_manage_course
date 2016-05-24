@@ -104,7 +104,7 @@ def _get_course_instances(primary_course_instance_id):
     request_args = {
         'params': {
             'format': 'json',
-            'include': 'xlist_maps',
+            'include': 'xlist_instances',
         },
         'headers': {
             'Authorization': "Token {}".format(settings.ICOMMONS_REST_API_TOKEN)
