@@ -71,6 +71,11 @@ def _get_roster_url(course_instance, user_id):
     term_code = str(
         course_instance.get('term', {}).get('term_code', '')).strip()
     if calendar_year == '' or cs_class_number == '' or term_code == '':
+        logger.error('Class roster tool cannot build a my.harvard class roster'
+                     ' link for course instance {}, as it is missing required '
+                     ' information: calendar_year={}; cs_class_number={};'
+                     ' term_code={}', course_instance, calendar_year,
+                     cs_class_number, term_code)
         return None  # we cannot build a link for this course instance; skip it
 
     cs_term_code = '{}{}{}'.format(calendar_year[0],  # [y]yyy
@@ -91,7 +96,9 @@ def _get_roster_url(course_instance, user_id):
 
 
 def _get_course_instances(primary_course_instance_id):
-    # returns primary course instance and all secondary xlisted course instances
+    """
+    returns primary course instance and all secondary xlisted course instances
+    """
 
     base_path = '/api/course/v2/'
     request_args = {
