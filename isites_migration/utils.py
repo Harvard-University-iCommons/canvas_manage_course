@@ -77,7 +77,10 @@ def _get_file_nodes_by_file_repo_id(file_repo_ids):
 
 
 def export_files(keyword):
-    """Export iSite archive of files and text to an s3 bucket."""
+    """Export iSite archive of files and text to an s3 bucket.  There are 3 file-related
+       names we care about: 1) name of zipfile on disk, 2) name of top-level folder in
+       the zipfile, and 3) name of file (key) in s3.  We're using the keyword for all
+       three of these identifiers now."""
     s3_bucket = settings.AWS_EXPORT_BUCKET_ISITES_FILES
     logger.info("Beginning iSites file export for keyword %s to S3 bucket %s",
                 keyword, s3_bucket)
@@ -107,15 +110,13 @@ def export_files(keyword):
         topic_titles_by_id[topic_id] = topic_title
         topic_file_repo_ids.append("icb.topic%d.files" % topic_id)
 
-    zip_filename = os.path.join(settings.EXPORT_DIR, "%s%s.zip" %
-                                (settings.EXPORT_ARCHIVE_FILENAME_PREFIX,
-                                 keyword))
+    zip_filename = os.path.join(settings.EXPORT_DIR, "%s.zip" % keyword)
     logger.info('Creating zip file %s to store archive' % zip_filename)
 
     # Write files and text directly to the archive as we go.  Allow for ZIP64
     # extension to accomodate zip files > 2GB
     with zipfile.ZipFile(zip_filename, 'w', zipfile.ZIP_STORED, True) as z_file:
-        # Export all files 
+        # Export all files
         for file_node in _get_file_nodes_by_file_repo_id(topic_file_repo_ids):
             # Use some regex magic to extract the numeric topic id string
             # from the file repository id (i.e. "icb.topic123.files")
@@ -158,7 +159,7 @@ def import_files(keyword, canvas_course_id):
         progress = SDK_CONTEXT.session.request('GET', progress_url).json()
         workflow_state = progress['workflow_state']
         if workflow_state == 'completed':
-            lock_canvas_folder(canvas_course_id, settings.EXPORT_ARCHIVE_FILENAME_PREFIX + keyword)
+            lock_canvas_folder(canvas_course_id, keyword)
     return workflow_state
 
 
@@ -206,7 +207,7 @@ def lock_canvas_folder(canvas_course_id, folder_name):
             None
         )
         logger.info("Locked import folder %s for canvas_course_id %s", folder_name, canvas_course_id)
-    except CanvasAPIError:
+    except Exception:
         logger.exception("Failed to lock import folder %s for canvas_course_id %s", folder_name, canvas_course_id)
         raise
 
