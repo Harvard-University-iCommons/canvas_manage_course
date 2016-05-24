@@ -4,6 +4,10 @@ input[type="checkbox"].add-user {
     margin: 4px 12px 10px 4px;
 }
 
+#pane-container {
+    top: 15px;
+}
+
 #pane-left .enroll_count, #pane-right .selection_count {
     color: #3566a0;
     font-weight: bold;
