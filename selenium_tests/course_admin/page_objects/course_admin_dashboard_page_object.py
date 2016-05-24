@@ -6,10 +6,10 @@ from selenium_tests.course_admin.page_objects.course_admin_base_page_object \
 
 
 class Locators(object):
+    MANAGE_PEOPLE_BUTTON = (By.ID, "manage-people")
     # if PAGE_TITLE uses contains() it will match for sub-pages as well, so
     # use text() for exact match (should only match on dashboard page)
-    PAGE_TITLE = (By.XPATH, '//h1[text()="Manage Course"]')
-    MANAGE_PEOPLE_BUTTON = (By.ID, "manage-people")
+    PAGE_TITLE = (By.XPATH, './/h3[normalize-space(text())="Manage Course"]')
 
 
 class CourseAdminDashboardPage(CourseAdminBasePage):
