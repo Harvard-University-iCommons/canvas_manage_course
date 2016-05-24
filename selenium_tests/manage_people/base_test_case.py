@@ -13,6 +13,8 @@ from selenium_tests.manage_people.page_objects.mp_user_form_page \
 # Common files used for all Manage People test cases
 MP_TEST_USERS_WITH_ROLES = join(dirname(abspath(__file__)), 'test_data',
                                 'mp_test_users_with_roles.xlsx')
+MP_PERMISSION_ROLES = join(dirname(abspath(__file__)), 'test_data',
+                           'roles_access.xlsx')
 
 
 class ManagePeopleBaseTestCase(CourseAdminBaseTestCase):

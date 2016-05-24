@@ -20,6 +20,7 @@ class CourseAdminDashboardPage(CourseAdminBasePage):
         Verifies that the Manage People button is displayed
         """
         try:
+            self.focus_on_tool_frame()
             self.find_element(*Locators.MANAGE_PEOPLE_BUTTON)
         except NoSuchElementException:
             return False
