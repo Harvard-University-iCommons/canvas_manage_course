@@ -17,8 +17,6 @@ from isites_migration.utils import get_previous_isites
 from lti_permissions.decorators import lti_permission_required_check
 from manage_sections.views import (
     LTI_ROLES_PERMITTED as manage_sections_lti_roles_permitted,)
-from class_roster.views import (
-    LTI_ROLES_PERMITTED as class_roster_lti_roles_permitted,)
 
 logger = logging.getLogger(__name__)
 
@@ -73,7 +71,7 @@ def dashboard_course(request):
     # list of permissions to determine tool visibility
     tools = {
         'class_roster': {
-            'visible': _lti_role_allowed(request, class_roster_lti_roles_permitted)},
+            'visible': lti_permission_required_check(request, settings.CUSTOM_LTI_PERMISSIONS['class_roster'])},
         'isites_migration': {
             'visible': lti_permission_required_check(request, settings.CUSTOM_LTI_PERMISSIONS['isites_migration'])},
         'manage_people': {

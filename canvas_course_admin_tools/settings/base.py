@@ -285,6 +285,7 @@ ICOMMONS_COMMON = {
 # that uses it (this is used on the dashboard to determine which app links to
 # make available to the user
 CUSTOM_LTI_PERMISSIONS = {
+    'class_roster': 'class_roster',
     'isites_migration': 'im_import_files',
     'manage_people': 'manage_people',
 }
