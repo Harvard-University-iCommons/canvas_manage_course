@@ -54,6 +54,10 @@ p {
 .card_color3 {
     border-bottom-color: orangered;
 }
+.card_color4 {
+    /* http://guidelines.hwp.harvard.edu/color-palette - lemon */
+    border-bottom-color: #ffdb6d;
+}
 .card_disabled {
     border-bottom-color: #ccc;
     cursor: default;
@@ -95,6 +99,10 @@ p {
 }
 .card-header_color3 {
     background-color: orangered;
+}
+.card-header_color4 {
+    /* http://guidelines.hwp.harvard.edu/color-palette - lemon */
+    background-color: #ffdb6d;
 }
 .card-header_disabled {
     background-color:#ccc;

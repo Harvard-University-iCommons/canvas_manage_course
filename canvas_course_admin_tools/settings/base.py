@@ -29,6 +29,7 @@ DEBUG = SECURE_SETTINGS.get('enable_debug', False)
 INSTALLED_APPS = (
     'async',
     'canvas_course_admin_tools',
+    'class_roster',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -284,8 +285,18 @@ ICOMMONS_COMMON = {
 # that uses it (this is used on the dashboard to determine which app links to
 # make available to the user
 CUSTOM_LTI_PERMISSIONS = {
+    'class_roster': 'class_roster',
     'isites_migration': 'im_import_files',
     'manage_people': 'manage_people',
+}
+
+CLASS_ROSTER = {
+    'sis_roster': {
+        'base_path': SECURE_SETTINGS['sis_roster_base_path'],
+        'static_path': '/EMPLOYEE/HRMS/c/SA_LEARNING_MANAGEMENT.SS_CLASS_ROSTER.GBL',
+        'base_url': SECURE_SETTINGS['sis_roster_base_url'],
+        'base_query': '?Page=CLASS_ROSTER&Action=U&ExactKeys=Y&INSTITUTION=HRVRD&',
+    }
 }
 
 MANAGE_PEOPLE = {

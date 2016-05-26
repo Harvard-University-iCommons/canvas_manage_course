@@ -7,6 +7,7 @@ from canvas_course_admin_tools import views
 
 urlpatterns = [
     url(r'^course_dashboard$', views.dashboard_course, name='dashboard_course'),
+    url(r'^class_roster/', include('class_roster.urls', namespace='class_roster')),
     url(r'^isites_migration/', include('isites_migration.urls', namespace='isites_migration')),
     url(r'^lti_auth_error$', icommons_ui_views.not_authorized, name='lti_auth_error'),
     url(r'^lti_launch$', views.lti_launch, name='lti_launch'),

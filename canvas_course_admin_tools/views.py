@@ -70,6 +70,8 @@ def dashboard_course(request):
 
     # list of permissions to determine tool visibility
     tools = {
+        'class_roster': {
+            'visible': lti_permission_required_check(request, settings.CUSTOM_LTI_PERMISSIONS['class_roster'])},
         'isites_migration': {
             'visible': lti_permission_required_check(request, settings.CUSTOM_LTI_PERMISSIONS['isites_migration'])},
         'manage_people': {
