@@ -4,7 +4,7 @@ from unittest import skip
 
 from django.test import RequestFactory, TestCase
 from django.core import urlresolvers
-from django.test.utils import override_settings
+from django.test import override_settings
 from mock import patch, Mock, ANY, call, MagicMock
 
 from class_roster.views import (
@@ -15,9 +15,17 @@ from class_roster.views import (
 
 mock_api_token = 'test-token'
 mock_api_host = 'fake://path/'
+test_roster_url_settings = {
+    'sis_roster': {
+        'base_url': 'https://',
+        'base_path': 'fake.path/',
+        'base_query': '?a=b&c=d&',
+        'static_path': 'sub/dirs/',
+    }
+}
 
 
-@skip("Issues with django_auth_lti's reverse() in the index.html template")
+@skip("TLT-2635: Issues with django_auth_lti's reverse() in the index.html template")
 @patch.multiple('django_auth_lti.patch_reverse', reverse=Mock(side_effect=urlresolvers.reverse))
 @patch.multiple('lti_permissions.decorators', is_allowed=Mock(return_value=True))
 class IndexViewTests(TestCase):
@@ -181,17 +189,64 @@ class GetCourseTitleTests(TestCase):
         self.assertEqual(response, 'Another Boring Course 001')
 
 
-@override_settings(CLASS_ROSTER={})  # todo: fill in this mock settings dict
 class GetRosterURLTests(TestCase):
 
-    @skip('for now')
-    def test_blank_data(self):
+    def setUp(self):
+        self.test_dynamic_query_template = 'INSTRUCTOR_ID={}&CLASS_NBR={}&STRM={}'
+        test_settings = test_roster_url_settings['sis_roster']
+        self.test_roster_url_base = '{}{}{}{}'.format(
+            test_settings['base_url'],
+            test_settings['base_path'],
+            test_settings['static_path'],
+            test_settings['base_query'])
+        self.test_user_id = '12345678'
+
+    @patch('class_roster.views.logger.error')
+    def test_blank_data(self, mock_logger_error):
         """
         if data required to build the roster link is missing, we log it and
         return None to indicate to calling procedure that we could not build it
         """
-        pass
+        test_course_instances = [
+            {
+                'cs_class_number': '56789',
+                'term': {'calendar_year': '2016'}
+            },
+            {
+                'cs_class_number': None,
+                'term': {'calendar_year': '2016', 'term_code': '2'}
+            },
+            {
+                'cs_class_number': '56789',
+                'term': {'term_code': '2'}
+            },
+            {
+                'term': {'calendar_year': '2016', 'term_code': '2'}
+            },
+        ]
+        for test_course_instance in test_course_instances:
+            response = _get_roster_url(test_course_instance, self.test_user_id)
+            self.assertIsNone(response)
+            self.assertEqual(mock_logger_error.call_count, 1)
+            mock_logger_error.reset_mock()
 
-    @skip('for now')
-    def test_good_data(self):
-        pass
+    @skip('TLT-2635: Issues with override_settings() not being applied before the code runs')
+    @override_settings(CLASS_ROSTER=test_roster_url_settings)
+    @patch('class_roster.views.logger.error')
+    def test_good_data(self, mock_logger_error):
+        test_course_instance = {
+            'cs_class_number': '56789',
+            'term': {'calendar_year': '2016', 'term_code': '2'}
+        }
+
+        expected_dynamic_query = self.test_dynamic_query_template.format(
+            self.test_user_id,
+            test_course_instance['cs_class_number'],
+            '2162')
+        expected_url = '{}{}'.format(self.test_roster_url_base,
+                                     expected_dynamic_query)
+
+        response = _get_roster_url(test_course_instance, self.test_user_id)
+
+        self.assertEqual(response, expected_url)
+        self.assertEqual(mock_logger_error.call_count, 0)
