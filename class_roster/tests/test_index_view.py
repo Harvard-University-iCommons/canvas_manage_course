@@ -139,9 +139,52 @@ class GetCourseInstancesTests(TestCase):
         self.assertEqual(result, [mock_course_instance, mock_secondary_1, mock_secondary_2])
 
 
-@skip('todo')
-@override_settings(CLASS_ROSTER={})  # todo: fill in this mock settings dict
 class GetCourseTitleTests(TestCase):
+
+    def test_extra_whitespace_short_title_and_section(self):
+        test_course_instance = {
+            'section': ' 001 ',
+            'short_title': '\tABC123\n',
+        }
+        response = _get_course_title(test_course_instance)
+
+        self.assertEqual(response, 'ABC123 001')
+
+    def test_no_titles_or_section(self):
+        """
+        if preferred data for building the course link text is blank, we fall
+        back on data we always expect to have
+        """
+        test_course_instance = {
+            'course': {'registrar_code': 'ABCDE12345', 'school_id': 'fake'},
+        }
+        response = _get_course_title(test_course_instance)
+
+        self.assertEqual(response, 'FAKE ABCDE12345')
+
+    def test_short_title(self):
+        test_course_instance = {
+            'section': '001',
+            'short_title': 'ABC123',
+        }
+        response = _get_course_title(test_course_instance)
+
+        self.assertEqual(response, 'ABC123 001')
+
+    def test_title(self):
+        test_course_instance = {
+            'section': ' 001 ',
+            'title': 'Another Boring Course',
+        }
+        response = _get_course_title(test_course_instance)
+
+        self.assertEqual(response, 'Another Boring Course 001')
+
+
+@override_settings(CLASS_ROSTER={})  # todo: fill in this mock settings dict
+class GetRosterURLTests(TestCase):
+
+    @skip('for now')
     def test_blank_data(self):
         """
         if data required to build the roster link is missing, we log it and
@@ -149,18 +192,6 @@ class GetCourseTitleTests(TestCase):
         """
         pass
 
-    def test_good_data(self):
-        pass
-
-
-@skip('for now')
-class GetRosterURLTests(TestCase):
-    def test_blank_data(self):
-        """
-        if preferred data for building the course link text is blank, we fall
-        back on data we always expect to have
-        """
-        pass
-
+    @skip('for now')
     def test_good_data(self):
         pass
