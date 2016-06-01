@@ -27,31 +27,33 @@ DEBUG = SECURE_SETTINGS.get('enable_debug', False)
 # Application definition
 
 INSTALLED_APPS = (
+    'async',
+    'canvas_course_admin_tools',
+    'class_roster',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_auth_lti',
-    'icommons_common',
-    'lti_permissions',
-    'async',
     'django_rq',
-    'icommons_ui',
     'djangular',
-    'canvas_course_admin_tools',
+    'icommons_common',
+    'icommons_common.monitor',
+    'icommons_ui',
     'isites_migration',
+    'lti_permissions',
+    'manage_people',
+    'manage_sections',
 )
 
 MIDDLEWARE_CLASSES = (
     'djangular.middleware.DjangularUrlMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
     'cached_auth.Middleware',
     'django_auth_lti.middleware_patched.MultiLTILaunchAuthMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
 )
 
@@ -86,7 +88,18 @@ WSGI_APPLICATION = 'canvas_course_admin_tools.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.8/ref/settings/#databases
 
-DATABASE_ROUTERS = ['icommons_common.routers.CourseSchemaDatabaseRouter']
+DATABASE_APPS_MAPPING = {
+    'auth': 'default',
+    'contenttypes': 'default',
+    'icommons_common': 'termtool',
+    'lti_permissions': 'default',
+    'manage_people': 'default',
+    'manage_sections': 'default',
+}
+
+DATABASE_MIGRATION_WHITELIST = ['default']
+
+DATABASE_ROUTERS = ['icommons_common.routers.DatabaseAppsRouter', ]
 
 DATABASES = {
     'default': {
@@ -248,7 +261,7 @@ ENV_NAME = SECURE_SETTINGS.get('env_name', 'local')
 
 LTI_OAUTH_CREDENTIALS = SECURE_SETTINGS.get('lti_oauth_credentials', None)
 
-CANVAS_URL = SECURE_SETTINGS.get('canvas_url', 'https://canvas.instructure.com')
+CANVAS_URL = SECURE_SETTINGS.get('canvas_url', 'https://canvas.harvard.edu')
 
 CANVAS_SDK_SETTINGS = {
     'auth_token': SECURE_SETTINGS.get('canvas_token', None),
@@ -268,9 +281,41 @@ ICOMMONS_COMMON = {
     },
 }
 
-PERMISSION_ISITES_MIGRATION_IMPORT_FILES = 'im_import_files'
+# lti_permissions.LtiPermission permission field for each app in the project
+# that uses it (this is used on the dashboard to determine which app links to
+# make available to the user
+CUSTOM_LTI_PERMISSIONS = {
+    'class_roster': 'class_roster',
+    'isites_migration': 'im_import_files',
+    'manage_people': 'manage_people',
+}
 
-CONCLUDE_COURSES_URL = SECURE_SETTINGS.get(
-    'conclude_courses_url',
-    'https://icommons-tools.dev.tlt.harvard.edu/course_conclusion'
-)
+MANAGE_PEOPLE = {
+    'BADGE_LABELS': {
+        'huid': 'HUID',
+        'xid': 'XID',
+        'library': 'LIBRARY',
+        'other': 'OTHER',
+    },
+    'MSGS': {
+        'lti_request': 'There was a problem fulfilling your request. Please contact HUIT support.',
+        'no_dir_member_chosen': 'You must choose at least one directory record.',
+        'no_role_selected': 'You must choose a role for each user you select.',
+        'no_user_selected': 'You must select a user for each role you choose.',
+        'success': 'Successful !!!',
+    }
+}
+
+MANAGE_SECTIONS = {
+    'TEST_STUDENT_ROLE': 'StudentViewEnrollment'
+}
+
+ICOMMONS_REST_API_TOKEN = SECURE_SETTINGS.get('icommons_rest_api_token')
+ICOMMONS_REST_API_HOST = SECURE_SETTINGS.get('icommons_rest_api_host')
+
+# Allows the REST API passthrough to successfully negotiate an SSL session
+# with an unverified certificate, e.g. the one that ships with django-sslserver
+# Default to False, but if testing locally, set to True
+ICOMMONS_REST_API_SKIP_CERT_VERIFICATION = SECURE_SETTINGS.get(
+    'icommons_rest_api_skip_cert_verification', False)
+

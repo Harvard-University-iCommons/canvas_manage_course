@@ -1,0 +1,6 @@
+<li id="{{ section.id }}" class="">
+    <a class="main-sis-section" href="{% url 'manage_sections:section_details' section_id=section.id %}">
+        {{ section.name }}
+        ({{section.enrollment_count}} users)
+    </a>
+</li>
