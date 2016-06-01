@@ -11,5 +11,5 @@ import os
 
 from django.core.wsgi import get_wsgi_application
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "canvas_course_admin_tools.settings.aws")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "canvas_manage_course.settings.aws")
 application = get_wsgi_application()

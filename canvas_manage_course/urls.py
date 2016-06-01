@@ -2,7 +2,7 @@ from django.conf.urls import include, url
 
 from icommons_ui import views as icommons_ui_views
 
-from canvas_course_admin_tools import views
+from canvas_manage_course import views
 
 
 urlpatterns = [

@@ -97,7 +97,7 @@ def dashboard_course(request):
     icm_active = len(get_previous_isites(course_instance_id)) > 0
     view_context['isites_migration_active'] = icm_active
 
-    return render(request, 'canvas_course_admin_tools/dashboard_course.html',
+    return render(request, 'canvas_manage_course/dashboard_course.html',
                   view_context)
 
 

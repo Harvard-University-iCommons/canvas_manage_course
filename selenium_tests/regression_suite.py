@@ -10,7 +10,7 @@ pwd = os.path.dirname(__file__)
 sys.path.insert(0, os.path.abspath(os.path.join(pwd, '..')))
 if not os.getenv('DJANGO_SETTINGS_MODULE'):
     os.putenv('DJANGO_SETTINGS_MODULE',
-              'canvas_course_admin_tools.settings.local')
+              'canvas_manage_course.settings.local')
 
 # developing test cases is easier with text test runner, lets us drop into pdb
 if settings.SELENIUM_CONFIG.get('use_htmlrunner', True):
@@ -22,12 +22,12 @@ if settings.SELENIUM_CONFIG.get('use_htmlrunner', True):
         os.makedirs(report_file_path)
 
     dateTimeStamp = time.strftime('%Y%m%d_%H_%M_%S')
-    report_name = "canvas_course_admin_tools_test_report_{}.html".format(
+    report_name = "canvas_manage_course_test_report_{}.html".format(
         dateTimeStamp)
     report_file_obj = file(os.path.join(report_file_path, report_name), 'wb')
     runner = HTMLTestRunner.HTMLTestRunner(
         stream=report_file_obj,
-        title='canvas_course_admin_tools test suite report',
+        title='canvas_manage_course test suite report',
         description='Result of tests in {}'.format(__file__)
     )
 else:

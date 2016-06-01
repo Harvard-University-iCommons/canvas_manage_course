@@ -28,7 +28,7 @@ DEBUG = SECURE_SETTINGS.get('enable_debug', False)
 
 INSTALLED_APPS = (
     'async',
-    'canvas_course_admin_tools',
+    'canvas_manage_course',
     'class_roster',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -63,7 +63,7 @@ AUTHENTICATION_BACKENDS = (
 
 LOGIN_URL = reverse_lazy('lti_auth_error')
 
-ROOT_URLCONF = 'canvas_course_admin_tools.urls'
+ROOT_URLCONF = 'canvas_manage_course.urls'
 
 TEMPLATES = [
     {
@@ -82,7 +82,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'canvas_course_admin_tools.wsgi.application'
+WSGI_APPLICATION = 'canvas_manage_course.wsgi.application'
 
 
 # Database
@@ -104,7 +104,7 @@ DATABASE_ROUTERS = ['icommons_common.routers.DatabaseAppsRouter', ]
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': SECURE_SETTINGS.get('db_default_name', 'canvas_course_admin_tools'),
+        'NAME': SECURE_SETTINGS.get('db_default_name', 'canvas_manage_course'),
         'USER': SECURE_SETTINGS.get('db_default_user', 'postgres'),
         'PASSWORD': SECURE_SETTINGS.get('db_default_password'),
         'HOST': SECURE_SETTINGS.get('db_default_host', '127.0.0.1'),
@@ -137,7 +137,7 @@ CACHES = {
         'OPTIONS': {
             'PARSER_CLASS': 'redis.connection.HiredisParser'
         },
-        'KEY_PREFIX': 'canvas_course_admin_tools',  # Provide a unique value for intra-app cache
+        'KEY_PREFIX': 'canvas_manage_course',  # Provide a unique value for intra-app cache
         # See following for default timeout (5 minutes as of 1.7):
         # https://docs.djangoproject.com/en/1.8/ref/settings/#std:setting-CACHES-TIMEOUT
         'TIMEOUT': SECURE_SETTINGS.get('default_cache_timeout_secs', 300),
@@ -237,7 +237,7 @@ LOGGING = {
             'class': 'logging.handlers.WatchedFileHandler',
             'level': _DEFAULT_LOG_LEVEL,
             'formatter': 'verbose',
-            'filename': os.path.join(_LOG_ROOT, 'django-canvas_course_admin_tools.log'),
+            'filename': os.path.join(_LOG_ROOT, 'django-canvas_manage_course.log'),
         }
     },
     'loggers': {
@@ -318,4 +318,3 @@ ICOMMONS_REST_API_HOST = SECURE_SETTINGS.get('icommons_rest_api_host')
 # Default to False, but if testing locally, set to True
 ICOMMONS_REST_API_SKIP_CERT_VERIFICATION = SECURE_SETTINGS.get(
     'icommons_rest_api_skip_cert_verification', False)
-

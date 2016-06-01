@@ -1,9 +1,9 @@
-{% extends 'canvas_course_admin_tools/base.html' %}
+{% extends 'canvas_manage_course/base.html' %}
 
 {% load static %}
 
 {% block stylesheets %}
-  <link href="{% static 'canvas_course_admin_tools/css/dashboard.css' %}"
+  <link href="{% static 'canvas_manage_course/css/dashboard.css' %}"
         rel="stylesheet"/>
   {% if no_tools_visible %}
     {% if debug == True %}
@@ -27,7 +27,7 @@
 
 {% block content %}
 {% if no_tools_visible %}
-  {% include 'canvas_course_admin_tools/_no_tools_available.html' %}
+  {% include 'canvas_manage_course/_no_tools_available.html' %}
 {% else %}
   <main>
 

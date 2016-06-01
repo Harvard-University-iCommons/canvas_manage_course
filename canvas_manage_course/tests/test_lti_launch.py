@@ -41,7 +41,7 @@ class LTIResourceLinkTests(LiveServerTestCase):
         }
 
 
-    @patch('canvas_course_admin_tools.views.get_previous_isites')
+    @patch('canvas_manage_course.views.get_previous_isites')
     def test_lti_launch(self, mock_get_previous_isites):
         mock_get_previous_isites.returns = []
 
@@ -63,7 +63,7 @@ class LTIResourceLinkTests(LiveServerTestCase):
             self.params['lis_course_offering_sourcedid'])
         self.assertEqual(response2.status_code, requests.codes.ok)
 
-    @patch('canvas_course_admin_tools.views.get_previous_isites')
+    @patch('canvas_manage_course.views.get_previous_isites')
     def test_multiple_lti_launch(self, mock_get_previous_isites):
         mock_get_previous_isites.returns = []
 

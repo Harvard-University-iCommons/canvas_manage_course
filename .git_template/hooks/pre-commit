@@ -16,7 +16,7 @@ for file in $(git diff-index --name-only --diff-filter=ACM HEAD -- | grep '\.js$
     fi
 done
 
-python manage.py test --settings=canvas_course_admin_tools.settings.test
+python manage.py test --settings=canvas_manage_course.settings.test
 
 if [[ `git symbolic-ref HEAD` == "refs/heads/master" ]]
 then
