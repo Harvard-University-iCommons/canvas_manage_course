@@ -14,6 +14,7 @@ from selenium_tests.course_admin.page_objects\
 
 
 class CourseAdminBaseTestCase(BaseSeleniumTestCase):
+
     @classmethod
     def setUpClass(cls):
         super(CourseAdminBaseTestCase, cls).setUpClass()
@@ -34,3 +35,4 @@ class CourseAdminBaseTestCase(BaseSeleniumTestCase):
             login_page.login_xid(cls.USERNAME, cls.PASSWORD)
         else:
             print '(User {} already logged in to PIN)'.format(cls.USERNAME)
+
