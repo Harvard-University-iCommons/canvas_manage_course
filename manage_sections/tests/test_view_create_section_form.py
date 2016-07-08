@@ -159,7 +159,7 @@ class CreateSectionFormTest(unittest.TestCase):
     @patch('lti_permissions.decorators', is_allowed=Mock(return_value=False))
     def test_section_form_view_when_not_permitted(self, lti_decorator, log_replacement, render):
         """
-        When the user does not have teh right permissions, should get  unauthorized
+        When the user does not have the right permissions, verify that it returns unauthorized
         """
         request = self.request
         request.LTI['lis_course_offering_sourcedid'] = "ci:%s" % self.sis_section_id
