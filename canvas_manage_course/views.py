@@ -15,10 +15,6 @@ from django_auth_lti.decorators import lti_role_required
 from django_auth_lti.verification import is_allowed
 from isites_migration.utils import get_previous_isites
 from lti_permissions.decorators import lti_permission_required_check
-# from manage_sections.views import (
-#     LTI_ROLES_PERMITTED as manage_sections_lti_roles_permitted,)
-from lti_permissions.decorators import lti_permission_required
-
 
 logger = logging.getLogger(__name__)
 
