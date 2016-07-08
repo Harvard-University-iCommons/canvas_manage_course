@@ -8,6 +8,7 @@ from manage_sections.views import create_section_form
 
 
 @patch.multiple('manage_sections.views', render=DEFAULT)
+@patch.multiple('lti_permissions.decorators', is_allowed=Mock(return_value=True))
 class CreateSectionFormTest(unittest.TestCase):
     """
     Tests for the create_section_form view.

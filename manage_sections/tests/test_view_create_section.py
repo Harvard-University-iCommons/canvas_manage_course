@@ -1,8 +1,7 @@
 from unittest import TestCase
 
 from django_auth_lti import const
-from mock import MagicMock
-from mock import patch, ANY
+from mock import patch, ANY, Mock, MagicMock
 
 from manage_sections.views import create_section
 
@@ -34,7 +33,7 @@ class RequestStub:
     def set_roles(self, roles):
         self.LTI['roles'] = roles
 
-
+@patch.multiple('lti_permissions.decorators', is_allowed=Mock(return_value=True))
 class SectionCreateSectionViewTest(TestCase):
     longMessage = True
 
