@@ -15,8 +15,6 @@ from django_auth_lti.decorators import lti_role_required
 from django_auth_lti.verification import is_allowed
 from isites_migration.utils import get_previous_isites
 from lti_permissions.decorators import lti_permission_required_check
-from manage_sections.views import (
-    LTI_ROLES_PERMITTED as manage_sections_lti_roles_permitted,)
 
 logger = logging.getLogger(__name__)
 
@@ -77,7 +75,7 @@ def dashboard_course(request):
         'manage_people': {
             'visible': lti_permission_required_check(request, settings.CUSTOM_LTI_PERMISSIONS['manage_people'])},
         'manage_sections': {
-            'visible': _lti_role_allowed(request, manage_sections_lti_roles_permitted)},
+                        'visible': lti_permission_required_check(request, settings.CUSTOM_LTI_PERMISSIONS['manage_sections'])},
     }
 
     # django template tags can't do dict lookups, so create a *_visible context
@@ -99,10 +97,3 @@ def dashboard_course(request):
 
     return render(request, 'canvas_manage_course/dashboard_course.html',
                   view_context)
-
-
-def _lti_role_allowed(request, lti_roles_permitted, raise_exception=False):
-    """ utility method to convert is_allowed() to a boolean """
-    user_allowed_roles = is_allowed(request, lti_roles_permitted,
-                                    raise_exception)
-    return len(user_allowed_roles) > 0

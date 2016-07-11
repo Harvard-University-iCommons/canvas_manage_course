@@ -9,6 +9,7 @@ from manage_sections.views import section_class_list
 
 @patch.multiple('manage_sections.views.canvas_api_helper_enrollments', get_enrollments=DEFAULT)
 @patch.multiple('manage_sections.views.canvas_api_helper_sections', get_section=DEFAULT)
+@patch.multiple('lti_permissions.decorators', is_allowed=Mock(return_value=True))
 @patch.multiple(
     'manage_sections.views',
     render=DEFAULT,

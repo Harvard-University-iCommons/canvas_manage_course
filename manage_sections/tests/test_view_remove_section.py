@@ -2,7 +2,7 @@ import unittest
 
 from django.test import RequestFactory
 from django_auth_lti import const
-from mock import patch, DEFAULT
+from mock import patch, Mock, DEFAULT
 
 from manage_sections.views import remove_section
 
@@ -34,7 +34,7 @@ class RequestStub:
     def set_roles(self, roles):
         self.LTI['roles'] = roles
 
-
+@patch.multiple('lti_permissions.decorators', is_allowed=Mock(return_value=True))
 class RemoveSectionsTest(unittest.TestCase):
     longMessage = True
 

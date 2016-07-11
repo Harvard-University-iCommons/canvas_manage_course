@@ -6,7 +6,7 @@ from mock import patch, ANY, Mock
 
 from manage_sections.views import section_user_list
 
-
+@patch.multiple('lti_permissions.decorators', is_allowed=Mock(return_value=True))
 class SectionUserListViewTest(TestCase):
     longMessage = True
 
