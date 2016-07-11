@@ -97,10 +97,3 @@ def dashboard_course(request):
 
     return render(request, 'canvas_manage_course/dashboard_course.html',
                   view_context)
-
-
-def _lti_role_allowed(request, lti_roles_permitted, raise_exception=False):
-    """ utility method to convert is_allowed() to a boolean """
-    user_allowed_roles = is_allowed(request, lti_roles_permitted,
-                                    raise_exception)
-    return len(user_allowed_roles) > 0

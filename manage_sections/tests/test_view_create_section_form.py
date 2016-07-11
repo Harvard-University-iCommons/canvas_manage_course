@@ -2,7 +2,7 @@ import unittest
 
 from django.test import RequestFactory
 from django_auth_lti import const
-from mock import patch, ANY, DEFAULT, Mock
+from mock import patch, DEFAULT, Mock
 
 from manage_sections.views import create_section_form
 
@@ -144,7 +144,7 @@ class CreateSectionFormTest(unittest.TestCase):
             'sisenrollmentsections': []
         })
 
-    @patch('manage_sections.views.logger.error') # Mock the logger to keep log messages off the console.
+    @patch('manage_sections.views.logger.error')  # Mock the logger to keep log messages off the console.
     def test_section_form_view_status_without_custom_canvas_course_id(self, log_replacement, render):
         """
         Create Section Form view should return error page if there was no
@@ -155,15 +155,17 @@ class CreateSectionFormTest(unittest.TestCase):
         create_section_form(request)
         render.assert_called_with(request, 'manage_sections/error.html', status=500)
 
-    @patch('manage_sections.views.logger.error') # Mock the logger to keep log messages off the console.
+    @patch('manage_sections.views.logger.error')  # Mock the logger to keep log messages off the console.
     @patch('lti_permissions.decorators', is_allowed=Mock(return_value=False))
     def test_section_form_view_when_not_permitted(self, lti_decorator, log_replacement, render):
         """
-        When the user does not have the right permissions, verify that it returns unauthorized
+        When the user does not have the right permissions, verify that it
+        redirects to unauthorized page
         """
         request = self.request
         request.LTI['lis_course_offering_sourcedid'] = "ci:%s" % self.sis_section_id
 
         response = create_section_form(request)
-        self.assertEqual(response.status_code,302)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, '/not_authorized')
 
