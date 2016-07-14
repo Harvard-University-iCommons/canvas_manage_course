@@ -26,9 +26,11 @@ LTI_PERMISSIONS_DATA = [
     ('manage_sections', 'colgsas', 'Account Observer', False),
     ('manage_sections', 'colgsas', 'DesignerEnrollment', False),
     ('manage_sections', 'colgsas', 'Librarian', False),
-    ('manage_sections', 'dce', 'Account Observer', False),
-    ('manage_sections', 'dce', 'Librarian', False),
+    ('manage_sections', 'ext', 'Account Observer', False),
+    ('manage_sections', 'ext', 'Librarian', False),
     ('manage_sections', 'gse', 'Help Desk', False),
+    ('manage_sections', 'hilr', 'Account Observer', False),
+    ('manage_sections', 'hilr', 'Librarian', False),
     ('manage_sections', 'hks', 'Course Head', False),
     ('manage_sections', 'hks', 'Course Support Staff', False),
     ('manage_sections', 'hks', 'DesignerEnrollment', False),
@@ -45,7 +47,9 @@ LTI_PERMISSIONS_DATA = [
     ('manage_sections', 'hls', 'Librarian', False),
     ('manage_sections', 'hls', 'TaEnrollment', False),
     ('manage_sections', 'hls', 'TeacherEnrollment', False),
-    ('manage_sections', 'hls', 'Teaching Staff', False)
+    ('manage_sections', 'hls', 'Teaching Staff', False),
+    ('manage_sections', 'sum', 'Account Observer', False),
+    ('manage_sections', 'sum', 'Librarian', False)
 ]
 
 
@@ -69,7 +73,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-
         migrations.RunPython(
             code=create_lti_permissions,
             reverse_code=reverse_permissions_load,
