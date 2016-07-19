@@ -4,7 +4,7 @@ import copy
 
 from django_auth_lti import const
 from manage_sections.views import add_to_section
-from mock import patch, ANY, DEFAULT
+from mock import patch, ANY, DEFAULT, Mock
 
 from canvas_sdk.exceptions import CanvasAPIError
 
@@ -37,7 +37,7 @@ class RequestStub:
     def set_roles(self, roles):
         self.LTI['roles'] = roles
 
-
+@patch.multiple('lti_permissions.decorators', is_allowed=Mock(return_value=True))
 class SectionAddToSectionViewTest(unittest.TestCase):
     """
     Test cases for add to section

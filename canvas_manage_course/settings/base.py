@@ -288,6 +288,8 @@ CUSTOM_LTI_PERMISSIONS = {
     'class_roster': 'class_roster',
     'isites_migration': 'im_import_files',
     'manage_people': 'manage_people',
+    'manage_sections': 'manage_sections',
+
 }
 
 MANAGE_PEOPLE = {
