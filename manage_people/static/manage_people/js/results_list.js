@@ -32,8 +32,10 @@ $(document).ready(function () {
     * */
     $('.user-select-checkbox', '#add_users_form').click(function () {
         toggleAlert();
-        if ($('.user-select-checkbox:checked').size() > 0 && $('#user_create_button').hasClass('btn-disabled')) {
-            $('#user_create_button').removeClass('btn-disabled').addClass('btn-submit');
+        if ($('.user-select-checkbox:checked').size() > 0) {
+            if( $('#user_create_button').hasClass('btn-disabled')) {
+                $('#user_create_button').removeClass('btn-disabled').addClass('btn-submit');
+            }
         }
         else if ($('#user_create_button').hasClass('btn-submit')) {
             $('#user_create_button').removeClass('btn-submit').addClass('btn-disabled');
