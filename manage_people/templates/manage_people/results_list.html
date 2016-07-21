@@ -14,6 +14,7 @@
 {% endblock breadcrumbs %}
 
 {% block content %}
+
     <div class="infoBlock-error alert-lti hidden">
         <ul>
             <li class="email hidden"><strong>You must choose at least one directory record</strong></li>
@@ -60,17 +61,22 @@
     {% if enrolled_roles_by_id|length != 0 %}
         <ul id="existing_enrollments_list" class="list-with-floats">
           {% for _, person in results.items %}
+
             {% for univ_id, roles in enrolled_roles_by_id.items %}
-              {% for role_canvas_name in roles %}
-                <li data-univ-id="{{ univ_id }}" data-role="{{ role_canvas_name }}">
-                  {{ person.email_address }} <span class="label">{{ person.badge_label_name }}</span>
-                  <span class="float-right text-strong">
-                    Enrolled as a {{ role_canvas_name|get_role_display_name }}
-                  </span>
-                </li>
-              {% endfor %}
+                {% if person.univ_id == univ_id %}
+                  {% for role_canvas_name in roles %}
+                    <li data-univ-id="{{ univ_id }}" data-role="{{ role_canvas_name }}">
+                      {{ person.email_address }} <span class="label">{{ person.badge_label_name }}</span>
+                      <span class="float-right text-strong">
+                        Enrolled as a {{ role_canvas_name|get_role_display_name }}
+                      </span>
+                    </li>
+                  {% endfor %}
+                {% endif %}
             {% endfor %}
+
           {% endfor %}
+
         </ul>
 
         {% if unique_results %}
@@ -87,7 +93,7 @@
 
     <form id="add_users_form" class="form {% if enrolled_roles_by_id|length != 0 and unique_results %} hidden {% endif %}" method="post" action="{% url 'manage_people:add_users' %}" role="form">{% csrf_token %}
         <input type="hidden" name="user_search_term" value="{{ user_search_term }}" >
-        <input type="hidden" name="users_to_add" value="{}" >
+        <input type="hidden" id="users_to_add" name="users_to_add" value="{}" >
 
         {% if unique_results %}
             <fieldset id="matching-records" class="users-found hidden">
@@ -95,10 +101,12 @@
                 <ul class="list-with-floats">
                     {% for key, result in unique_results.items %}
                         <li>
-                            {% if results|length == 1 %}
-                                <input id="record-{{ forloop.counter }}" type="checkbox" class="sr-only" name="add_user_id_{{ forloop.counter }}" value="{{ result.univ_id }}" checked>
+                            {% if unique_results|length == 1 %}
+                                <input id="record-{{ forloop.counter }}" type="checkbox" class="sr-only user-select-checkbox"
+                                       name="add_user_id_{{ forloop.counter }}" value="{{ result.univ_id }}" checked>
                             {% else %}
-                                <input id="record-{{ forloop.counter }}" type="checkbox" name="add_user_id_{{ forloop.counter }}" value="{{ result.univ_id }}">
+                                <input id="record-{{ forloop.counter }}" type="checkbox" class="user-select-checkbox"
+                                       name="add_user_id_{{ forloop.counter }}" value="{{ result.univ_id }}">
                             {% endif %}
                             <label class="plain" for="record-{{ forloop.counter }}">
                                 {{ result.name_first }} {{ result.name_last }} ({{ result.email_address }})
@@ -108,12 +116,11 @@
                             <div class="float-right">
                                 <label for="select-role-{{ forloop.counter }}"><span class="sr-only">Add as a:</span></label>
                                 {# todo: Consider user id data directly into id param; need to check where id is used in current code #}
-                                <select id="select-role-{{ forloop.counter }}" class="disabled" name="select_role_id_{{ forloop.counter }}" data-selenium-user-id="{{ result.univ_id }}">
-                                    <option value="choose">Choose role</option>
+                                <select id="select-role-{{ forloop.counter }}" name="select_role_id_{{ forloop.counter }}" data-selenium-user-id="{{ result.univ_id }}">
                                     {% for user_role in available_roles %}
                                         {% if result.badge_label_name != 'XID' or user_role.xid_allowed %}
                                             <option value={{ user_role.role_id }}
-                                                    data-role="{{ user_role.role_id }}">
+                                                    data-role="{{ user_role.role_id }}" {%if user_role.role_name == "Guest" %} selected="selected"{% endif %}>
                                               {{ user_role.role_name|tf_to_ta_filter }}
                                             </option>
                                         {% endif %}
@@ -131,7 +138,7 @@
                 <a id="form-hide" href="#" class="btn-toggle float-left"><i class="fa fa-toggle-up"></i> Hide Additional IDs</a>
             {% endif %}
             <a id="cancel_add_to_course" href="{% url 'manage_people:user_form' %}" class="users-found hidden">Cancel</a>
-            <button id="user_create_button" class="btn-disabled users-found hidden" type="submit" data-loading-text="Adding to course...">Add to course</button>
+            <button id="user_create_button" class="btn-submit users-found" type="submit" data-loading-text="Adding to course...">Add to course</button>
             <a id="find_another_user" href="{% url 'manage_people:find_user' %}" class="users-not-found hidden">Search for a different person</a>
             <a id="back_to_user_form" href="{% url 'manage_people:user_form' %}" class="users-not-found hidden">Go back to Manage People</a>
         </div>

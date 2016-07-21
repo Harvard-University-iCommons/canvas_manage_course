@@ -1,131 +1,82 @@
-$(document).ready(function(){
+/*
+* JS for the Manage People - Add People form
+* */
+$(document).ready(function () {
 
-    var usersFound = $('#matching-records input[type="checkbox"]').length;
-    if (usersFound){
+    var usersFound = $('.user-select-checkbox', '#add_users_form').length;
+
+    /*
+    * Setup the form based on the number of users found. If there are no users, unhide the
+    * users-not-found text. If one user was found, they will have a default role selection of
+    * guest, so we enable the submit button. If multiple users were found, they will also have a
+    * default role selection of guest, but the user will need to select which ones to add. The submit
+    * button will be disabled until the user selects one or more users.
+    * */
+    if (usersFound) {
         $('.users-found').removeClass('hidden');
-        //make the dropdown enable if the the search only returns one result
-        if ( usersFound == 1 ) {
-            $('#add_users_form').find('select').removeClass('disabled');
+        if (usersFound == 1) {
+            $('#user_create_button').removeClass('btn-disabled').addClass('btn-submit');
+        }
+        else if (usersFound > 1) {
+            $('#user_create_button').removeClass('btn-submit').addClass('btn-disabled');
         }
     } else {
+        $('#user_create_button').removeClass('btn-submit').addClass('btn-disabled');
         $('.users-not-found').removeClass('hidden');
     }
-    
 
-    $('#matching-records input[type="checkbox"]').click(function(){
+    /*
+    * In the case where the user has multiple ids to add. Enable or disable the
+    * submit button based how many checkboxes have been selected. If none are
+    * selected, disable the button. If one or more are selected enable the button.
+    * */
+    $('.user-select-checkbox', '#add_users_form').click(function () {
         toggleAlert();
-        //make dropdown available to use after the user checks the email
-        var $select = $(this).closest('li').find('select');
-        if ($(this).prop('checked')) {
-            $select.removeClass('disabled');
-            //if user checks an ID(checkbox) then the button becomes disabled and let the select menu choice make it available again
-            $('#user_create_button').removeClass('btn-submit').addClass('btn-disabled');
-        } else {
-            $select.val($select.find('option:first').val());
-            $select.addClass('disabled');
-            //remove disabled class if the user 
-            $('#user_create_button').removeClass('btn-disabled').addClass('btn-submit');
-        }
-        //if after checking/unchecking ids, set the submit button to disabled if all boxes are left unchecked
-        checkChecked('add_users_form');
-    });
-
-
-    //clears out dropdown errors
-    $('#matching-records select').change(function(){
-        var hasCheck = $('#matching-records input:checked').length > 0;
-        var rolesSelected = true;
-        var missingRoleSelection = [];
-        $('#matching-records input:checked').each(function(){
-            var $li = $(this).closest('li');
-            if ($li.find('select').val()==="choose") {
-                rolesSelected = rolesSelected && false;
-                missingRoleSelection.push($li);
-                //if user hasn't picked a role then disable the button
-                $('#user_create_button').removeClass('btn-submit').addClass('btn-disabled');
+        if ($('.user-select-checkbox:checked').size() > 0) {
+            if( $('#user_create_button').hasClass('btn-disabled')) {
+                $('#user_create_button').removeClass('btn-disabled').addClass('btn-submit');
             }
-
-        });
-
-
-
-        if (hasCheck && rolesSelected) {
-            $('#user_create_button').removeClass('btn-disabled').addClass('btn-submit');
-        }else{
-            $('#user_create_button').removeClass('btn-submit').addClass('btn-disabled');
         }
-
-        if ($(this).val() != $(this).find('option:first').val()) {
-            
-            toggleAlert();
-            checkChecked('add_users_form');
-        }
-
-        //if the user resets the select menu to 'choose role' then disabled the button
-        if ($(this).val() === "choose"){
+        else if ($('#user_create_button').hasClass('btn-submit')) {
             $('#user_create_button').removeClass('btn-submit').addClass('btn-disabled');
         }
     });
 
-    $('#user_create_button').click(function(e){
-       
+    /*
+    * When the user clicks submit we need to build the list of the users that are going to be added.
+    * */
+    $('#user_create_button').click(function (e) {
         toggleAlert();
         $('#user_create_button').button('loading');
-
         var usersToAdd = {};
-        $('#matching-records input:checked').each(function(){
+        $('.user-select-checkbox:checked', '#add_users_form').each(function () {
             usersToAdd[$(this).val()] = $(this).closest('li').find('select').val();
         });
-        
         // Update hidden input element with users to add
-        $('#add_users_form input[name="users_to_add"]').val(JSON.stringify(usersToAdd));
+        $('#users_to_add').val(JSON.stringify(usersToAdd));
     });
-    
 
-    $('#form-show').click(function(e){
-        //maintain the cancel link hidden
+    /*
+    * Show the form containing any extra id's the user has that can be added to the course
+    * */
+    $('#form-show').click(function (e) {
         $('#cancel_add_to_course').addClass('hidden');
-        //hide the show btn
         $(this).addClass('hidden');
-        //show the form with extra available IDs
         $('form').removeClass('hidden');
     });
 
-    $('#form-hide').click(function(e){
-        //hide the form
+    /*
+    * Hide the form containing any extra id's the user has that can be added to the course
+    * */
+    $('#form-hide').click(function (e) {
         $('form').addClass('hidden');
-        //bring back the button to show the form
         $('#form-show').removeClass('hidden');
     });
 
-    //looks for any selected checkboxes and any selected roles to enable/disable button
-    function checkChecked(formname) {
-        var anyBoxesChecked = false;
-        var noRoleSelected = false;
-        var $dd; 
-        $('#' + formname + ' input[type="checkbox"]').each(function() {
-            if ($(this).is(":checked")) {
-                $dd = $(this).parent().find('select');
-                anyBoxesChecked = true;
-                //keeps a check for dropdowns without selection
-                if ( $dd.val() == "choose" ){
-                    noRoleSelected = true;
-                }
-            }
-        });
-
-        //if user had previously had chosen an email/HUID and role, but then chooses another id and no role while 
-        //unchecking the first id with role then make sure to keep the button disabled
-        if ( anyBoxesChecked && noRoleSelected ){
-            $('#user_create_button').removeClass('btn-submit').addClass('btn-disabled');
-        }else if (anyBoxesChecked == false) {
-        //when all checkboxes are unchecked then keep the btn disabled
-            $('#user_create_button').removeClass('btn-submit').addClass('btn-disabled');
-        } 
-    }
-
+    /*
+    * Toggle alert messages in the case of errors
+    * */
     function toggleAlert(errorName, state, errorElements) {
-        
         if (typeof errorName == 'undefined') {
             $('.alert-lti').toggleClass('hidden', true);
             $('.alert-lti li').toggleClass('hidden', true);
@@ -133,7 +84,7 @@ $(document).ready(function(){
         } else {
             var $alert = $('.alert-lti').toggleClass('hidden', state);
             $alert.find('li.' + errorName).toggleClass('hidden', state);
-            $(errorElements).each(function(index, $el){
+            $(errorElements).each(function (index, $el) {
                 $el.toggleClass('has-error', state);
             });
         }
