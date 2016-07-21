@@ -93,7 +93,7 @@
 
     <form id="add_users_form" class="form {% if enrolled_roles_by_id|length != 0 and unique_results %} hidden {% endif %}" method="post" action="{% url 'manage_people:add_users' %}" role="form">{% csrf_token %}
         <input type="hidden" name="user_search_term" value="{{ user_search_term }}" >
-        <input type="hidden" name="users_to_add" value="{}" >
+        <input type="hidden" id="users_to_add" name="users_to_add" value="{}" >
 
         {% if unique_results %}
             <fieldset id="matching-records" class="users-found hidden">
