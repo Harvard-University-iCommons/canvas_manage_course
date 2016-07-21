@@ -10,7 +10,7 @@ $(document).ready(function () {
     * users-not-found text. If one user was found, they will have a default role selection of
     * guest, so we enable the submit button. If multiple users were found, they will also have a
     * default role selection of guest, but the user will need to select which ones to add. The submit
-    * button will be disabled until the user selects one or more users. 
+    * button will be disabled until the user selects one or more users.
     * */
     if (usersFound) {
         $('.users-found').removeClass('hidden');
@@ -38,7 +38,6 @@ $(document).ready(function () {
         else if ($('#user_create_button').hasClass('btn-submit')) {
             $('#user_create_button').removeClass('btn-submit').addClass('btn-disabled');
         }
-        return false;
     });
 
     /*
@@ -53,7 +52,6 @@ $(document).ready(function () {
         });
         // Update hidden input element with users to add
         $('#users_to_add').val(JSON.stringify(usersToAdd));
-        return false;
     });
 
     /*
@@ -63,7 +61,6 @@ $(document).ready(function () {
         $('#cancel_add_to_course').addClass('hidden');
         $(this).addClass('hidden');
         $('form').removeClass('hidden');
-        return false;
     });
 
     /*
@@ -72,7 +69,6 @@ $(document).ready(function () {
     $('#form-hide').click(function (e) {
         $('form').addClass('hidden');
         $('#form-show').removeClass('hidden');
-        return false;
     });
 
     /*
@@ -90,6 +86,5 @@ $(document).ready(function () {
                 $el.toggleClass('has-error', state);
             });
         }
-        return false;
     }
 });
