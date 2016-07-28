@@ -31,8 +31,17 @@
         {% endfor %}
     </ul>
 
-    <div class="controls text-right">
-        <a id="find_another_user" href="{% url 'manage_people:find_user' %}" class="users-not-found">Search for a different person</a>
-        <a id="back_to_user_form" href="{% url 'manage_people:user_form' %}" class="users-not-found">Go back to manage people</a>
+    {%if workflow_state == 'completed' %}
+    <!--
+     If it's a concluded course we need to let the user know how long to wait and where to find
+     the per they just added.
+     -->
+    <div class="infoBlock-success">
+        <div ng-transclude="">
+            <p>This course has been concluded and new users may not appear in Canvas for up to 5 minutes. Concluded
+                enrollments can be viewed in "Prior Enrollments" by clicking the settings gear in the upper right
+                corner of the People page.</p>
+        </div>
     </div>
+    {% endif %}
 {% endblock content %}
