@@ -277,6 +277,9 @@ def add_users(request):
             "%s?%s" % (reverse('manage_people:results_list'), urllib.urlencode(kwargs))
         )
 
+    course = canvas_api_helper_courses.get_course(canvas_course_instance_id)
+    workflow_state = course['workflow_state']
+
     # For each selected user id, attempt to create an enrollment
     enrollment_results = []
     for user_id, user_role_id in users_to_add.iteritems():
@@ -286,6 +289,7 @@ def add_users(request):
         ))
 
     return render(request, 'manage_people/add_user_confirmation.html', {
+        'workflow_state': workflow_state,
         'enrollment_results': enrollment_results,
         'person': enrollment_results[0][1],
     })
