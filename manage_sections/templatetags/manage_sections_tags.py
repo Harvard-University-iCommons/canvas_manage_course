@@ -3,22 +3,6 @@ from django.template.defaultfilters import stringfilter
 
 register = template.Library()
 
-ENROLLMENT_TYPE_DICTIONARY = {
-    'TeacherEnrollment': 'Teacher',
-    'TaEnrollment': 'TA',
-    'Guest': 'Guest',
-    'ObserverEnrollment': 'Observer',
-    'DesignerEnrollment': 'Designer',
-    'StudentEnrollment': 'Student',
-    'Shopper': 'Shopper',
-    'StudentViewEnrollment': 'StudentView',
-}
-
-
-@register.filter
-def get_enroll_type_display(value):
-	return ENROLLMENT_TYPE_DICTIONARY.get(value, value)
-
 
 @register.filter(is_safe=True)
 @stringfilter

@@ -130,9 +130,9 @@ $(document).ready(function() {
         // Prevent the anchor from making the page jump
         e.preventDefault();
         var $removeUserBtn = $(this);
+        var roleLabel = $removeUserBtn.attr('data-enrollment_role_label');
         var userLine = $(this).closest("li");
-        var userName = $(this).parent().find(".studentName").text();
-        var role = $(this).parent().find(".studentRole").text().trim();
+        var userName = $removeUserBtn.attr('data-user_name');
         $('#confirmDelUser .modal-body').html('Remove ' + userName + ' from this section?');
         
         var msgTxt, msgCSS, msgEleId;
@@ -145,27 +145,30 @@ $(document).ready(function() {
                 url : rmFromSectionURL, 
                 type : "POST",
                 data : {
-                    user_section_id : $removeUserBtn.attr("id"),
+                    user_section_id : $removeUserBtn.attr("data-enrollee-id"),
                     section_id: $('main').data('section_id')
-                },
-                success : function(json) {
+                }
+            })
+            .always(function(xhrOrData){
+                // following a 302 to a 200 unauthorized page resolves
+                // to a success/done, so need to check here if the enrollment
+                // was actually deleted instead of using the success/done and
+                // error/fail callbacks
+                var response = ((xhrOrData||{}).responseJSON||xhrOrData);
+                if (response.enrollment_state == 'deleted') {
                     $("#message-enrollment").fadeOut(2000);
                     userLine.slideUp(500, function(){
                         this.remove();
                     });
-                },
-                error : function(xhr) {
+                } else {
                     msgEleId = '#message-sectionUsers';
                     msgCSS = 'alert alert-danger';
-                    msgTxt = "Error: " + userName + " with role " + role + " has not been deleted from this section.";
-                },
-                complete: function() {
-                    // fetch user data to update alphabet buckets
-                    loadSectionUsers(msgEleId, msgCSS, msgTxt);
-                    loadSectionClassList();
+                    msgTxt = "Error: " + userName + " with role " +
+                      roleLabel + " has not been deleted from this section.";
                 }
-            })
-            .always(function(){
+                // fetch user data to update alphabet buckets
+                loadSectionUsers(msgEleId, msgCSS, msgTxt);
+                loadSectionClassList();
                 if ( $('#pane-right').hasClass('close-right-pane') ){
                     $("#confirmDelUser").modal('hide');
                     //make the 'yes, remove and cancel' btn available for clicking
@@ -192,7 +195,7 @@ $(document).ready(function() {
             userLines.push($checkbox.parent());
             usersToAdd.push({
                 enrollment_user_id: $checkbox.attr('data-user_id'), 
-                enrollment_role: $checkbox.attr('data-enrollment_role'), 
+                enrollment_role_id: $checkbox.attr('data-enrollment_role_id'),
                 enrollment_type: $checkbox.attr('data-enrollment_type')
             });
         });
