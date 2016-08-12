@@ -18,7 +18,7 @@ LTI_PERMISSIONS_DATA = [
     ('manage_sections', '*', 'Librarian', True),
     ('manage_sections', '*', 'ObserverEnrollment', False),
     ('manage_sections', '*', 'SchoolLiaison', True),
-    ('manage_sections', '*', 'Shopper', False),
+    ('manage_sections', '*', 'Prospective Enrollee', False),
     ('manage_sections', '*', 'StudentEnrollment', False),
     ('manage_sections', '*', 'TaEnrollment', True),
     ('manage_sections', '*', 'TeacherEnrollment', True),

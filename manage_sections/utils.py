@@ -16,7 +16,7 @@ def role_key(enrollment):
     """
     Return a tuple key for an enrollment record based on user_id and role
     """
-    return enrollment['user_id'], enrollment['role']
+    return enrollment['user_id'], enrollment['role_id']
 
 
 def unique_enrollments_not_in_section_filter(section_id, enrollments):

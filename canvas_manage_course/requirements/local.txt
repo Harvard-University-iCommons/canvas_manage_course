@@ -5,7 +5,7 @@
 # below are requirements specific to the local environment
 
 ddt==1.0.1
-django-debug-toolbar==1.4
+django-debug-toolbar==1.5
 django-sslserver==0.19
 flake8==2.5.4
 mock==2.0.0

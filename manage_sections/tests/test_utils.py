@@ -177,3 +177,8 @@ class ContextUtilsTest(TestCase):
             self.request.LTI['custom_canvas_course_id']
         )
         self.assertEqual(res, True, 'Result should be True')
+
+
+def return_unmodified_input(input):
+    """ used for Mock side effects to spy on calls to a mapping method """
+    return input
