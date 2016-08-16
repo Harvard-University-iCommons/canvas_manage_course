@@ -59,7 +59,7 @@ SELENIUM_CONFIG = {
         'base_path': 'api/course/v2'
     },
     'manage_course': {
-        'relative_url': 'courses/27/external_tools/170',  # dev (Manage Course)
+        'relative_url': 'courses/27/external_tools/195',  # dev (Manage Course)
     },
     'manage_people': {
         'test_course': {

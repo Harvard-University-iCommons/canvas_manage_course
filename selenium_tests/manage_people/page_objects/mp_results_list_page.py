@@ -11,7 +11,8 @@ class Locators(object):
     ADD_TO_COURSE_BUTTON = (By.ID, "user_create_button")
     ADD_USERS_FORM = (By.ID, "add_users_form")
     CANCEL_BUTTON = (By.LINK_TEXT, "Cancel")
-    GO_BACK_TO_MANAGE_PEOPLE_LINK = (By.LINK_TEXT, "Go back to manage people")
+    GO_BACK_TO_MANAGE_PEOPLE_LINK = (By.XPATH, "//a[contains(.,"
+                                               "'Manage People')]")
     SEARCH_FOR_DIFFERENT_PERSON = (By.LINK_TEXT,
                                    "Search for a different person")
     USER_CONFIRMATION = (By.ID, "enrollment_confirmations")
