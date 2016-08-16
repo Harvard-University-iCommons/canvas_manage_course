@@ -1,6 +1,5 @@
 {% extends "manage_people/base_new.html" %}
 
-{% load manage_people_tags %}
 {% load static %}
 
 {% block breadcrumbs %}
@@ -63,14 +62,19 @@
         <ul id="existing_enrollments_list" class="list-with-floats">
           {% for _, person in results.items %}
             {% for univ_id, roles in enrolled_roles_by_id.items %}
-              {% for role_canvas_name in roles %}
-                <li data-univ-id="{{ univ_id }}" data-role="{{ role_canvas_name }}">
-                  {{ person.email_address }} <span class="label">{{ person.badge_label_name }}</span>
-                  <span class="float-right text-strong">
-                    Enrolled as a {{ role_canvas_name|get_role_display_name }}
-                  </span>
-                </li>
-              {% endfor %}
+              {% if univ_id == person.univ_id %}
+                {% for role in roles %}
+                  <li data-univ-id="{{ univ_id }}"
+                      data-role="{{ role.role }}"
+                      data-role-id="{{ role.role_id }}"
+                      data-role-label="{{ role.canvas_role_label }}">
+                    {{ person.email_address }} <span class="label">{{ person.badge_label_name }}</span>
+                    <span class="float-right text-strong">
+                      Enrolled as a {{ role.canvas_role_label }}
+                    </span>
+                  </li>
+                {% endfor %}
+              {% endif %}
             {% endfor %}
           {% endfor %}
         </ul>
@@ -109,14 +113,13 @@
                             
                             <div class="float-right">
                                 <label for="select-role-{{ forloop.counter }}"><span class="sr-only">Add as a:</span></label>
-                                {# todo: Consider user id data directly into id param; need to check where id is used in current code #}
                                 <select id="select-role-{{ forloop.counter }}" class="disabled" name="select_role_id_{{ forloop.counter }}" data-selenium-user-id="{{ result.univ_id }}">
                                     <option value="choose">Choose role</option>
                                     {% for user_role in available_roles %}
                                         {% if result.badge_label_name != 'XID' or user_role.xid_allowed %}
                                             <option value={{ user_role.role_id }}
                                                     data-role="{{ user_role.role_id }}">
-                                              {{ user_role.role_name|tf_to_ta_filter }}
+                                              {{ user_role.canvas_role_label }}
                                             </option>
                                         {% endif %}
                                      {% endfor %}

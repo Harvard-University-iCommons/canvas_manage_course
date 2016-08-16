@@ -1,6 +1,5 @@
 {% extends "manage_people/base_new.html" %}
 
-{% load manage_people_tags %}
 {% load static %}
 
 {% block stylesheet %}
@@ -39,27 +38,6 @@
         </p>
     </div>
 
-    {% if success_message %}
-        <div class="server-response-alerts">
-        {% if warning_message %}
-            <div class="infoBlock-warning" >
-                <p><strong>One or more users you attempted to add were already in this course.</strong></p>
-            </div>
-        {% endif %}
-        {% if canvas_users|length > 0 %}
-            <div class="infoBlock-success">
-                <p><strong>The following users have been successfully added:</strong></p>
-                <ul>
-                    {% for key, person in canvas_users.items %}
-                    <li>{{ person.name_first }} {{ person.name_last }} ({{ person.email_address}}) with the role of <strong>{{ person.enroll_role|tf_to_ta_filter }}</strong></li>
-                    {% endfor %}
-                </ul>
-            </div>
-        {% endif %}
-        </div>  {# ends div.server-response-alerts #}
-    {% endif %}
-
-
     <p>The list below only contains people who have been manually added to this course. <a href="https://{{ canvas_host }}/courses/{{ canvas_course_id }}/users" target="_blank">Go to the People page</a> to see the full class list, which includes enrollment provided by the Registrar.</p>
 
     <div class="text-right">
@@ -78,12 +56,17 @@
 
         <li class="header"><span>Name / ID type</span><span class="header-right">Role</span></li>
         {% for enrollee in filtered_enrollments %}
-        <li id="user-index-{{ forloop.counter }}" class="rosterUser al-hover-container StudentEnrollment" data-sisID="{{ enrollee.user.sis_user_id }}" data-role="{{ enrollee.role}}">
+        <li id="user-index-{{ forloop.counter }}"
+            class="rosterUser al-hover-container"
+            data-sisID="{{ enrollee.user.sis_user_id }}"
+            data-role-id="{{ enrollee.role_id}}"
+            data-user-role-id="{{ enrollee.user_role_id}}"
+            data-canvas-role-label="{{ enrollee.canvas_role_label}}">
 
             <a class="deleteMenu delete-icon" href="#"><i class="fa fa-trash"></i></a>
             <span class="roster_user_name">{{ enrollee.user.sortable_name }}</span>
             <span class="label">{{ enrollee.badge_label_name }}</span>
-            <span class="float-right text-strong">{{ enrollee.role|get_role_display_name }}</span>
+            <span class="float-right text-strong">{{ enrollee.canvas_role_label }}</span>
         </li>
         {% endfor %}
 

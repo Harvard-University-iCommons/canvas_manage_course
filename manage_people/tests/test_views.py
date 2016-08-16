@@ -35,15 +35,17 @@ class RemoveUserTests(TestCase):
     def setUp(self):
         self.canvas_course_id = str(uuid.uuid4().int)
         self.course_instance_id = uuid.uuid4().int
-        self.role_to_remove = 'TeacherEnrollment'
+        self.user_role_id_to_remove = '3'
+        self.role_id_to_remove = '10'
         self.user_id = uuid.uuid4().hex
 
         self.request = RequestFactory().post('/fake-path')
         self.request.user = Mock(is_authenticated=Mock(return_value=True))
         self.request.POST = {
             'canvas_course_id': self.canvas_course_id,
-            'canvas_role': self.role_to_remove,
+            'canvas_role_id': self.role_id_to_remove,
             'sis_user_id': self.user_id,
+            'user_role_id': self.user_role_id_to_remove,
         }
         self.request.LTI = {
             'lis_course_offering_sourcedid': self.course_instance_id,
@@ -53,23 +55,25 @@ class RemoveUserTests(TestCase):
     @patch('manage_people.views.UserRole.objects.get')
     @patch('manage_people.views.enrollments.conclude_enrollment')
     @patch('manage_people.views.get_all_list_data')
-    @patch('manage_people.views.ManagePeopleRole.objects.get')
+    @patch('manage_people.views.get_user_role_if_permitted')
     def test_canvas_enrollments_removed(
-            self, mock_mpr_get, mock_sdk_get_all, mock_conclude_enrollment,
+            self, mock_user_role, mock_sdk_get_all, mock_conclude_enrollment,
             mock_ur_get, mock_get_member_class, *args, **kwargs):
         # get_all_list_data(CTX, enrollments.list_enrollments_users, user_id)
         mock_sdk_get_all.return_value = [
             {'id': 1, 'course_id': self.canvas_course_id,
-                'role': self.role_to_remove},
+                'role_id': self.role_id_to_remove},
             {'id': 2, 'course_id': self.canvas_course_id,
-                'role': 'Course Head'},
-            {'id': 5, 'course_id': '1234567890', 'role': 'TaEnrollment'},
+                'role_id': '8'},
+            {'id': 5, 'course_id': '1234567890', 'role_id': '10'},
         ]
+        mock_user_role.return_value = Mock(
+            canvas_role_id=self.role_id_to_remove)
 
         # call the view
         response = remove_user(self.request)
 
-        # we should only be removing the TeacherEnrollment
+        # we should only be removing role 10 from the test course
         self.assertEqual(mock_conclude_enrollment.call_count, 1)
 
         # and we should be doing that correctly
@@ -83,10 +87,12 @@ class RemoveUserTests(TestCase):
     @patch('manage_people.views.UserRole.objects.get')
     @patch('manage_people.views.enrollments.conclude_enrollment')
     @patch('manage_people.views.get_all_list_data')
-    @patch('manage_people.views.ManagePeopleRole.objects.get')
+    @patch('manage_people.views.get_user_role_if_permitted')
     def test_coursemanger_membership_removed(
-            self, mock_mpr_get, mock_sdk_get_all, mock_conclude_enrollment,
+            self, mock_user_role, mock_sdk_get_all, mock_conclude_enrollment,
             mock_ur_get, mock_get_member_class, *args, **kwargs):
+        mock_user_role.return_value = Mock(
+            canvas_role_id=self.role_id_to_remove)
         response = remove_user(self.request)
 
         # the member class' get method should get called once, with the
@@ -112,28 +118,37 @@ class AddMemberToCourseTests(TestCase):
     fixtures = ['user_role', 'manage_people_role']
     longMessage = True
     test_data = (
-        (0, 'StudentEnrollment', CourseEnrollee),
-        (1, 'Course Head', CourseStaff),
-        (10, 'Guest', CourseGuest),
+        (0, CourseEnrollee),
+        (1, CourseStaff),
+        (10, CourseGuest),
     )
 
-
+    @patch('manage_people.views.get_user_role_if_permitted')
+    @patch('manage_people.views.get_course_member_class')
+    @patch('manage_people.views.get_canvas_role_name')
     @patch('manage_people.views.add_canvas_course_enrollee')
     @patch('manage_people.views.get_canvas_course_section',
             return_value=None)
     @patch('manage_people.views.Person.objects.filter')
     def test_add_member_to_course(self, mock_person_filter,
-            mock_get_canvas_course_section, mock_add_canvas_course_enrollee):
-        for user_role_id, canvas_role_label, member_class in self.test_data:
+                                  mock_get_canvas_course_section,
+                                  mock_add_canvas_course_enrollee,
+                                  mock_role_name, mock_member_class,
+                                  mock_user_role):
+        for user_role_id, member_class in self.test_data:
+
             # ensure we have unique ids for this run, since we're not resetting
             # the db between them
             canvas_course_id = random.randint(1, SQLITE_MAXINT)
+            canvas_role_name = 'StudentEnrollment'
             course_instance_id = random.randint(1, SQLITE_MAXINT)
             user_id = random.randint(1, SQLITE_MAXINT)
 
             # set up mocks
+            mock_member_class.return_value = member_class
             mock_person = Mock()
             mock_person_filter.return_value = [mock_person]
+            mock_role_name.return_value = canvas_role_name
 
             # run it
             existing_enrollment, person = add_member_to_course(
@@ -158,24 +173,27 @@ class AddMemberToCourseTests(TestCase):
 
             # verify the canvas enrollment was created
             self.assertEqual(mock_add_canvas_course_enrollee.call_args_list,
-                             [call(canvas_course_id, canvas_role_label, user_id)])
+                             [call(canvas_course_id, canvas_role_name, user_id)])
 
             # reset the mocks for the next run
             mock_person_filter.reset_mock()
             mock_add_canvas_course_enrollee.reset_mock()
 
+    @patch('manage_people.views.get_user_role_if_permitted')
     @patch('manage_people.views.add_canvas_course_enrollee')
     @patch('manage_people.views.get_course_member_class')
     @patch('manage_people.views.Person.objects.filter')
-    def test_add_member_to_course_existing_enrollment(self, mock_person_filter,
-            mock_get_course_member_class, mock_add_canvas_course_enrollee):
+    def test_add_member_to_course_existing_enrollment(self,
+            mock_person_filter, mock_get_course_member_class,
+            mock_add_canvas_course_enrollee, mock_user_role):
+
         # always throw an exception from enrollment.save() to trigger the
         # "existing enrollment" behavior
         mock_member_instance = \
             mock_get_course_member_class.return_value.return_value
         mock_member_instance.save.side_effect = RuntimeError
 
-        for user_role_id, canvas_role_label, member_class in self.test_data:
+        for user_role_id, member_class in self.test_data:
             # ensure we have unique ids for this run, since we're not resetting
             # the db between them
             canvas_course_id = random.randint(1, SQLITE_MAXINT)
@@ -215,19 +233,21 @@ class AddMemberToCourseTests(TestCase):
 
 
 # TODO: add test for "not registrar-fed" query logic.  maybe split out?
+@patch('manage_people.views.get_roles_for_account_id')
 @patch('manage_people.views.get_all_list_data')
 class GetEnrollmentsAddedThroughTool(TestCase):
     longMessage = True
-    fixtures = ['manage_people_role']
+    fixtures = ['manage_people_role', 'user_role']
 
-    def test_get_enrollments_added_through_tool(self, mock_get_all_list_data):
+    def test_get_enrollments_added_through_tool(self, mock_get_all_list_data,
+                                                mock_role_map):
         """ Basic sanity-check positive test. """
         # set up the mock data
         user_id = uuid.uuid4().hex
         course_instance_id = uuid.uuid4().int
         canvas_enrollments = [  # result of enrollments.list_enrollments_sections
             {'user': {'sis_user_id': user_id, 'sortable_name': 'Burn, Acid'},
-             'role': 'Guest'},
+             'role': 'Guest', 'role_id': 9},
         ]
         course_enrollees = [  # result of query for non-feed enrollments
             (user_id, 10),  # Guest
@@ -257,17 +277,17 @@ class GetEnrollmentsAddedThroughTool(TestCase):
         self.assertIn('badge_label_name', result[0])
         self.assertDictContainsSubset(canvas_enrollments[0], result[0])
 
-    def test_registrar_fed_enrollments_not_returned(self, mock_get_all_list_data):
+    def test_registrar_fed_enrollments_not_returned(self, mock_get_all_list_data,
+                                                    mock_role_map):
         """ Ensure that registrar-fed enrollments aren't returned. """
         # set up the mock data
         user_id = uuid.uuid4().hex
         course_instance_id = uuid.uuid4().int
         canvas_enrollments = [  # result of enrollments.list_enrollments_sections
             {'user': {'sis_user_id': user_id, 'sortable_name': 'Burn, Acid'},
-             'role': 'Guest'},
+             'role': 'Guest', 'role_id': 9},
         ]
-        course_enrollees = [  # result of query for non-feed enrollments
-        ]
+        course_enrollees = []  # result of query for non-feed enrollments
 
         # set up the mocks
         mock_get_all_list_data.return_value = canvas_enrollments
@@ -291,7 +311,8 @@ class GetEnrollmentsAddedThroughTool(TestCase):
         # verify the result
         self.assertEqual(len(result), 0)
 
-    def test_mismatched_roles_not_returned(self, mock_get_all_list_data):
+    def test_mismatched_roles_not_returned(self, mock_get_all_list_data,
+                                           mock_role_map):
         """
         Ensure that manually-added enrollments for a different role don't cause
         us to return registrar-fed enrollments as well.  Basically, a
@@ -302,9 +323,9 @@ class GetEnrollmentsAddedThroughTool(TestCase):
         course_instance_id = uuid.uuid4().int
         canvas_enrollments = [  # result of enrollments.list_enrollments_sections
             {'user': {'sis_user_id': user_id, 'sortable_name': 'Burn, Acid'},
-             'role': 'Guest'},
+             'role': 'Guest', 'role_id': 9},
             {'user': {'sis_user_id': user_id, 'sortable_name': 'Burn, Acid'},
-             'role': 'ObserverEnrollment'},
+             'role': 'ObserverEnrollment', 'role_id': 7},
         ]
         course_enrollees = [  # result of query for non-feed enrollments
             (user_id, 10),  # Guest

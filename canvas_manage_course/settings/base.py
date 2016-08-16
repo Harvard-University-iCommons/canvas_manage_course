@@ -238,7 +238,13 @@ LOGGING = {
             'level': _DEFAULT_LOG_LEVEL,
             'formatter': 'verbose',
             'filename': os.path.join(_LOG_ROOT, 'django-canvas_manage_course.log'),
-        }
+        },
+        'manage_people_audit_log_file': {
+            'level': _DEFAULT_LOG_LEVEL,
+            'class': 'logging.handlers.WatchedFileHandler',
+            'filename': os.path.join(_LOG_ROOT, 'django-manage_people_audit.log'),
+            'formatter': 'verbose',
+        },
     },
     'loggers': {
         'rq.worker': {
@@ -249,6 +255,16 @@ LOGGING = {
         'isites_migration': {
             'handlers': ['default'],
             'level': _DEFAULT_LOG_LEVEL,
+            'propagate': False,
+        },
+        'manage_people': {
+            'handlers': ['default'],
+            'level': _DEFAULT_LOG_LEVEL,
+            'propagate': False,
+        },
+        'manage_people_audit_log': {
+            'handlers': ['manage_people_audit_log_file'],
+            'level': 'DEBUG',
             'propagate': False,
         },
     }

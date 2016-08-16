@@ -9,21 +9,19 @@ from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.db import IntegrityError
 from django.db.models import Q
-from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
-from django.shortcuts import redirect, render
+from django.http import HttpResponseRedirect, JsonResponse
+from django.shortcuts import render
 from django.views.decorators.http import require_http_methods
 
 from canvas_sdk.exceptions import CanvasAPIError
 from canvas_sdk.methods import enrollments
 from canvas_sdk.utils import get_all_list_data
-from django_auth_lti import const
-from django_auth_lti.decorators import lti_role_required
+from icommons_common.canvas_api.helpers.roles import get_roles_for_account_id
 from icommons_common.canvas_utils import (
     SessionInactivityExpirationRC,
     add_canvas_course_enrollee,
     add_canvas_section_enrollee,
     get_canvas_course_section,
-    get_canvas_user,
 )
 from icommons_common.models import (
     CourseEnrollee,
@@ -38,14 +36,15 @@ from icommons_common.canvas_api.helpers import (
     enrollments as canvas_api_helper_enrollments,
     sections as canvas_api_helper_sections
 )
-from ims_lti_py.tool_config import ToolConfig
 from lti_permissions.decorators import lti_permission_required
 
 from manage_people.utils import (
     get_available_roles,
+    get_canvas_role_name,
+    get_canvas_to_user_role_id_map,
     get_course_member_class,
+    get_user_role_if_permitted
 )
-from manage_people.models import ManagePeopleRole
 
 
 SDK_CONTEXT = SessionInactivityExpirationRC(**settings.CANVAS_SDK_SETTINGS)
@@ -146,24 +145,26 @@ def results_list(request):
     # Find all users enrolled in the course according to Canvas with roles that
     # are deletable via Manage People.
     available_roles = get_available_roles(course_instance_id)
-    enrolled_roles_by_id = get_enrolled_roles_for_user_ids(canvas_course_id,
-                                                           search_results.keys())
+    enrolled_roles_by_id = get_enrolled_roles_for_user_ids(
+        canvas_course_id, search_results.keys())
+    user_ids_with_enrollments = enrolled_roles_by_id.keys()
 
     # If there is was a found enrollment for the searched user, capture the
     # first/last name for use in the template
     found_person = None
-    for univ_id in enrolled_roles_by_id:
+    for univ_id in user_ids_with_enrollments:
         if univ_id in search_results:
             # TODO - some kind of heuristic on which person record to prefer
             found_person = search_results[univ_id]
             break
 
     # unique results list contains search results minus the userids with
-    # existing roles (to prevent additoinal roles from being added for the
+    # existing roles (to prevent additional roles from being added for the
     # same userid - TLT-1101)
     unique_results = {
-        user_id: person for user_id, person in search_results.iteritems()
-            if user_id not in enrolled_roles_by_id
+        user_id: person
+        for user_id, person in search_results.items()
+        if user_id not in user_ids_with_enrollments
     }
 
     return render(request, 'manage_people/results_list.html', {
@@ -183,10 +184,15 @@ def get_enrolled_roles_for_user_ids(canvas_course_id, search_results_user_ids):
     Look for any ids returned from the search query that match ids already
     enrolled in the course.  If we find a match, add them to the found_ids.
     This list will be used in the template to disable the checkbox for ids that
-    are already enrolled in the course.  Do not match XIDs.
+    are already enrolled in the course and to display Canvas role names.
+    Do not match XIDs.
     """
     canvas_enrollments = get_all_list_data(
             SDK_CONTEXT, enrollments.list_enrollments_courses, canvas_course_id)
+
+    # get the updated (or cached) Canvas role list so we can show the right
+    # role labels for these enrollments
+    canvas_roles_by_role_id = get_roles_for_account_id('self')
 
     found_ids = defaultdict(list)
     for enrollment in canvas_enrollments:
@@ -196,7 +202,10 @@ def get_enrolled_roles_for_user_ids(canvas_course_id, search_results_user_ids):
             continue
         else:
             if sis_user_id in search_results_user_ids:
-                found_ids[sis_user_id].append(enrollment['role'])
+                enrollment.update(
+                    {'canvas_role_label': canvas_roles_by_role_id[
+                        enrollment['role_id']]['label']})
+                found_ids[sis_user_id].append(enrollment)
     return found_ids
 
 
@@ -282,11 +291,25 @@ def add_users(request):
 
     # For each selected user id, attempt to create an enrollment
     enrollment_results = []
-    for user_id, user_role_id in users_to_add.iteritems():
-        # Add the returned (existing_enrollment, person) tuple to the results list
-        enrollment_results.append(add_member_to_course(
-            user_id, user_role_id, course_instance_id, canvas_course_instance_id
-        ))
+    for user_id, user_role_id in users_to_add.items():
+        # Add the returned (existing_enrollment, person) tuple to the results
+        # list
+        enrollment_results.append(
+            add_member_to_course(user_id, int(user_role_id), course_instance_id,
+                                 canvas_course_instance_id))
+
+    # get the updated (or cached) Canvas role list so we can show the right
+    # role labels for these enrollments
+    canvas_roles_by_role_id = get_roles_for_account_id('self')
+    user_roles = UserRole.objects.values()
+    labels_by_user_role_id = {
+        role['role_id']: canvas_roles_by_role_id[
+            int(role['canvas_role_id'])]['label']
+        for role in user_roles if role.get('canvas_role_id')}
+
+    # annotate enrollments with the Canvas role label
+    for (_, person) in enrollment_results:
+        person.canvas_role_label = labels_by_user_role_id.get(person.role_id)
 
     return render(request, 'manage_people/add_user_confirmation.html', {
         'workflow_state': workflow_state,
@@ -301,12 +324,9 @@ def add_member_to_course(user_id, user_role_id, course_instance_id,
     Returns a (existing_enrollment, person) tuple, existing_enrollment is true
     if there was already an existing enrollment for the given user/role
     """
-    # bail early if that's not a valid role
-    try:
-        user_role = UserRole.objects.get(role_id=user_role_id)
-    except UserRole.DoesNotExist as e:
-        logger.exception(u'user_role_id %s does not map to a valid user_role '
-                         u'record.', user_role_id)
+
+    user_role = get_user_role_if_permitted(course_instance_id, user_role_id)
+    if user_role is None:
         return False, None
 
     # get an instance of the correct Course* model class for this role
@@ -336,43 +356,39 @@ def add_member_to_course(user_id, user_role_id, course_instance_id,
     # get and annotate a Person instance for this enrollment
     person = Person.objects.filter(univ_id=user_id)[0]
     person.badge_label = get_badge_label_name(person.role_type_cd)
+    person.role_id = user_role.role_id
     person.role_name = user_role.role_name
 
     # create the canvas enrollment if needed.  add enrollee to primary section
     # if it exists, otherwise add to the course.
     if not existing_enrollment:
-        try:
-            mp_role = ManagePeopleRole.objects.get(user_role_id=user_role.role_id)
-        except ManagePeopleRole.DoesNotExist:
-            logger.exception(u"Unable to find user role id %s in the "
-                             u'manage_people_role table to find its Canvas role '
-                             u'name.', user_role_id)
+        # TODO: both add_canvas_*_enrollee calls expect (and pass to the api)
+        #       a role label.  the api docs show that as deprecated, and the
+        #       preferred approach is to pass the role id.  we should do that.
+        #       punted for now so we don't need to do another icommons_common
+        #       release. Those helpers are used elsewhere, as well, so there are
+        #       refactoring implications. We could use the SDK or the REST API
+        #       in the future.
+        canvas_role_name = get_canvas_role_name(user_role_id)
+        canvas_section = get_canvas_course_section(course_instance_id)
+        if canvas_section:
+            canvas_enrollment = add_canvas_section_enrollee(
+                canvas_section['id'], canvas_role_name, user_id)
         else:
-            # TODO: both add_canvas_*_enrollee calls expect (and pass to the api)
-            #       a role label.  the api docs show that as deprecated, and the
-            #       preferred approach is to pass the role id.  we should do that.
-            #       punted for now so we don't need to do another icommons_common
-            #       release.
-            canvas_section = get_canvas_course_section(course_instance_id)
-            if canvas_section:
-                canvas_enrollment = add_canvas_section_enrollee(
-                                        canvas_section['id'],
-                                        mp_role.canvas_role_label, user_id)
-            else:
-                canvas_enrollment = add_canvas_course_enrollee(
-                                        canvas_course_id,
-                                        mp_role.canvas_role_label, user_id)
+            canvas_enrollment = add_canvas_course_enrollee(
+                canvas_course_id, canvas_role_name, user_id)
 
-            if canvas_enrollment:
-                # flush the canvas api caches on successful enrollment
-                canvas_api_helper_courses.delete_cache(
-                    canvas_course_id=canvas_course_id)
-                canvas_api_helper_enrollments.delete_cache(canvas_course_id)
-                canvas_api_helper_sections.delete_cache(canvas_course_id)
-            else:
-                logger.error(u'Unable to enroll %s as user_role_id %s for course '
-                             u'instance id %s.',
-                             user_id, user_role_id, course_instance_id)
+        if canvas_enrollment:
+            # flush the canvas api caches on successful enrollment
+            canvas_api_helper_courses.delete_cache(
+                canvas_course_id=canvas_course_id)
+            canvas_api_helper_enrollments.delete_cache(canvas_course_id)
+            canvas_api_helper_sections.delete_cache(canvas_course_id)
+        else:
+            logger.error(
+                u'Unable to enroll %s as user_role_id %s (Canvas role id %s) '
+                u'for course instance id %s.', user_id, user_role_id,
+                user_role.canvas_role_id, course_instance_id)
     return existing_enrollment, person
 
 
@@ -380,7 +396,7 @@ def get_enrollments_added_through_tool(sis_course_id):
     """
     This method fetches the primary section enrollments for this course and
     then filters out the course enrollees that are fed via sis import feed
-    process identified by 'sis_import_id' attribute of the enrollee object.
+    process or cross-registration.
     """
     logger.debug(u'get_enrollments_added_through_tool(course_instance_id=%s)',
                  sis_course_id)
@@ -401,7 +417,7 @@ def get_enrollments_added_through_tool(sis_course_id):
     # deleted via this tool.  This is achieved by using a filter to exclude
     # users with values equal to e.g. 'xmlfeed','fasfeed', or 'xreg_map' in the
     # 'SOURCE' column, which indicates that these users were fed from the
-    # regsitrar feed or xreg.  Note: The code is excluding any source containing
+    # registrar feed or xreg.  Note: The code is excluding any source containing
     # 'feed' to capture various feed sources like 'xmlfeed','fasfeed','icfeed'
     # etc.
 
@@ -422,9 +438,12 @@ def get_enrollments_added_through_tool(sis_course_id):
         eligible_ids.update(ids)
     logger.debug(u'full set of eligible user/role ids: %s', eligible_ids)
 
-    # get a mapping of canvas_role_label to role_id
-    role_id_by_canvas_role_label = dict(ManagePeopleRole.objects.values_list(
-                                            'canvas_role_label', 'user_role_id'))
+    # get a mapping of canvas role_id to UserRole ids
+    canvas_role_to_user_role = get_canvas_to_user_role_id_map()
+
+    # get the updated (or cached) Canvas role list so we can show the right
+    # Canvas role labels for the enrollments
+    canvas_roles_by_role_id = get_roles_for_account_id('self')
 
     # Further filter users to remove users who may not yet be be in canvas.
     # For the moment we are treating COURSEMANAGER as the single source of truth
@@ -440,11 +459,15 @@ def get_enrollments_added_through_tool(sis_course_id):
             # exist then log it and do not include
             user_id = (enrollment['user'].get('sis_user_id') or
                            enrollment['user'].get('login_id'))
-            role_id = role_id_by_canvas_role_label[enrollment['role']]
-            if user_id and (user_id, role_id) in eligible_ids:
+            user_role_id = canvas_role_to_user_role[enrollment['role_id']]
+            if user_id and (user_id, user_role_id) in eligible_ids:
+                enrollment.update({
+                    'user_role_id': user_role_id,
+                    'canvas_role_label': canvas_roles_by_role_id.get(
+                        enrollment['role_id'])['label']})
                 filtered_enrollments.append(enrollment)
                 logger.debug(u'MP filter out registrar fed: Allowing (%s, %s)',
-                             user_id, role_id)
+                             user_id, user_role_id)
             else:
                 # Log the users not yet in Canvas or who do not match because
                 # they're missing an sis_user_id or login_id.  These users will
@@ -452,12 +475,13 @@ def get_enrollments_added_through_tool(sis_course_id):
                 # have sortable_name and assumes sis_user_id is the source of
                 # truth in Canvas (see comment above re:TLT-705)
                 logger.info(
-                    u'Manage People: Canvas %s (user_role_id %s) '
-                    u'enrollment for user %s (CM user id %s) was either not '
-                    u'found in the Coursemanager DB, or was registrar-fed.  Not '
-                    u'including it in the results list.',
+                    u'Manage People: Canvas %s (Canvas role_id %s, '
+                    u'user_role_id %s) enrollment for user %s (CM user id %s) '
+                    u'was either not found in the Coursemanager DB, or was '
+                    u'registrar-fed.  Not including it in the results list.',
                     enrollment['role'],
-                    role_id_by_canvas_role_label[enrollment['role']],
+                    enrollment['role_id'],
+                    canvas_role_to_user_role[enrollment['role_id']],
                     enrollment['user'].get('sortable_name'),
                     enrollment['user'].get('sis_user_id'))
         else:
@@ -493,22 +517,30 @@ def get_enrollments_added_through_tool(sis_course_id):
 def remove_user(request):
     canvas_course_id = request.POST.get('canvas_course_id')
     sis_user_id = request.POST.get('sis_user_id')
-    canvas_role = request.POST.get('canvas_role')
+    canvas_role_id = request.POST.get('canvas_role_id')
+    user_role_id = request.POST.get('user_role_id')
     try:
         course_instance_id = request.LTI['lis_course_offering_sourcedid']
     except KeyError as e:
         return lti_key_error_response(request, e)
 
-    # bail early if that's not a valid role
-    try:
-        mp_role = ManagePeopleRole.objects.get(canvas_role_label=canvas_role)
-    except ManagePeopleRole.DoesNotExist as e:
-        logger.exception(u'The specified Canvas role %s does not map to a valid '
-                         u'manage_people_role record.', canvas_role)
+    user_role = get_user_role_if_permitted(course_instance_id, user_role_id)
+    if user_role is None:
         return JsonResponse(
             {'result': 'failure',
-             'message': 'Error: The specified Canvas role {} is not valied.'
-                            .format(canvas_role)},
+             'message': 'Error: The specified user role {} is not valid.'
+                 .format(user_role_id)},
+            status=500)
+
+    if int(user_role.canvas_role_id) != int(canvas_role_id):
+        logger.exception(
+            u'The specified Canvas role %s does not correspond with user role '
+            u'%s record\'s Canvas role (%s).', canvas_role_id, user_role_id,
+            user_role.canvas_role_id)
+        return JsonResponse(
+            {'result': 'failure',
+             'message': 'Error: The specified canvas role {} is not valid.'
+                 .format(canvas_role_id)},
             status=500)
 
     # start by getting all the enrollments for this user
@@ -527,11 +559,11 @@ def remove_user(request):
             status=500)
     else:
         # create a filtered list of just the users enrollments for the course
-        # matching the canvas_course_id and the canvas_role being removed
+        # matching the canvas_course_id and the canvas role being removed
         user_enrollments_to_remove = [
             enrollment['id'] for enrollment in user_enrollments
                 if (int(enrollment['course_id']) == int(canvas_course_id)
-                    and enrollment['role'] == canvas_role)]
+                    and int(enrollment['role_id']) == int(canvas_role_id))]
 
     # Remove the user from all Canvas sections in course
     for enrollment_id in user_enrollments_to_remove:
@@ -559,18 +591,6 @@ def remove_user(request):
         u'CourseManager DB.',
         sis_user_id, course_instance_id
     )
-
-    # look up the actual user_role record, so we know which member table we need
-    try:
-        user_role = UserRole.objects.get(role_id=mp_role.user_role_id)
-    except UserRole.DoesNotExist as e:
-        logger.exception(u'Canvas role %s mapped to user_role_id %d, which '
-                         u"doesn't actually exist in the user_role table.",
-                         canvas_role, mp_role.user_role_id)
-        return JsonResponse(
-            {'result': 'failure',
-             'message': 'Error: There was a problem in deleting the user'},
-            status=500)
 
     # find the enrollment in question
     model_class = get_course_member_class(user_role)
