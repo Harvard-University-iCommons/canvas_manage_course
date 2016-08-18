@@ -11,7 +11,8 @@ $(document).ready(function(){
         var $deleteBtn = $(this);
         var $userRow = $(this).closest('li');
         var sis_user_id = $userRow.attr('data-sisID');
-        var canvas_role = $userRow.attr('data-role');
+        var canvas_role_id = $userRow.attr('data-role-id');
+        var user_role_id = $userRow.attr('data-user-role-id');
         var course_id = $('#canvas_course_id').text();
         var username = $userRow.find('.roster_user_name').text();
         e.preventDefault();
@@ -19,8 +20,9 @@ $(document).ready(function(){
         $modal.find('#confirm-remove-user-button').on('click', function () {
             var formData = {
                 'canvas_course_id': course_id,
+                'canvas_role_id': canvas_role_id,
                 'sis_user_id': sis_user_id,
-                'canvas_role': canvas_role
+                'user_role_id': user_role_id
             };
             $deleteBtn.off('click');
             $('#confirm-remove-user').modal('hide');

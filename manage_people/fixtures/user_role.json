@@ -172,11 +172,11 @@
         "canvas_role_id": 11,
         "guest": "0",
         "list_order": 14,
-        "role_name": "Shopper",
+        "role_name": "Prospective Enrollee",
         "student": "1",
         "staff": "0",
-        "canvas_role": "Shopper",
-        "description": "Shopper"
+        "canvas_role": "Prospective Enrollee",
+        "description": "Prospective Enrollee"
     },
     "model": "icommons_common.UserRole",
     "pk": 14

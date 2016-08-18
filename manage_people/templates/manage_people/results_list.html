@@ -1,13 +1,14 @@
 {% extends "manage_people/base_new.html" %}
 
-{% load manage_people_tags %}
 {% load static %}
 
 {% block breadcrumbs %}
 <nav>
     <h3>
-        <a href="{% url 'dashboard_course' %}">Manage Course</a>&nbsp;<small><i class="fa fa-chevron-right"></i></small>&nbsp;
-        <a href="{% url 'manage_people:user_form' %}">Manage People</a>&nbsp;<small><i class="fa fa-chevron-right"></i></small>&nbsp;
+        <a href="{% url 'dashboard_course' %}">Manage Course</a>
+        <small><i class="fa fa-chevron-right"></i></small>
+        <a href="{% url 'manage_people:user_form' %}">Manage People</a>
+        <small><i class="fa fa-chevron-right"></i></small>
         Add People
     </h3>
 </nav>
@@ -61,14 +62,19 @@
         <ul id="existing_enrollments_list" class="list-with-floats">
           {% for _, person in results.items %}
             {% for univ_id, roles in enrolled_roles_by_id.items %}
-              {% for role_canvas_name in roles %}
-                <li data-univ-id="{{ univ_id }}" data-role="{{ role_canvas_name }}">
-                  {{ person.email_address }} <span class="label">{{ person.badge_label_name }}</span>
-                  <span class="float-right text-strong">
-                    Enrolled as a {{ role_canvas_name|get_role_display_name }}
-                  </span>
-                </li>
-              {% endfor %}
+              {% if univ_id == person.univ_id %}
+                {% for role in roles %}
+                  <li data-univ-id="{{ univ_id }}"
+                      data-role="{{ role.role }}"
+                      data-role-id="{{ role.role_id }}"
+                      data-role-label="{{ role.canvas_role_label }}">
+                    {{ person.email_address }} <span class="label">{{ person.badge_label_name }}</span>
+                    <span class="float-right text-strong">
+                      Enrolled as a {{ role.canvas_role_label }}
+                    </span>
+                  </li>
+                {% endfor %}
+              {% endif %}
             {% endfor %}
           {% endfor %}
         </ul>
@@ -107,14 +113,13 @@
                             
                             <div class="float-right">
                                 <label for="select-role-{{ forloop.counter }}"><span class="sr-only">Add as a:</span></label>
-                                {# todo: Consider user id data directly into id param; need to check where id is used in current code #}
                                 <select id="select-role-{{ forloop.counter }}" class="disabled" name="select_role_id_{{ forloop.counter }}" data-selenium-user-id="{{ result.univ_id }}">
                                     <option value="choose">Choose role</option>
                                     {% for user_role in available_roles %}
                                         {% if result.badge_label_name != 'XID' or user_role.xid_allowed %}
                                             <option value={{ user_role.role_id }}
                                                     data-role="{{ user_role.role_id }}">
-                                              {{ user_role.role_name|tf_to_ta_filter }}
+                                              {{ user_role.canvas_role_label }}
                                             </option>
                                         {% endif %}
                                      {% endfor %}
@@ -133,21 +138,13 @@
             <a id="cancel_add_to_course" href="{% url 'manage_people:user_form' %}" class="users-found hidden">Cancel</a>
             <button id="user_create_button" class="btn-disabled users-found hidden" type="submit" data-loading-text="Adding to course...">Add to course</button>
             <a id="find_another_user" href="{% url 'manage_people:find_user' %}" class="users-not-found hidden">Search for a different person</a>
-            <a id="back_to_user_form" href="{% url 'manage_people:user_form' %}" class="users-not-found hidden">Go back to Manage People</a>
         </div>
         
     </form>
 
-
     <div class="infoBlock-help users-found hidden">
         <p>Not who you were searching for? <a href="{% url 'manage_people:find_user' %}">Search for a different person</a></p>
     </div>
-
-    {% if enrolled_roles_by_id|length != 0 and unique_results %}
-        <div class="text-right">
-            <a id="back_to_user_form" href="{% url 'manage_people:user_form' %}" class="users-not-found">Go back to Manage People</a>
-        </div>
-    {% endif %}
 
 {% endblock content %}
 

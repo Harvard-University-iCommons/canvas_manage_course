@@ -5,11 +5,13 @@ from django_auth_lti import const
 from mock import patch, ANY, DEFAULT, Mock, MagicMock
 
 from manage_sections.views import section_class_list
+from test_utils import return_unmodified_input
 
 
 @patch.multiple('manage_sections.views.canvas_api_helper_enrollments', get_enrollments=DEFAULT)
 @patch.multiple('manage_sections.views.canvas_api_helper_sections', get_section=DEFAULT)
 @patch.multiple('lti_permissions.decorators', is_allowed=Mock(return_value=True))
+@patch.multiple('manage_sections.views.canvas_api_helper_enrollments', add_role_labels_to_enrollments=DEFAULT)
 @patch.multiple(
     'manage_sections.views',
     render=DEFAULT,
@@ -34,26 +36,20 @@ class SectionClassListViewTest(TestCase):
         }
 
     @patch('manage_sections.views.unique_enrollments_not_in_section_filter')
-    def test_enrollment_filter_called(self, mock_filter, SDK_CONTEXT, render, get_section, is_editable_section, get_enrollments):
-        """
-        Test that view function makes a call to unique_enrollments filter with expected args
-        """
-        section_class_list(self.request, self.section_id)
-        mock_filter.assert_called_with(self.section_id, [])
-
-    @patch('manage_sections.views.unique_enrollments_not_in_section_filter')
-    def test_view_rendered_on_success(self, mock_filter, SDK_CONTEXT, render, get_section, is_editable_section, get_enrollments):
+    def test_view_rendered_on_success(self, mock_filter, add_role_labels_to_enrollments, render, **kwargs):
         """
         Test that view renders expected template on success
         """
+        add_role_labels_to_enrollments.side_effect = return_unmodified_input
         section_class_list(self.request, self.section_id)
         render.assert_called_with(self.request, 'manage_sections/_section_classlist.html', ANY)
 
     @patch('manage_sections.views._add_badge_label_name_to_enrollments')
-    def test_enrollments_sorted_on_success(self, mock_filter, SDK_CONTEXT, render, get_section, is_editable_section, get_enrollments):
+    def test_enrollments_sorted_on_success(self, mock_filter, add_role_labels_to_enrollments, **kwargs):
         """
         Test that enrollments list is sorted before being passed to render
         """
+        add_role_labels_to_enrollments.side_effect = return_unmodified_input
         enrollments_list_mock = MagicMock(name='enrollments', spec=list)
         mock_filter.return_value = enrollments_list_mock
         section_class_list(self.request, self.section_id)
@@ -62,10 +58,11 @@ class SectionClassListViewTest(TestCase):
 
     @patch('manage_sections.views._add_badge_label_name_to_enrollments')
     @patch('manage_sections.views.unique_enrollments_not_in_section_filter')
-    def test_enrollments_rendered_on_success(self, mock_filter, badge_filter, SDK_CONTEXT, render, get_section, is_editable_section, get_enrollments):
+    def test_enrollments_rendered_on_success(self, mock_filter, badge_filter, add_role_labels_to_enrollments, render, **kwargs):
         """
         Test that sorted enrollments list is passed on to the rendered template
         """
+        add_role_labels_to_enrollments.side_effect = return_unmodified_input
         mock_enrollment_1 = {'user': {'sortable_name': 'e'}}
         mock_enrollment_2 = {'user': {'sortable_name': 'f'}}
         mock_enrollment_3 = {'user': {'sortable_name': 'g'}}

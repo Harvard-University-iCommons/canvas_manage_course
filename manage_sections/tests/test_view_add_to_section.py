@@ -50,12 +50,12 @@ class SectionAddToSectionViewTest(unittest.TestCase):
             "users_to_add": [
                 {
                     "enrollment_user_id": "79610",
-                    "enrollment_role": "TeacherEnrollment",
+                    "enrollment_role_id": "2",
                     "enrollment_type": "TeacherEnrollment"
                 },
                 {
                     "enrollment_user_id": "104779",
-                    "enrollment_role": "TeacherEnrollment",
+                    "enrollment_role_id": "2",
                     "enrollment_type": "TeacherEnrollment"
                 }
             ]
@@ -92,7 +92,7 @@ class SectionAddToSectionViewTest(unittest.TestCase):
             self.add_to_section_stub_body['section_id'],
             user_to_add['enrollment_user_id'],
             enrollment_type=user_to_add['enrollment_type'],
-            enrollment_role=user_to_add['enrollment_role'],
+            enrollment_role_id=user_to_add['enrollment_role_id'],
             enrollment_enrollment_state='active',
         )
 

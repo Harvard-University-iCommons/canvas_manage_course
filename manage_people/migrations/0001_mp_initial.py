@@ -16,7 +16,6 @@ MANAGE_PEOPLE_ROLE_DATA = [
     (10, 'Guest', True),
     (11, 'Course Support Staff', False),
     (12, 'Teaching Staff', False),
-    (14, 'Shopper', False),
     (15, 'ObserverEnrollment', False)
 ]
 LTI_PERMISSIONS_DATA = [
@@ -29,12 +28,10 @@ LTI_PERMISSIONS_DATA = [
 	('manage_people', '*', 'DesignerEnrollment', True),
 	('manage_people', '*', 'Faculty', True),
 	('manage_people', '*', 'Guest', False),
-	('manage_people', '*', 'Harvard-Viewer', False),
 	('manage_people', '*', 'Help Desk', True),
 	('manage_people', '*', 'Librarian', True),
 	('manage_people', '*', 'ObserverEnrollment', False),
 	('manage_people', '*', 'SchoolLiaison', True),
-	('manage_people', '*', 'Shopper', False),
 	('manage_people', '*', 'StudentEnrollment', False),
 	('manage_people', '*', 'TaEnrollment', True),
 	('manage_people', '*', 'TeacherEnrollment', True),

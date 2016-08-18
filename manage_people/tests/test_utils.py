@@ -25,26 +25,30 @@ class GetAvailableRolesTest(TestCase):
     def setUp(self):
         self.course_instance_id = 12345678
 
+    @patch('manage_people.utils.get_roles_for_account_id')
     @patch('manage_people.utils.CourseInstance.objects.get')
-    def test_get_available_roles_on_school_with_default_roles(self, mock_ci_get):
+    def test_get_available_roles_on_school_with_default_roles(self, mock_ci_get, mock_roles):
         """
         Test that get_available_roles returns the full list of manage_people_role
         entries for a school which hasn't overridden the role choices.
         """
         mock_ci_get.return_value.course.school.school_id = 'deadbeef'
+        mock_roles.return_value = {}
         result = get_available_roles(self.course_instance_id)
-        self.assertEqual(len(result), 11, 'Count of manage people roles')
+        self.assertEqual(len(result), 10, 'Count of manage people roles')
         self.assertEqual(sorted([r['role_id'] for r in result]),
-                         [0, 1, 2, 5, 7, 9, 10, 11, 12, 14, 15],
+                         [0, 1, 2, 5, 7, 9, 10, 11, 12, 15],
                          'List of manage people role user_role_ids')
 
+    @patch('manage_people.utils.get_roles_for_account_id')
     @patch('manage_people.utils.CourseInstance.objects.get')
-    def test_get_available_roles_on_school_with_overridden_roles(self, mock_ci_get):
+    def test_get_available_roles_on_school_with_overridden_roles(self, mock_ci_get, mock_roles):
         """
         Test that get_available_roles returns just the overridden roles for
         a school which overrides the defaults.
         """
         mock_ci_get.return_value.course.school.school_id = 'gse'
+        mock_roles.return_value = {}
         expected_role_ids = [9, 10, 11, 12, 15]
         result = get_available_roles(self.course_instance_id)
         self.assertEqual(len(result), len(expected_role_ids),
@@ -54,16 +58,19 @@ class GetAvailableRolesTest(TestCase):
                          'List of manage people role user_role_ids')
 
     @patch('manage_people.utils.logger.exception')
+    @patch('manage_people.utils.get_roles_for_account_id')
     @patch('manage_people.utils.CourseInstance.objects.get')
-    def test_get_available_roles_throws_exception(self, mock_ci, mock_exception):
+    def test_get_available_roles_throws_exception(self, mock_ci, mock_roles, mock_exception):
         """
         Test that get_available_roles logs the exception that is thrown
         when the course instance id does not exist
         """
         mock_ci.side_effect = ObjectDoesNotExist
+        mock_roles.return_value = {}
         get_available_roles(self.course_instance_id)
         self.assertTrue(mock_exception.called)
 
+# todo: test roles list annotation behavior, sorting
 
 class GetCourseMemberClassTest(TestCase):
     longMessage = True

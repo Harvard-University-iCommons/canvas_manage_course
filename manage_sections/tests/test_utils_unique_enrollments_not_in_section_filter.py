@@ -5,14 +5,16 @@ from manage_sections.utils import unique_enrollments_not_in_section_filter
 class UniqueEnrollmentsNotInSectionFilterUtilsTest(TestCase):
     longMessage = True
 
-    def enroll(self, user_id, role, section_id, sortable_name=''):
+    def enroll(self, user_id, role_id, section_id, sortable_name=''):
         """
         Helper method that returns a dict resembling an Enrollment JSON object passed
         back from the Canvas API.
+
+        role_id just has to be a String, so no need for it to be e.g. a number.
         """
         return {
             'user_id': user_id,
-            'role': role,
+            'role_id': role_id,
             'course_section_id': section_id,
         }
 
@@ -23,10 +25,10 @@ class UniqueEnrollmentsNotInSectionFilterUtilsTest(TestCase):
         current_section_id = 1234
         other_section_id = 5678
         enrollments = [
-            self.enroll(1, role='Student', section_id=current_section_id),
-            self.enroll(2, role='Teacher', section_id=other_section_id),
-            self.enroll(3, role='Student', section_id=current_section_id),
-            self.enroll(4, role='Observer', section_id=other_section_id),
+            self.enroll(1, role_id='Student', section_id=current_section_id),
+            self.enroll(2, role_id='Teacher', section_id=other_section_id),
+            self.enroll(3, role_id='Student', section_id=current_section_id),
+            self.enroll(4, role_id='Observer', section_id=other_section_id),
         ]
         # Should return the enrollments above that are not in current section
         expected_result = [enrollments[1], enrollments[3]]
@@ -40,9 +42,9 @@ class UniqueEnrollmentsNotInSectionFilterUtilsTest(TestCase):
         """
         current_section_id = 1234
         enrollments = [
-            self.enroll(1, role='Student', section_id=current_section_id),
-            self.enroll(2, role='Teacher', section_id=current_section_id),
-            self.enroll(3, role='Observer', section_id=current_section_id),
+            self.enroll(1, role_id='Student', section_id=current_section_id),
+            self.enroll(2, role_id='Teacher', section_id=current_section_id),
+            self.enroll(3, role_id='Observer', section_id=current_section_id),
         ]
         res = unique_enrollments_not_in_section_filter(current_section_id, enrollments)
         self.assertEqual(res, [], "Expected an empty list of enrollments!")
@@ -55,12 +57,12 @@ class UniqueEnrollmentsNotInSectionFilterUtilsTest(TestCase):
         current_section_id = 123
         other_section_ids = [45, 67, 89]
         enrollments = [
-            self.enroll(1, role='Student', section_id=other_section_ids[0]),
-            self.enroll(2, role='Teacher', section_id=other_section_ids[0]),
-            self.enroll(1, role='Student', section_id=other_section_ids[1]),
-            self.enroll(2, role='Teacher', section_id=other_section_ids[1]),
-            self.enroll(1, role='Student', section_id=other_section_ids[2]),
-            self.enroll(2, role='Teacher', section_id=other_section_ids[2]),
+            self.enroll(1, role_id='Student', section_id=other_section_ids[0]),
+            self.enroll(2, role_id='Teacher', section_id=other_section_ids[0]),
+            self.enroll(1, role_id='Student', section_id=other_section_ids[1]),
+            self.enroll(2, role_id='Teacher', section_id=other_section_ids[1]),
+            self.enroll(1, role_id='Student', section_id=other_section_ids[2]),
+            self.enroll(2, role_id='Teacher', section_id=other_section_ids[2]),
         ]
         # Should return the last of each unique user_id/role combo
         expected_result = [enrollments[4], enrollments[5]]
@@ -76,12 +78,12 @@ class UniqueEnrollmentsNotInSectionFilterUtilsTest(TestCase):
         current_section_id = 123
         other_section_ids = [45, 67, 89]
         enrollments = [
-            self.enroll(1, role='Student', section_id=other_section_ids[0]),
-            self.enroll(1, role='Teacher', section_id=other_section_ids[0]),
-            self.enroll(1, role='Observer', section_id=other_section_ids[1]),
-            self.enroll(1, role='Teacher', section_id=other_section_ids[1]),
-            self.enroll(1, role='Student', section_id=other_section_ids[2]),
-            self.enroll(1, role='Observer', section_id=other_section_ids[2]),
+            self.enroll(1, role_id='Student', section_id=other_section_ids[0]),
+            self.enroll(1, role_id='Teacher', section_id=other_section_ids[0]),
+            self.enroll(1, role_id='Observer', section_id=other_section_ids[1]),
+            self.enroll(1, role_id='Teacher', section_id=other_section_ids[1]),
+            self.enroll(1, role_id='Student', section_id=other_section_ids[2]),
+            self.enroll(1, role_id='Observer', section_id=other_section_ids[2]),
         ]
         # Should return the last of each unique user_id/role combo
         expected_result = [enrollments[5], enrollments[4], enrollments[3]]
@@ -97,8 +99,8 @@ class UniqueEnrollmentsNotInSectionFilterUtilsTest(TestCase):
         current_section_id = 123
         other_section_id = 89
         enrollments = [
-            self.enroll(1, role='Student', section_id=current_section_id),
-            self.enroll(1, role='Teacher', section_id=other_section_id),
+            self.enroll(1, role_id='Student', section_id=current_section_id),
+            self.enroll(1, role_id='Teacher', section_id=other_section_id),
         ]
         res = unique_enrollments_not_in_section_filter(current_section_id, enrollments)
         # Order doesn't matter here, so use itemsEqual instead of listEqual

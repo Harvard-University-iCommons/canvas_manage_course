@@ -3,9 +3,8 @@ from django.db import models
 
 class ManagePeopleRole(models.Model):
     '''
-    Defines the default set of roles available for adding, whether those
-    roles are available for users with only an XID, and a mapping between
-    Canvas role labels and our user_role.user_role_id values.
+    Defines the default set of roles available for adding, and whether those
+    roles are available for users with only an XID.
 
     NOTE: This table is needed to look up user_role_id values by canvas
     role_label, so it must always be a superset of all roles referenced
@@ -13,16 +12,14 @@ class ManagePeopleRole(models.Model):
     '''
     user_role_id = models.IntegerField(primary_key=True)  # logically an fk on
                                                           # cm.user_role.role_id
-    canvas_role_label = models.CharField(max_length=30, unique=True)
     xid_allowed = models.BooleanField(default=False)
 
     class Meta:
         db_table = u'manage_people_role'
 
     def __unicode__(self):
-        return u'user role id:{}, canvas role label:{}, xid:{}allowed'.format(
-            self.user_role_id, self.canvas_role_label,
-            u'' if self.xid_allowed else u'not ')
+        return u'user role id:{}, xid:{}allowed'.format(
+            self.user_role_id, u'' if self.xid_allowed else u'not ')
 
 
 class SchoolAllowedRole(models.Model):

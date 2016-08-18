@@ -272,9 +272,10 @@ def section_details(request, section_id):
 def section_user_list(request, section_id):
     canvas_course_id = request.LTI['custom_canvas_course_id']
     section = canvas_api_helper_sections.get_section(canvas_course_id, section_id)
-    enrollments = _add_badge_label_name_to_enrollments(
-        _filter_student_view_enrollments(section['enrollments'])
-    )
+    enrollments_raw = _filter_student_view_enrollments(section['enrollments'])
+    enrollments_badged = _add_badge_label_name_to_enrollments(enrollments_raw)
+    enrollments = canvas_api_helper_enrollments.add_role_labels_to_enrollments(
+        enrollments_badged)
     enrollments.sort(key=lambda x: x['user']['sortable_name'])
     return render(request, 'manage_sections/_section_userlist.html', {
         'allow_edit': is_editable_section(section),
@@ -328,13 +329,16 @@ def section_class_list(request, section_id):
         if e['type'] in ENROLLMENT_TYPES
     ]
 
-    eligible_enrollments = _add_badge_label_name_to_enrollments(
-        unique_enrollments_not_in_section_filter(section_id, course_enrollments)
-    )
-    eligible_enrollments.sort(key=lambda x: x['user']['sortable_name'])
+    eligible_enrollments = unique_enrollments_not_in_section_filter(
+        section_id, course_enrollments)
+    enrollments_badged = _add_badge_label_name_to_enrollments(
+        eligible_enrollments)
+    enrollments = canvas_api_helper_enrollments.add_role_labels_to_enrollments(
+        enrollments_badged)
+    enrollments.sort(key=lambda x: x['user']['sortable_name'])
 
     return render(request, 'manage_sections/_section_classlist.html', {
-        'enrollments': eligible_enrollments,
+        'enrollments': enrollments,
         'section_id': section_id,
         'allow_edit': is_editable_section(section)
     })
@@ -362,7 +366,7 @@ def add_to_section(request):
                 section_id,
                 user['enrollment_user_id'],
                 enrollment_type=user['enrollment_type'],
-                enrollment_role=user['enrollment_role'],
+                enrollment_role_id=user['enrollment_role_id'],
                 enrollment_enrollment_state='active'
             )
             canvas_api_helper_courses.delete_cache(canvas_course_id=canvas_course_id)
