@@ -26,8 +26,9 @@ class Locators(object):
     @classmethod
     def USER_LI(cls, sis_user_id, role):
         """ locates <li> for the given sis_user_id (univ_id) and role """
-        return By.CSS_SELECTOR, "li[data-sisid='{}'][data-role='{}']".format(
-            sis_user_id, role)
+        return By.CSS_SELECTOR, "li[data-sisid='{}'][" \
+                                "data-canvas-role-label='{}']".format(
+                                                            sis_user_id, role)
 
 
 class UserListPageObject(ManagePeopleBasePageObject):
