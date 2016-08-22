@@ -14,14 +14,16 @@ class Locators(object):
     PEOPLE_ADDED_LIST = (By.ID, "people-added")
 
     @classmethod
-    def DELETE_USER_ICON(cls, sis_user_id, role):
+    def DELETE_USER_ICON(cls, sis_user_id, canvas_role):
         """
         locates delete person icon for the given sis_user_id (univ_id) and
         role
         """
-        return By.CSS_SELECTOR, \
-               "li[data-sisid='{}'][data-role='{}'] a.delete-icon".format(
-                   sis_user_id, role)
+        return By.CSS_SELECTOR, "li[data-sisid='{}']" \
+                                "[data-canvas-role-label='{}'] " \
+                                "a.delete-icon".format(
+                                    sis_user_id, canvas_role)
+
 
     @classmethod
     def USER_LI(cls, sis_user_id, role):
