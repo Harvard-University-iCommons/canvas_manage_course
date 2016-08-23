@@ -55,7 +55,7 @@ class RemovePeopleTests(ManagePeopleBaseTestCase):
         self.setUp()
 
         # Delete the user in Canvas
-        user_list_page.delete_user(test_univ_id, canvas_role)
+        user_list_page.delete_user(test_univ_id, role_id)
 
         self.assertTrue(user_list_page.is_loaded())
         # Note: the refresh has been added due to issues with remove. If the
@@ -67,7 +67,7 @@ class RemovePeopleTests(ManagePeopleBaseTestCase):
 
         # Assert that the deleted user does not appear in Manage People
         self.assertFalse(
-            user_list_page.user_present_with_role(test_univ_id, role))
+            user_list_page.user_present_with_role(test_univ_id, role_id))
 
     @classmethod
     def start_message(cls, test_user_id, test_univ_id, role, role_id):

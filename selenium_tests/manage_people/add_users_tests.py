@@ -70,7 +70,7 @@ class AddingTests(ManagePeopleBaseTestCase):
 
         results_page.return_to_manage_people()
         self.assertTrue(
-            user_list_page.user_present_with_role(test_univ_id, role))
+            user_list_page.user_present_with_role(test_univ_id, role_id))
 
         # ensure person is removed from course as cleanup
         self.api.remove_user(
