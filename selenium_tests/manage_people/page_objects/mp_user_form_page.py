@@ -14,7 +14,7 @@ class Locators(object):
     PEOPLE_ADDED_LIST = (By.ID, "people-added")
 
     @classmethod
-    def DELETE_USER_ICON(cls, sis_user_id, canvas_role):
+    def DELETE_USER_ICON(cls, sis_user_id, role):
         """
         locates delete person icon for the given sis_user_id (univ_id) and
         role
@@ -22,7 +22,7 @@ class Locators(object):
         return By.CSS_SELECTOR, "li[data-sisid='{}']" \
                                 "[data-canvas-role-label='{}'] " \
                                 "a.delete-icon".format(
-                                    sis_user_id, canvas_role)
+                                    sis_user_id, role)
 
 
     @classmethod
@@ -41,7 +41,7 @@ class UserListPageObject(ManagePeopleBasePageObject):
         add_people_link = self.find_element(*Locators.ADD_PEOPLE_LINK)
         add_people_link.click()
 
-    def delete_user(self, univ_id, canvas_role):
+    def delete_user(self, univ_id, role):
         """
         Actions taken to remove a user from the Remove list
         Step 1: Find given user with given canvas_role on page
@@ -50,7 +50,7 @@ class UserListPageObject(ManagePeopleBasePageObject):
         """
         # locate the WebElement for the delete icon for a specific user
         delete_user_element = self.find_element(
-            *Locators.DELETE_USER_ICON(univ_id, canvas_role))
+            *Locators.DELETE_USER_ICON(univ_id, role))
         delete_user_element.click()
 
         # Clicking on the confirm delete button in the modal window...
