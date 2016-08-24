@@ -143,24 +143,13 @@
     </form>
 
     <div class="infoBlock-help users-found hidden">
+        <p>Not sure which role to use? <a href="https://wiki.harvard.edu/confluence/display/canvas/Roles" target="_blank">Consult the roles reference table </a></p>
         <p>Not who you were searching for? <a href="{% url 'manage_people:find_user' %}">Search for a different person</a></p>
     </div>
 
 {% endblock content %}
 
 {% block footer %}
-    <iframe allowfullscreen="true"
-            class="legend-roles"
-            frameBorder="0"
-            height="600em"
-            id="role-info"
-            mozallowfullscreen="true"
-            name="role-info"
-            src="https://wiki.harvard.edu/confluence/plugins/viewsource/viewpagesrc.action?pageId=181077213"
-            style="margin-top: 2em;"
-            tabindex="0"
-            webkitallowfullscreen="true" width="100%">
-    </iframe>
 {% endblock footer %}
 
 {% block javascript %}
