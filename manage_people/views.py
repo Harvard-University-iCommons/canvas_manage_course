@@ -63,7 +63,7 @@ def find_user(request):
 
 
 @login_required
-@lti_permission_required(settings.CUSTOM_LTI_PERMISSIONS['manage_people'])
+@lti_permission_required('manage_people')
 @require_http_methods(['GET'])
 def user_form(request):
     # display the form to find a user
@@ -93,7 +93,7 @@ def user_form(request):
 
 
 @login_required
-@lti_permission_required(settings.CUSTOM_LTI_PERMISSIONS['manage_people'])
+@lti_permission_required('manage_people')
 @require_http_methods(['GET'])
 def results_list(request):
     """ Display the list of matches; let the user select one or more """
@@ -262,7 +262,7 @@ def get_badge_info_for_users(user_id_list=None):
 
 
 @login_required
-@lti_permission_required(settings.CUSTOM_LTI_PERMISSIONS['manage_people'])
+@lti_permission_required('manage_people')
 @require_http_methods(['POST'])
 def add_users(request):
     """
@@ -512,7 +512,7 @@ def get_enrollments_added_through_tool(sis_course_id):
 
 
 @login_required
-@lti_permission_required(settings.CUSTOM_LTI_PERMISSIONS['manage_people'])
+@lti_permission_required('manage_people')
 @require_http_methods(['POST'])
 def remove_user(request):
     canvas_course_id = request.POST.get('canvas_course_id')

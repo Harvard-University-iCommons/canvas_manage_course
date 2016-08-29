@@ -5,15 +5,10 @@
 {% block stylesheets %}
   <link href="{% static 'canvas_manage_course/css/dashboard.css' %}"
         rel="stylesheet"/>
-  {% if no_tools_visible %}
-    {% if debug == True %}
-      <link rel="stylesheet/less" type="text/css"
-            href="{% static "harvard-bootstrap/less/harvard-bootstrap.less" %}" />
-    {% else %}
-      <link rel="stylesheet" type="text/css"
-            href="{% static "harvard-bootstrap/css/harvard-bootstrap.css" %}" media="screen"/>
-    {% endif %}
-  {% endif %}
+{% if no_tools_allowed %}
+    <link rel="stylesheet" type="text/css" media="screen"
+          href="{% static "lti-css/errors.css" %}" />
+{% endif %}
 {% endblock stylesheets %}
 
 
@@ -26,12 +21,12 @@
 {% endblock %}
 
 {% block content %}
-{% if no_tools_visible %}
-  {% include 'canvas_manage_course/_no_tools_available.html' %}
+{% if no_tools_allowed %}
+  {% include 'icommons_ui/_custom_error.html' %}
 {% else %}
   <main>
 
-  {% if class_roster_visible %}
+  {% if allowed.class_roster %}
     <div class="card card_color4">
       <a href="{% url 'class_roster:index' %}" id="course-roster">
         <div class="card-body">
@@ -52,7 +47,7 @@
     </div>
   {% endif %}
 
-  {% if manage_people_visible %}
+  {% if allowed.manage_people %}
     <div class="card card_color1">
       <a href="{% url 'manage_people:user_form' %}" id="manage-people">
         <div class="card-body">
@@ -73,7 +68,7 @@
     </div>
   {% endif %}
 
-  {% if manage_sections_visible %}
+  {% if allowed.manage_sections %}
     <div class="card card_color2">
       <a href="{% url 'manage_sections:create_section_form' %}" id="manage-sections">
         <div class="card-body">
@@ -94,7 +89,7 @@
     </div>
   {% endif %}
 
-  {% if isites_migration_visible %}
+  {% if allowed.im_import_files %}
     {% if isites_migration_active %}
       <div class="card card_color3">
         <a href="{% url 'isites_migration:index' %}" id="isites-migration">
@@ -144,9 +139,3 @@
 {% endif %}
 
 {% endblock content %}
-
-{%  block javascript %}
-  {% if debug and no_tools_visible %}
-    <script src="{% static "harvard-bootstrap/js/less-2.5.3.min.js" %}"></script>
-  {% endif %}
-{%  endblock javascript %}

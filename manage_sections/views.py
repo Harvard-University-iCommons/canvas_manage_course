@@ -118,7 +118,7 @@ def _add_badge_label_name_to_enrollments(enrollments):
 
 
 @login_required
-@lti_permission_required(settings.CUSTOM_LTI_PERMISSIONS['manage_sections'])
+@lti_permission_required('manage_sections')
 @require_http_methods(['GET'])
 def create_section_form(request):
     try:
@@ -165,7 +165,7 @@ def create_section_form(request):
 
 
 @login_required
-@lti_permission_required(settings.CUSTOM_LTI_PERMISSIONS['manage_sections'])
+@lti_permission_required('manage_sections')
 @require_http_methods(['POST'])
 def create_section(request):
     canvas_course_id = request.LTI['custom_canvas_course_id']
@@ -189,7 +189,7 @@ def create_section(request):
 
 
 @login_required
-@lti_permission_required(settings.CUSTOM_LTI_PERMISSIONS['manage_sections'])
+@lti_permission_required('manage_sections')
 @require_http_methods(['POST'])
 def edit_section(request, section_id):
     canvas_course_id = request.LTI['custom_canvas_course_id']
@@ -248,7 +248,7 @@ def edit_section(request, section_id):
 
 
 @login_required
-@lti_permission_required(settings.CUSTOM_LTI_PERMISSIONS['manage_sections'])
+@lti_permission_required('manage_sections')
 @require_http_methods(['GET'])
 def section_details(request, section_id):
     canvas_course_id = request.LTI['custom_canvas_course_id']
@@ -267,7 +267,7 @@ def section_details(request, section_id):
 
 
 @login_required
-@lti_permission_required(settings.CUSTOM_LTI_PERMISSIONS['manage_sections'])
+@lti_permission_required('manage_sections')
 @require_http_methods(['GET'])
 def section_user_list(request, section_id):
     canvas_course_id = request.LTI['custom_canvas_course_id']
@@ -286,7 +286,7 @@ def section_user_list(request, section_id):
 
 
 @login_required
-@lti_permission_required(settings.CUSTOM_LTI_PERMISSIONS['manage_sections'])
+@lti_permission_required('manage_sections')
 @require_http_methods(['POST'])
 def remove_section(request, section_id):
     canvas_course_id = request.LTI['custom_canvas_course_id']
@@ -313,7 +313,7 @@ def remove_section(request, section_id):
 
 
 @login_required
-@lti_permission_required(settings.CUSTOM_LTI_PERMISSIONS['manage_sections'])
+@lti_permission_required('manage_sections')
 @require_safe
 def section_class_list(request, section_id):
     """
@@ -345,7 +345,7 @@ def section_class_list(request, section_id):
 
 
 @login_required
-@lti_permission_required(settings.CUSTOM_LTI_PERMISSIONS['manage_sections'])
+@lti_permission_required('manage_sections')
 @require_http_methods(['POST'])
 def add_to_section(request):
     try:
@@ -383,7 +383,7 @@ def add_to_section(request):
 
 
 @login_required
-@lti_permission_required(settings.CUSTOM_LTI_PERMISSIONS['manage_sections'])
+@lti_permission_required('manage_sections')
 @require_http_methods(['POST'])
 def remove_from_section(request):
     canvas_course_id = request.LTI['custom_canvas_course_id']
