@@ -761,7 +761,7 @@ body.lti-tool .infoBlock-empty {
 .infoBlock-help {
   border: solid 1px #f1f2f2;
   background: #fcfbfb;
-  text-align: center;
+  text-align: left;
   padding: 1em 1em 0 1em;
   margin: 1em 0;
 }
