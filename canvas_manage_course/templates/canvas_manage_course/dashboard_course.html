@@ -11,16 +11,16 @@
 {% endif %}
 {% endblock stylesheets %}
 
-
 {% block breadcrumb %}
 <nav>
-    <h3>
-        Manage Course
-    </h3>
+  <h3>
+    Manage Course
+  </h3>
 </nav>
 {% endblock %}
 
 {% block content %}
+<main>
 {% if no_tools_allowed %}
   {% include 'icommons_ui/_custom_error.html' %}
 {% else %}
@@ -135,7 +135,7 @@
     {% endif %}
   {% endif %}
 
-  </main>
 {% endif %}
+</main>
 
 {% endblock content %}
