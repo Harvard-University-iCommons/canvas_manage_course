@@ -28,9 +28,14 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument('keyword', help='the iSites keyword containing the slide tool to export')
+        parser.add_argument('-t', '--tool_id', default=settings.SLIDE_TOOL_ID,
+                            help='the iSites slide tool tool_id to use; '
+                                 'default is {} (from settings)'
+                                 .format(settings.SLIDE_TOOL_ID))
 
     def handle(self, *args, **options):
         keyword = options['keyword']
+        tool_id = options['tool_id']
 
         logger.info("Beginning export_slide_tool for keyword %s to S3 bucket %s", keyword, self.s3_bucket)
         try:
@@ -42,17 +47,7 @@ class Command(BaseCommand):
         boto_session = boto3.session.Session(profile_name=settings.AWS_PROFILE)
         s3 = boto_session.resource('s3')
 
-        topic_sql_query = """
-        SELECT t.topic_id AS topic_id, t.title AS title
-        FROM topic t, page_content pc, page p, site s
-        WHERE
-        s.keyword = '%s' AND
-        p.site_id = s.site_id AND
-        pc.page_id = p.page_id AND
-        t.topic_id = pc.topic_id AND
-        t.tool_id = %s
-        """
-        topics = Topic.objects.raw(topic_sql_query, [keyword, settings.SLIDE_TOOL_ID])
+        topics = Topic.objects.filter(site__keyword=keyword, tool_id=tool_id)
         for topic in topics:
             logger.info("Exporting files for topic %d %s", topic.topic_id, topic.title)
             topic_data = {
