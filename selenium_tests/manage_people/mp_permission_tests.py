@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from ddt import ddt, data, unpack
 
 from selenium_common.base_test_case import get_xl_data
