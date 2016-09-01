@@ -8,8 +8,10 @@ from selenium_tests.manage_sections.page_objects\
 
 
 class Locators(object):
-
-    MANAGE_SECTIONS_TEXT = (By.XPATH, './/h3[contains(., "Manage Sections")]')
+    # this is the Section(s): header above the section list; the nav bar
+    # 'Manage Sections' header appears on other pages in the manage sections
+    # app/page flow, so not using that
+    MANAGE_SECTIONS_TEXT = (By.XPATH, './/h3[contains(., "Section(s):")]')
 
 
 class MainPageObject(ManageSectionsBasePageObject):
