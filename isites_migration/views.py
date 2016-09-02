@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 
 @login_required
-@lti_permission_required(settings.CUSTOM_LTI_PERMISSIONS['isites_migration'])
+@lti_permission_required('im_import_files')
 def index(request):
 
     course_instance_id = request.LTI.get('lis_course_offering_sourcedid')

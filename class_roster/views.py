@@ -15,7 +15,7 @@ SIS_ROSTER = settings.CLASS_ROSTER['sis_roster']
 
 
 @login_required
-@lti_permission_required(settings.CUSTOM_LTI_PERMISSIONS['class_roster'])
+@lti_permission_required('class_roster')
 @require_http_methods(['GET'])
 def index(request):
 

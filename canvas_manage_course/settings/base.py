@@ -289,18 +289,20 @@ ICOMMONS_COMMON = {
     'CANVAS_API_HEADERS': {
         'Authorization': 'Bearer ' + SECURE_SETTINGS.get('canvas_token', 'canvas_token_missing_from_config')
     },
+    'CANVAS_ROOT_ACCOUNT_ID': SECURE_SETTINGS.get('canvas_root_account_id', 1),
 }
 
-# lti_permissions.LtiPermission permission field for each app in the project
-# that uses it (this is used on the dashboard to determine which app links to
-# make available to the user
-CUSTOM_LTI_PERMISSIONS = {
-    'class_roster': 'class_roster',
-    'isites_migration': 'im_import_files',
-    'manage_people': 'manage_people',
-    'manage_sections': 'manage_sections',
-
-}
+# TOOL_PERMISSIONS is used to specify which SchoolPermission.permission names
+# are used in this project. Every permission used by an LTI permission check
+# in this project should be represented here; e.g. they are used for migrations
+# (to set up initial permissions for tool access).
+TOOL_PERMISSIONS = (
+    'canvas_manage_course',  # dashboard
+    'class_roster',
+    'im_import_files',  # isites_migration app
+    'manage_people',
+    'manage_sections'
+)
 
 MANAGE_PEOPLE = {
     'BADGE_LABELS': {
