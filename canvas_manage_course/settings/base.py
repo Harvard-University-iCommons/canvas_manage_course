@@ -289,6 +289,7 @@ ICOMMONS_COMMON = {
     'CANVAS_API_HEADERS': {
         'Authorization': 'Bearer ' + SECURE_SETTINGS.get('canvas_token', 'canvas_token_missing_from_config')
     },
+    'CANVAS_ROOT_ACCOUNT_ID': SECURE_SETTINGS.get('canvas_root_account_id', 1),
 }
 
 # TOOL_PERMISSIONS is used to specify which SchoolPermission.permission names
