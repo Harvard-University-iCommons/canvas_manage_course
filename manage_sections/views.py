@@ -3,14 +3,9 @@ import logging
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
-from django.core.urlresolvers import reverse
-from django.http import HttpResponse, JsonResponse
-from django.shortcuts import render, redirect
+from django.http import JsonResponse
+from django.shortcuts import render
 from django.views.decorators.http import require_http_methods, require_safe
-from django_auth_lti import const
-from django_auth_lti.decorators import lti_role_required
-
-from ims_lti_py.tool_config import ToolConfig
 
 from canvas_sdk.methods import enrollments as canvas_api_enrollments
 from canvas_sdk.exceptions import CanvasAPIError
@@ -39,6 +34,7 @@ logger = logging.getLogger(__name__)
 ENROLLMENT_TYPES = [
     'StudentEnrollment', 'TeacherEnrollment', 'TaEnrollment', 'DesignerEnrollment', 'ObserverEnrollment'
 ]
+
 
 class MonitorResponseView(BaseMonitorResponseView):
     def healthy(self):

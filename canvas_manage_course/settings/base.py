@@ -297,6 +297,7 @@ ICOMMONS_COMMON = {
 # in this project should be represented here; e.g. they are used for migrations
 # (to set up initial permissions for tool access).
 TOOL_PERMISSIONS = (
+    'canvas_manage_course',  # dashboard
     'class_roster',
     'im_import_files',  # isites_migration app
     'manage_people',

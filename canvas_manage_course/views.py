@@ -11,19 +11,12 @@ from django.views.decorators.http import require_http_methods
 
 from ims_lti_py.tool_config import ToolConfig
 
-from django_auth_lti import const
-from django_auth_lti.decorators import lti_role_required
 from isites_migration.utils import get_previous_isites
-from lti_permissions.decorators import lti_permission_required_check
+from lti_permissions.decorators import (
+    lti_permission_required,
+    lti_permission_required_check)
 
 logger = logging.getLogger(__name__)
-
-LTI_ROLES_PERMITTED = [
-    const.ADMINISTRATOR,
-    const.CONTENT_DEVELOPER,
-    const.INSTRUCTOR,
-    const.TEACHING_ASSISTANT,
-]
 
 
 @require_http_methods(['GET'])
@@ -56,13 +49,13 @@ def tool_config(request):
 @login_required
 @require_http_methods(['POST'])
 @csrf_exempt
-@lti_role_required(LTI_ROLES_PERMITTED)
+@lti_permission_required('canvas_manage_course')
 def lti_launch(request):
     return redirect('dashboard_course')
 
 
 @login_required
-@lti_role_required(LTI_ROLES_PERMITTED)
+@lti_permission_required('canvas_manage_course')
 def dashboard_course(request):
     course_instance_id = request.LTI.get('lis_course_offering_sourcedid')
 
