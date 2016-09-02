@@ -12,6 +12,7 @@ urlpatterns = [
     url(r'^lti_auth_error$', icommons_ui_views.not_authorized, name='lti_auth_error'),
     url(r'^lti_launch$', views.lti_launch, name='lti_launch'),
     url(r'^manage_people/', include('manage_people.urls', namespace='manage_people')),
+    url(r'^manage_school_permissions/', include('manage_school_permissions.urls', namespace='manage_school_permissions')),
     url(r'^manage_sections/', include('manage_sections.urls', namespace='manage_sections')),
     url(r'^not_authorized$', icommons_ui_views.not_authorized, name='not_authorized'),
     url(r'^tool_config$', views.tool_config, name='tool_config'),

@@ -44,6 +44,7 @@ INSTALLED_APPS = (
     'isites_migration',
     'lti_permissions',
     'manage_people',
+    'manage_school_permissions',
     'manage_sections',
 )
 
