@@ -14,7 +14,7 @@ class ClassRosterPermissionTests(CourseAdminBaseTestCase):
 
     @data(*get_xl_data(CLASS_ROSTER_PERMISSION_ROLES))
     @unpack
-    def test_roles_access(self, user_id, given_access):
+    def test_roles_access(self, user_id, given_access, expected_role):
         # This test masquerades as users in roles in the spreadsheet
         # specified in CLASS_ROSTER_PERMISSION_ROLES, and then validates the
         # the users are granted/denied access based on their role.
@@ -34,8 +34,8 @@ class ClassRosterPermissionTests(CourseAdminBaseTestCase):
             self.assertTrue(
                 self.course_admin_dashboard_page
                     .class_roster_button_is_displayed(),
-                'User {} should see the class roster button on page but '
-                'does not'.format(user_id)
+                'User {} with expected role {} should see the class roster '
+                'button on page but does not'.format(user_id, expected_role)
             )
 
             # Clicks into tool
@@ -48,11 +48,12 @@ class ClassRosterPermissionTests(CourseAdminBaseTestCase):
             self.assertFalse(
                 self.course_admin_dashboard_page
                     .class_roster_button_is_displayed(),
-                'User {} does not see the tool, but should.'.format(user_id)
+                'User {} with expected role {} does not see the tool but '
+                'should.'.format(user_id, expected_role)
             )
 
         else:
             raise ValueError(
                 'given_access column for user {} must be either "yes" or '
-                '"no"'.format(user_id)
+                '"no"'.format(user_id, expected_role)
             )
