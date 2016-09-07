@@ -38,8 +38,8 @@ class ImportiSitesPermissionTests(CourseAdminBaseTestCase):
             self.assertFalse(
                 self.course_admin_dashboard_page
                     .import_isites_content_is_displayed(),
-                'User {} with expected role {} does not see the import isites '
-                'content tool, but should.'.format(user_id, expected_role)
+                'User {} with expected role {} should not see the import '
+                'isites tool, but can see it.'.format(user_id, expected_role)
             )
 
         else:
