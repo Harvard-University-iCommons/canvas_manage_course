@@ -9,5 +9,5 @@ IMPORT_ISITES_PERMISSION_ROLES = join(dirname(abspath(__file__)), 'test_data',
                                      'import_isites_roles_access.xlsx')
 
 
-class ClassRosterBaseTestCase(CourseAdminBaseTestCase):
+class ImportiSitesBaseTestCase(CourseAdminBaseTestCase):
     pass
