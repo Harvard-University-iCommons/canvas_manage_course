@@ -30,11 +30,11 @@ class ManageSectionsPermissionTests(ManageSectionsBaseTestCase):
         # Go back to the Manage Course Dashboard
         self.driver.get(self.TOOL_URL)
 
-        # test user should be able to access the dashboard, so we can test if
-        # the manage sections app is visible
-        self.assertTrue(self.course_admin_dashboard_page.is_loaded())
-
         if given_access == 'yes':
+            # test user should be able to access the dashboard, so we can test
+            #  if the manage sections app is visible
+            self.assertTrue(self.course_admin_dashboard_page.is_loaded())
+
             # If user should have access to Manage Sections tool, verify that
             # the user sees the manage sections button
             self.assertTrue(
@@ -51,13 +51,18 @@ class ManageSectionsPermissionTests(ManageSectionsBaseTestCase):
             self.assertTrue(main_page.is_loaded())
 
         elif given_access == 'no':
-            self.assertFalse(
-                self.course_admin_dashboard_page
-                    .manage_sections_button_is_displayed(),
-                'User {} with expected role {} should not see the '
-                'manage_sections button, but can see it.'.format(user_id,
-                                                                 expected_role)
-            )
+            if self.course_admin_dashboard_page.is_loaded():
+                self.assertFalse(
+                    self.course_admin_dashboard_page
+                        .manage_sections_button_is_displayed(),
+                    'User {} with expected role {} should not see the '
+                    'manage_sections button, but can see it.'.format(user_id,
+                                                                expected_role)
+                )
+            else:
+                # user does not have access to Manage Course dashboard, so we
+                # can assume this test passed
+                pass
 
         else:
             raise ValueError(
