@@ -48,8 +48,8 @@ class ClassRosterPermissionTests(CourseAdminBaseTestCase):
             self.assertFalse(
                 self.course_admin_dashboard_page
                     .class_roster_button_is_displayed(),
-                'User {} with expected role {} does not see the tool but '
-                'should.'.format(user_id, expected_role)
+                'User {} with expected role {} should not see the class '
+                'roster tool, but can see it.'.format(user_id, expected_role)
             )
 
         else:
