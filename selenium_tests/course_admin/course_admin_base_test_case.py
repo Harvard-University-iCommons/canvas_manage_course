@@ -15,7 +15,7 @@ from selenium_tests.course_admin.page_objects\
 MANAGE_COURSE_PERMISSIONS = join(
     dirname(abspath(__file__)),
     'test_data',
-    'permissions_roles_access.xlsx')
+    'course_admin_roles_access.xlsx')
 
 
 class CourseAdminBaseTestCase(BaseSeleniumTestCase):

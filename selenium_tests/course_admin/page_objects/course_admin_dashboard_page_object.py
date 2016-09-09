@@ -7,6 +7,9 @@ from selenium_tests.course_admin.page_objects.course_admin_base_page_object \
 
 class Locators(object):
     CLASS_ROSTER_BUTTON = (By.ID, "course-roster")
+    # Button does not have an ID attribute when it's not clickable
+    IMPORT_ISITES_CONTENT_BUTTON = (By.XPATH, '//h2[contains(.,"Import '
+                                              'iSites Content")]')
     MANAGE_PEOPLE_BUTTON = (By.ID, "manage-people")
     MANAGE_SECTIONS_BUTTON = (By.ID, "manage-sections")
     # if PAGE_TITLE uses contains() it will match for sub-pages as well, so
@@ -19,6 +22,9 @@ class CourseAdminDashboardPage(CourseAdminBasePage):
 
     def class_roster_button_is_displayed(self):
         return self._element_is_displayed(Locators.CLASS_ROSTER_BUTTON)
+
+    def import_isites_content_is_displayed(self):
+        return self._element_is_displayed(Locators.IMPORT_ISITES_CONTENT_BUTTON)
 
     def manage_people_button_is_displayed(self):
         return self._element_is_displayed(Locators.MANAGE_PEOPLE_BUTTON)
