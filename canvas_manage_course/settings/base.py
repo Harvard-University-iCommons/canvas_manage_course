@@ -42,9 +42,9 @@ INSTALLED_APPS = (
     'icommons_common.monitor',
     'icommons_ui',
     'isites_migration',
-    'lti_permissions',
+    'lti_permissions',  # deprecated, but still around for migrations
+    'lti_school_permissions',
     'manage_people',
-    'manage_school_permissions',
     'manage_sections',
 )
 
@@ -93,7 +93,8 @@ DATABASE_APPS_MAPPING = {
     'auth': 'default',
     'contenttypes': 'default',
     'icommons_common': 'termtool',
-    'lti_permissions': 'default',
+    'lti_permissions': 'default',  # deprecated, but still around for migrations
+    'lti_school_permissions': 'default',
     'manage_people': 'default',
     'manage_sections': 'default',
 }

@@ -28,7 +28,7 @@ SQLITE_MAXINT = pow(2, 63)
 # TODO: verify audit logger is called
 # TODO: regression for TLT-2390?
 @patch.multiple('django_auth_lti.decorators', is_allowed=Mock(return_value=True))
-@patch.multiple('lti_permissions.decorators', is_allowed=Mock(return_value=True))
+@patch.multiple('lti_school_permissions.decorators', is_allowed=Mock(return_value=True))
 class RemoveUserTests(TestCase):
     longMessage = True
 

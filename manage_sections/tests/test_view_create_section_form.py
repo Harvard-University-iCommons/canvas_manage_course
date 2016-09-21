@@ -8,7 +8,7 @@ from manage_sections.views import create_section_form
 
 
 @patch.multiple('manage_sections.views', render=DEFAULT)
-@patch.multiple('lti_permissions.decorators', is_allowed=Mock(return_value=True))
+@patch.multiple('lti_school_permissions.decorators', is_allowed=Mock(return_value=True))
 class CreateSectionFormTest(unittest.TestCase):
     """
     Tests for the create_section_form view.
@@ -156,7 +156,7 @@ class CreateSectionFormTest(unittest.TestCase):
         render.assert_called_with(request, 'manage_sections/error.html', status=500)
 
     @patch('manage_sections.views.logger.error')  # Mock the logger to keep log messages off the console.
-    @patch('lti_permissions.decorators', is_allowed=Mock(return_value=False))
+    @patch('lti_school_permissions.decorators', is_allowed=Mock(return_value=False))
     def test_section_form_view_when_not_permitted(self, lti_decorator, log_replacement, render):
         """
         When the user does not have the right permissions, verify that it

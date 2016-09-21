@@ -12,7 +12,7 @@ from django.views.decorators.http import require_http_methods
 from ims_lti_py.tool_config import ToolConfig
 
 from isites_migration.utils import get_previous_isites
-from lti_permissions.decorators import (
+from lti_school_permissions.decorators import (
     lti_permission_required,
     lti_permission_required_check)
 
