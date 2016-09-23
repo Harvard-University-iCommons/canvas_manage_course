@@ -16,5 +16,5 @@ git+ssh://git@github.com/Harvard-University-iCommons/django-auth-lti.git@v1.2.5#
 git+ssh://git@github.com/Harvard-University-iCommons/django-icommons-common.git@v1.15#egg=django-icommons-common[async]==1.15
 git+ssh://git@github.com/Harvard-University-iCommons/django-icommons-ui.git@v1.2.1#egg=django-icommons-ui==1.2.1
 # todo: peg to library tag/version
-git+ssh://git@github.com/Harvard-University-iCommons/lti-school-permissions@v0.1#egg=lti-school-permissions==0.1
+git+ssh://git@github.com/Harvard-University-iCommons/lti-school-permissions@v0.2#egg=lti-school-permissions==0.2
 # -e ../lti-school-permissions
