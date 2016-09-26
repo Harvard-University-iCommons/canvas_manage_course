@@ -10,7 +10,7 @@ from manage_sections.views import edit_section
 @patch.multiple('manage_sections.views', render=DEFAULT)
 @patch.multiple('manage_sections.views.canvas_api_helper_sections',
                 get_section=DEFAULT, update_section=DEFAULT)
-@patch.multiple('lti_permissions.decorators', is_allowed=Mock(return_value=True))
+@patch.multiple('lti_school_permissions.decorators', is_allowed=Mock(return_value=True))
 class EditSectionViewTest(TestCase):
     longMessage = True
 

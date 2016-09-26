@@ -37,7 +37,7 @@ class RequestStub:
     def set_roles(self, roles):
         self.LTI['roles'] = roles
 
-@patch.multiple('lti_permissions.decorators', is_allowed=Mock(return_value=True))
+@patch.multiple('lti_school_permissions.decorators', is_allowed=Mock(return_value=True))
 class SectionAddToSectionViewTest(unittest.TestCase):
     """
     Test cases for add to section

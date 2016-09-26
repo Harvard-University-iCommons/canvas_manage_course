@@ -3,10 +3,10 @@ import itertools
 
 from django.db import migrations
 
-from lti_permissions.models import WHITELISTED_ROLES, DEFAULT_SCHOOLS
+from lti_school_permissions.models import WHITELISTED_ROLES, DEFAULT_SCHOOLS
 
 # open dashboard to all course and account administration roles not covered in
-# lti_permissions.migrations.0003_schoolpermission_default_data
+# lti_school_permissions.migrations.0023_school_permission_default_data
 PERMISSION_NAMES = ['canvas_manage_course']
 SCHOOL_PERMISSION_DATA = itertools.product(
     PERMISSION_NAMES,
@@ -15,7 +15,7 @@ SCHOOL_PERMISSION_DATA = itertools.product(
 
 
 def create_school_default_permissions(apps, schema_editor):
-    school_permission_class = apps.get_model('lti_permissions',
+    school_permission_class = apps.get_model('lti_school_permissions',
                                              'SchoolPermission')
     fields = ('permission', 'school_id', 'canvas_role')
 
@@ -24,7 +24,7 @@ def create_school_default_permissions(apps, schema_editor):
 
 
 def reverse_permissions_load(apps, schema_editor):
-    school_permission_class = apps.get_model('lti_permissions',
+    school_permission_class = apps.get_model('lti_school_permissions',
                                              'SchoolPermission')
     school_permission_class.objects.filter(
         canvas_role__in=WHITELISTED_ROLES,
@@ -35,7 +35,7 @@ def reverse_permissions_load(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('lti_permissions', '0004_schoolpermission_custom_data'),
+        ('lti_school_permissions', '0003_school_permission_custom_data'),
     ]
 
     operations = [

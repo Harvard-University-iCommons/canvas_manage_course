@@ -10,7 +10,7 @@ from test_utils import return_unmodified_input
 
 @patch.multiple('manage_sections.views.canvas_api_helper_enrollments', get_enrollments=DEFAULT)
 @patch.multiple('manage_sections.views.canvas_api_helper_sections', get_section=DEFAULT)
-@patch.multiple('lti_permissions.decorators', is_allowed=Mock(return_value=True))
+@patch.multiple('lti_school_permissions.decorators', is_allowed=Mock(return_value=True))
 @patch.multiple('manage_sections.views.canvas_api_helper_enrollments', add_role_labels_to_enrollments=DEFAULT)
 @patch.multiple(
     'manage_sections.views',

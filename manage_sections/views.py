@@ -17,7 +17,7 @@ from icommons_common.canvas_api.helpers import (
     enrollments as canvas_api_helper_enrollments,
     sections as canvas_api_helper_sections
 )
-from lti_permissions.decorators import lti_permission_required
+from lti_school_permissions.decorators import lti_permission_required
 
 from .utils import (
     SDK_CONTEXT,

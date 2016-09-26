@@ -11,7 +11,7 @@ from requests_oauthlib import OAuth1Session
 from django_auth_lti import const
 
 
-@patch.multiple('lti_permissions.decorators', is_allowed=MagicMock(return_value=True))
+@patch.multiple('lti_school_permissions.decorators', is_allowed=MagicMock(return_value=True))
 class LTIResourceLinkTests(LiveServerTestCase):
     '''
     Runs against a live server instance so we can use requests to test how

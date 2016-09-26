@@ -5,7 +5,8 @@ DATABASE_APPS_MAPPING = {
     'contenttypes': 'default',
     'icommons_common': 'default',
     'isites_migration': 'default',
-    'lti_permissions': 'default',
+    'lti_permissions': 'default',  # deprecated, but still around for migrations
+    'lti_school_permissions': 'default',
     'manage_people': 'default',
     'manage_sections': 'default',
     'sessions': 'default',
