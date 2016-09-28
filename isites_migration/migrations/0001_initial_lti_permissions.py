@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.db import models, migrations
+from django.apps import apps as real_apps
+from django.db import migrations
 
 
 LTI_PERMISSIONS = [
@@ -28,7 +29,12 @@ LTI_PERMISSIONS = [
 
 
 def create_lti_permissions(apps, schema_editor):
-    LtiPermission = apps.get_model('lti_permissions', 'LtiPermission')
+    try:
+        LtiPermission = apps.get_model('lti_permissions', 'LtiPermission')
+    except LookupError:
+        # If the LtiPermission table doesn't exist, return from here
+        return
+
     for permission in LTI_PERMISSIONS:
         lti_permission = LtiPermission(**permission)
         lti_permission.save()
@@ -36,9 +42,13 @@ def create_lti_permissions(apps, schema_editor):
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('lti_permissions', '0001_initial')
-    ]
+    dependencies = []
+
+    # tlt-2650: we need to check whether lti_permissions is part of
+    # INSTALLED_APPS and skip this migration if the LtiPermission model is
+    # not available.
+    if real_apps.is_installed('lti_permissions'):
+        dependencies.append(('lti_permissions', '0001_initial'))
 
     operations = [
         migrations.RunPython(create_lti_permissions)

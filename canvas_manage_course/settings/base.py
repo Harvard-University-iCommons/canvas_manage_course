@@ -294,11 +294,13 @@ ICOMMONS_COMMON = {
     'CANVAS_ROOT_ACCOUNT_ID': SECURE_SETTINGS.get('canvas_root_account_id', 1),
 }
 
-# TOOL_PERMISSIONS is used to specify which SchoolPermission.permission names
-# are used in this project. Every permission used by an LTI permission check
-# in this project should be represented here; e.g. they are used for migrations
-# (to set up initial permissions for tool access).
-TOOL_PERMISSIONS = (
+# LTI_SCHOOL_PERMISSIONS_TOOL_PERMISSIONS is used by the lti-school-permissions
+# app to specify which SchoolPermission.permission names are used in this
+# project. Every permission used by an LTI permission check in this project
+# should be represented here; e.g. they are used for migrations (to set up
+# initial permissions for tool access) and as the list of apps to show in the
+# manage permissions UI.
+LTI_SCHOOL_PERMISSIONS_TOOL_PERMISSIONS = (
     'canvas_manage_course',  # dashboard
     'class_roster',
     'im_import_files',  # isites_migration app
