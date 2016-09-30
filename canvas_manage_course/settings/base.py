@@ -11,9 +11,12 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 """
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-import os
 import logging
+import os
+import warnings
+
 from django.core.urlresolvers import reverse_lazy
+
 from .secure import SECURE_SETTINGS
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -42,11 +45,20 @@ INSTALLED_APPS = (
     'icommons_common.monitor',
     'icommons_ui',
     'isites_migration',
-    'lti_permissions',  # deprecated, but still around for migrations
+    # deprecated, but still needed for release v1.5 around for initial migration
+    # that translates lti_permissions into lti_school_permissions. See
+    # deprecation warning below, and remove when no longer required.
+    'lti_permissions',
     'lti_school_permissions',
     'manage_people',
     'manage_sections',
 )
+
+# todo: remove lti_permissions from INSTALLED_APPS when no longer needed
+warnings.warn("lti_permissions is deprecated. Once lti_school_permissions "
+              "migrations have been run to translate existing LtiPermissions "
+              "into SchoolPermissions the lti_permission entry can be removed "
+              "from INSTALLED_APPS.", DeprecationWarning)
 
 MIDDLEWARE_CLASSES = (
     'djangular.middleware.DjangularUrlMiddleware',
@@ -294,11 +306,13 @@ ICOMMONS_COMMON = {
     'CANVAS_ROOT_ACCOUNT_ID': SECURE_SETTINGS.get('canvas_root_account_id', 1),
 }
 
-# TOOL_PERMISSIONS is used to specify which SchoolPermission.permission names
-# are used in this project. Every permission used by an LTI permission check
-# in this project should be represented here; e.g. they are used for migrations
-# (to set up initial permissions for tool access).
-TOOL_PERMISSIONS = (
+# LTI_SCHOOL_PERMISSIONS_TOOL_PERMISSIONS is used by the lti-school-permissions
+# app to specify which SchoolPermission.permission names are used in this
+# project. Every permission used by an LTI permission check in this project
+# should be represented here; e.g. they are used for migrations (to set up
+# initial permissions for tool access) and as the list of apps to show in the
+# manage permissions UI.
+LTI_SCHOOL_PERMISSIONS_TOOL_PERMISSIONS = (
     'canvas_manage_course',  # dashboard
     'class_roster',
     'im_import_files',  # isites_migration app

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+from django.apps import apps as real_apps
 from django.db import migrations
 
 LTI_PERMISSIONS_DATA = [
@@ -54,7 +55,12 @@ LTI_PERMISSIONS_DATA = [
 
 
 def create_lti_permissions(apps, schema_editor):
-    LtiPermission = apps.get_model('lti_permissions', 'LtiPermission')
+    try:
+        LtiPermission = apps.get_model('lti_permissions', 'LtiPermission')
+    except LookupError:
+        # If the LtiPermission table doesn't exist, return from here
+        return
+
     fields = ('permission', 'school_id', 'canvas_role', 'allow')
 
     for permission in LTI_PERMISSIONS_DATA:
@@ -62,19 +68,28 @@ def create_lti_permissions(apps, schema_editor):
 
 
 def reverse_permissions_load(apps, schema_editor):
-    LtiPermission = apps.get_model('lti_permissions', 'LtiPermission')
+    try:
+        LtiPermission = apps.get_model('lti_permissions', 'LtiPermission')
+    except LookupError:
+        # If the LtiPermission table doesn't exist, return from here
+        return
+
     LtiPermission.objects.filter(permission='manage_sections').delete()
 
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-         ('lti_permissions', '0001_initial'),
-    ]
+    dependencies = []
+    operations = []
 
-    operations = [
-        migrations.RunPython(
-            code=create_lti_permissions,
-            reverse_code=reverse_permissions_load,
-        ),
-    ]
+    # tlt-2650: we need to check whether lti_permissions is part of
+    # INSTALLED_APPS and skip this migration if the LtiPermission model is
+    # not available.
+    if real_apps.is_installed('lti_permissions'):
+        dependencies.append(('lti_permissions', '0001_initial'))
+        operations.append(
+            migrations.RunPython(
+                code=create_lti_permissions,
+                reverse_code=reverse_permissions_load,
+            )
+        )
