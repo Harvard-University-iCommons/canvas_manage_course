@@ -29,12 +29,7 @@ LTI_PERMISSIONS = [
 
 
 def create_lti_permissions(apps, schema_editor):
-    try:
-        LtiPermission = apps.get_model('lti_permissions', 'LtiPermission')
-    except LookupError:
-        # If the LtiPermission table doesn't exist, return from here
-        return
-
+    LtiPermission = apps.get_model('lti_permissions', 'LtiPermission')
     for permission in LTI_PERMISSIONS:
         lti_permission = LtiPermission(**permission)
         lti_permission.save()
@@ -43,13 +38,11 @@ def create_lti_permissions(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = []
+    operations = []
 
     # tlt-2650: we need to check whether lti_permissions is part of
     # INSTALLED_APPS and skip this migration if the LtiPermission model is
     # not available.
     if real_apps.is_installed('lti_permissions'):
         dependencies.append(('lti_permissions', '0001_initial'))
-
-    operations = [
-        migrations.RunPython(create_lti_permissions)
-    ]
+        operations.append(migrations.RunPython(create_lti_permissions))

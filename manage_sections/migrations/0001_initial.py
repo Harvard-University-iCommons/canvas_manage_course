@@ -80,16 +80,16 @@ def reverse_permissions_load(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = []
+    operations = []
 
     # tlt-2650: we need to check whether lti_permissions is part of
     # INSTALLED_APPS and skip this migration if the LtiPermission model is
     # not available.
     if real_apps.is_installed('lti_permissions'):
         dependencies.append(('lti_permissions', '0001_initial'))
-
-    operations = [
-        migrations.RunPython(
-            code=create_lti_permissions,
-            reverse_code=reverse_permissions_load,
-        ),
-    ]
+        operations.append(
+            migrations.RunPython(
+                code=create_lti_permissions,
+                reverse_code=reverse_permissions_load,
+            )
+        )

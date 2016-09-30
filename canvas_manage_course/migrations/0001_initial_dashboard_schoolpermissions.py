@@ -13,8 +13,8 @@ PERMISSION_NAMES = ['canvas_manage_course']
 def _get_permissions():
     return itertools.product(
         PERMISSION_NAMES,
-        lti_perm_settings.get_schools(),  # should be all schools
-        lti_perm_settings.get_roles())  # should not include account admin
+        lti_perm_settings.SCHOOLS,  # should be all schools
+        lti_perm_settings.WHITELISTED_ROLES)  # should not include account admin
 
 
 def create_school_default_permissions(apps, schema_editor):
@@ -30,9 +30,9 @@ def reverse_permissions_load(apps, schema_editor):
     school_permission_class = apps.get_model('lti_school_permissions',
                                              'SchoolPermission')
     school_permission_class.objects.filter(
-        canvas_role__in=lti_perm_settings.get_roles(),
+        canvas_role__in=lti_perm_settings.WHITELISTED_ROLES,
         permission__in=PERMISSION_NAMES,
-        school_id__in=lti_perm_settings.get_schools(),
+        school_id__in=lti_perm_settings.SCHOOLS,
     ).delete()
 
 

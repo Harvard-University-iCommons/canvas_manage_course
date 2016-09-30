@@ -67,12 +67,7 @@ def populate_manage_people_role(apps, schema_editor):
 
 
 def create_lti_permissions(apps, schema_editor):
-    try:
-        LtiPermission = apps.get_model('lti_permissions', 'LtiPermission')
-    except LookupError:
-        # If the LtiPermission table doesn't exist, return from here
-        return
-
+    LtiPermission = apps.get_model('lti_permissions', 'LtiPermission')
     fields = ('permission', 'school_id', 'canvas_role', 'allow')
 
     for permission in LTI_PERMISSIONS_DATA:
@@ -80,12 +75,7 @@ def create_lti_permissions(apps, schema_editor):
 
 
 def reverse_permissions_load(apps, schema_editor):
-    try:
-        LtiPermission = apps.get_model('lti_permissions', 'LtiPermission')
-    except LookupError:
-        # If the LtiPermission table doesn't exist, return from here
-        return
-
+    LtiPermission = apps.get_model('lti_permissions', 'LtiPermission')
     LtiPermission.objects.filter(permission='manage_people').delete()
 
 
@@ -98,24 +88,13 @@ class Migration(migrations.Migration):
 
     dependencies = []
 
-    # tlt-2650: we need to check whether lti_permissions is part of
-    # INSTALLED_APPS and skip this migration if the LtiPermission model is
-    # not available.
-    if real_apps.is_installed('lti_permissions'):
-        dependencies.append(('lti_permissions', '0001_initial'))
-
     operations = [
-
-        migrations.RunPython(
-            code=create_lti_permissions,
-            reverse_code=reverse_permissions_load,
-        ),
-
         migrations.CreateModel(
             name='ManagePeopleRole',
             fields=[
                 ('user_role_id', models.IntegerField(primary_key=True)),
-                ('canvas_role_label', models.CharField(unique=True, max_length=30)),
+                ('canvas_role_label', models.CharField(unique=True, null=True,
+                                                       max_length=30)),
                 ('xid_allowed', models.BooleanField(default=False)),
             ],
             options={
@@ -125,5 +104,17 @@ class Migration(migrations.Migration):
         migrations.RunPython(
             code=populate_manage_people_role,
             reverse_code=reverse_manage_people_role_load,
-        ),
+        )
     ]
+
+    # tlt-2650: we need to check whether lti_permissions is part of
+    # INSTALLED_APPS and skip the LtiPermission migration if the LtiPermission
+    # model is not available.
+    if real_apps.is_installed('lti_permissions'):
+        dependencies.append(('lti_permissions', '0001_initial'))
+        operations.insert(0,
+            migrations.RunPython(
+              code=create_lti_permissions,
+              reverse_code=reverse_permissions_load,
+            )
+        )
