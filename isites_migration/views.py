@@ -4,7 +4,7 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 
-from lti_permissions.decorators import lti_permission_required
+from lti_school_permissions.decorators import lti_permission_required
 from async.models import Process
 from icommons_common.models import CourseInstance
 from isites_migration.utils import get_previous_isites, get_school
@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 
 @login_required
-@lti_permission_required(settings.CUSTOM_LTI_PERMISSIONS['isites_migration'])
+@lti_permission_required('im_import_files')
 def index(request):
 
     course_instance_id = request.LTI.get('lis_course_offering_sourcedid')

@@ -1,6 +1,7 @@
+# -*- coding: utf-8 -*-
+
 import logging
 
-from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse
@@ -10,20 +11,12 @@ from django.views.decorators.http import require_http_methods
 
 from ims_lti_py.tool_config import ToolConfig
 
-from django_auth_lti import const
-from django_auth_lti.decorators import lti_role_required
-from django_auth_lti.verification import is_allowed
 from isites_migration.utils import get_previous_isites
-from lti_permissions.decorators import lti_permission_required_check
+from lti_school_permissions.decorators import (
+    lti_permission_required,
+    lti_permission_required_check)
 
 logger = logging.getLogger(__name__)
-
-LTI_ROLES_PERMITTED = [
-    const.ADMINISTRATOR,
-    const.CONTENT_DEVELOPER,
-    const.INSTRUCTOR,
-    const.TEACHING_ASSISTANT,
-]
 
 
 @require_http_methods(['GET'])
@@ -56,39 +49,37 @@ def tool_config(request):
 @login_required
 @require_http_methods(['POST'])
 @csrf_exempt
-@lti_role_required(LTI_ROLES_PERMITTED)
+@lti_permission_required('canvas_manage_course')
 def lti_launch(request):
     return redirect('dashboard_course')
 
 
 @login_required
-@lti_role_required(LTI_ROLES_PERMITTED)
+@lti_permission_required('canvas_manage_course')
 def dashboard_course(request):
     course_instance_id = request.LTI.get('lis_course_offering_sourcedid')
 
-    # list of permissions to determine tool visibility
-    tools = {
-        'class_roster': {
-            'visible': lti_permission_required_check(request, settings.CUSTOM_LTI_PERMISSIONS['class_roster'])},
-        'isites_migration': {
-            'visible': lti_permission_required_check(request, settings.CUSTOM_LTI_PERMISSIONS['isites_migration'])},
-        'manage_people': {
-            'visible': lti_permission_required_check(request, settings.CUSTOM_LTI_PERMISSIONS['manage_people'])},
-        'manage_sections': {
-                        'visible': lti_permission_required_check(request, settings.CUSTOM_LTI_PERMISSIONS['manage_sections'])},
-    }
+    tool_access_permission_names = [
+        'class_roster',
+        'im_import_files',  # isites_migration
+        'manage_people',
+        'manage_sections']
 
-    # django template tags can't do dict lookups, so create a *_visible context
-    # variable for each tool
-    tool_visibility = {
-        '{}_visible'.format(tool): tools[tool]['visible']
-        for tool in tools.keys()}
+    # Verify current user permissions to see the apps on the dashboard
+    allowed = {tool: lti_permission_required_check(request, tool)
+               for tool in tool_access_permission_names}
+    no_tools_allowed = not any(allowed.values())
 
-    view_context = tool_visibility
+    view_context = {
+        'allowed': allowed,
+        'no_tools_allowed': no_tools_allowed}
 
-    # are all tools hidden?
-    no_tools_visible = len(filter(lambda x: x, tool_visibility.values())) == 0
-    view_context['no_tools_visible'] = no_tools_visible
+    if no_tools_allowed:
+        view_context['custom_error_title'] = u'Not available'
+        view_context['custom_error_message'] = \
+            u"You do not currently have access to any of the tools available " \
+            u"in Admin Console. If you think you should have access, please " \
+            u"use \"Help\" to contact Canvas support from Harvard."
 
     # Check to see if we have any iSites that are available for migration to
     # this Canvas course

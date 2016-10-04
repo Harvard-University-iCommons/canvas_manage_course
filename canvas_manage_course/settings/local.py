@@ -40,7 +40,8 @@ dictConfig(LOGGING)
 SELENIUM_CONFIG = {
     'canvas_base_url': SECURE_SETTINGS.get('canvas_url'),
     'class_roster': {
-        'course_link': 'courses/3787/external_tools/195',
+        #'course_link': 'courses/3787/external_tools/206',  # QA
+        'course_link': 'courses/3787/external_tools/195', # Dev
         'roster_text_display': 'JAPAN BA 001',
         'url_link_course_number': '14754',
         # See TLT-1767 for how the strm code is constructed.

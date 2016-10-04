@@ -27,7 +27,7 @@ test_roster_url_settings = {
 
 @skip("TLT-2635: Issues with django_auth_lti's reverse() in the index.html template")
 @patch.multiple('django_auth_lti.patch_reverse', reverse=Mock(side_effect=urlresolvers.reverse))
-@patch.multiple('lti_permissions.decorators', is_allowed=Mock(return_value=True))
+@patch.multiple('lti_school_permissions.decorators', is_allowed=Mock(return_value=True))
 class IndexViewTests(TestCase):
     longMessage = True
 

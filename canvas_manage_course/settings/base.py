@@ -11,9 +11,12 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 """
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-import os
 import logging
+import os
+import warnings
+
 from django.core.urlresolvers import reverse_lazy
+
 from .secure import SECURE_SETTINGS
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -42,10 +45,20 @@ INSTALLED_APPS = (
     'icommons_common.monitor',
     'icommons_ui',
     'isites_migration',
+    # deprecated, but still needed for release v1.5 around for initial migration
+    # that translates lti_permissions into lti_school_permissions. See
+    # deprecation warning below, and remove when no longer required.
     'lti_permissions',
+    'lti_school_permissions',
     'manage_people',
     'manage_sections',
 )
+
+# todo: remove lti_permissions from INSTALLED_APPS when no longer needed
+warnings.warn("lti_permissions is deprecated. Once lti_school_permissions "
+              "migrations have been run to translate existing LtiPermissions "
+              "into SchoolPermissions the lti_permission entry can be removed "
+              "from INSTALLED_APPS.", DeprecationWarning)
 
 MIDDLEWARE_CLASSES = (
     'djangular.middleware.DjangularUrlMiddleware',
@@ -92,7 +105,8 @@ DATABASE_APPS_MAPPING = {
     'auth': 'default',
     'contenttypes': 'default',
     'icommons_common': 'termtool',
-    'lti_permissions': 'default',
+    'lti_permissions': 'default',  # deprecated, but still around for migrations
+    'lti_school_permissions': 'default',
     'manage_people': 'default',
     'manage_sections': 'default',
 }
@@ -289,18 +303,22 @@ ICOMMONS_COMMON = {
     'CANVAS_API_HEADERS': {
         'Authorization': 'Bearer ' + SECURE_SETTINGS.get('canvas_token', 'canvas_token_missing_from_config')
     },
+    'CANVAS_ROOT_ACCOUNT_ID': SECURE_SETTINGS.get('canvas_root_account_id', 1),
 }
 
-# lti_permissions.LtiPermission permission field for each app in the project
-# that uses it (this is used on the dashboard to determine which app links to
-# make available to the user
-CUSTOM_LTI_PERMISSIONS = {
-    'class_roster': 'class_roster',
-    'isites_migration': 'im_import_files',
-    'manage_people': 'manage_people',
-    'manage_sections': 'manage_sections',
-
-}
+# LTI_SCHOOL_PERMISSIONS_TOOL_PERMISSIONS is used by the lti-school-permissions
+# app to specify which SchoolPermission.permission names are used in this
+# project. Every permission used by an LTI permission check in this project
+# should be represented here; e.g. they are used for migrations (to set up
+# initial permissions for tool access) and as the list of apps to show in the
+# manage permissions UI.
+LTI_SCHOOL_PERMISSIONS_TOOL_PERMISSIONS = (
+    'canvas_manage_course',  # dashboard
+    'class_roster',
+    'im_import_files',  # isites_migration app
+    'manage_people',
+    'manage_sections'
+)
 
 MANAGE_PEOPLE = {
     'BADGE_LABELS': {
