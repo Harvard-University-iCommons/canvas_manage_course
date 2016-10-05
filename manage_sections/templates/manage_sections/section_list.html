@@ -12,7 +12,7 @@
     </div>
     <a class="listNav-item showSection" href="{% url 'manage_sections:section_details' section_id=section.id %}">
         <span class="sectionName">{{ section.name }}</span>
-        (<span class="sectionCount">{{section.enrollment_count}}</span> users)
+        (<span class="sectionCount">{{section.enrollment_count}}</span> user{{ section.enrollment_count|pluralize }})
     </a>
     <div class="editMenu">
     {% if section.registrar_section_flag %}
