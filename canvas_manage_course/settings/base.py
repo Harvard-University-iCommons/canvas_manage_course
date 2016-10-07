@@ -60,7 +60,10 @@ warnings.warn("lti_permissions is deprecated. Once lti_school_permissions "
               "into SchoolPermissions the lti_permission entry can be removed "
               "from INSTALLED_APPS.", DeprecationWarning)
 
+# Note: ordering of cache-related middleware is important, see
+# https://docs.djangoproject.com/en/1.8/topics/cache/#order-of-middleware-classes
 MIDDLEWARE_CLASSES = (
+    'django.middleware.cache.UpdateCacheMiddleware',
     'djangular.middleware.DjangularUrlMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -68,6 +71,7 @@ MIDDLEWARE_CLASSES = (
     'django_auth_lti.middleware_patched.MultiLTILaunchAuthMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'django.middleware.cache.FetchFromCacheMiddleware',
 )
 
 AUTHENTICATION_BACKENDS = (
@@ -166,6 +170,10 @@ CACHES = {
         'TIMEOUT': SECURE_SETTINGS.get('default_cache_timeout_secs', 300),
     }
 }
+
+# Tell proxy and browser caches that all dynamic views expire immediately.
+# @never_cache can be used on individual views to add further paranoia.
+CACHE_MIDDLEWARE_SECONDS = 0
 
 # RQ
 # http://python-rq.org/docs/
