@@ -169,3 +169,17 @@ class CreateSectionFormTest(unittest.TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, '/not_authorized')
 
+
+@patch.multiple('lti_school_permissions.decorators', is_allowed=Mock(return_value=True))
+class CreateSectionFormErrorMessageTest(CreateSectionFormTest):
+    def test_manage_section_error_message(self):
+        """
+        Validate error message when when Create Section Form view returns  error
+         page when there is no lis_course_offering_sourcedid
+        """
+        request = self.request
+        request.LTI['lis_course_offering_sourcedid'] = None
+        result = create_section_form(request)
+        self.assertTrue('wiki.harvard.edu/confluence/display/canvas/'
+                        'Local+School+Support+Contacts' in result.content)
+
