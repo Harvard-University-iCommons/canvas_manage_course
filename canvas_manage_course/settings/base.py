@@ -40,7 +40,6 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django_auth_lti',
     'django_rq',
-    'djangular',
     'icommons_common',
     'icommons_common.monitor',
     'icommons_ui',
@@ -61,7 +60,6 @@ warnings.warn("lti_permissions is deprecated. Once lti_school_permissions "
               "from INSTALLED_APPS.", DeprecationWarning)
 
 MIDDLEWARE_CLASSES = (
-    'djangular.middleware.DjangularUrlMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'cached_auth.Middleware',
