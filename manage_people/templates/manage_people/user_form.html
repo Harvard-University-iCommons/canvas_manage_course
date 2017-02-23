@@ -16,7 +16,7 @@
     </style>
 {% endblock %}
 
-{% block breadcrumbs %}
+{% block page_breadcrumbs %}
 <nav>
     <h3>
         <a href="{% url 'dashboard_course' %}">Manage Course</a>
@@ -24,9 +24,9 @@
         Manage People
     </h3>
 </nav>
-{% endblock breadcrumbs %}
+{% endblock page_breadcrumbs %}
 
-{% block content %}
+{% block page_content %}
     <div id="user-removed-success" class="infoBlock-success alert-lti hidden">
         <p>User '<span id="success_username"> </span>' successfully removed.</p>
     </div>
@@ -73,7 +73,7 @@
     </ul>
 
     {% include "icommons_ui/_confirmation_modal.html" with modal_id="confirm-remove-user" title="Confirm Remove User" message="Are you sure you want to remove this user from this course and all of its sections?" confirm_button_label="Yes, Remove User" %}
-{% endblock content %}
+{% endblock page_content %}
 
 {% block javascript %}
     {{ block.super }}

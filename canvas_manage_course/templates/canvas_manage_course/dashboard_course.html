@@ -2,24 +2,25 @@
 
 {% load static %}
 
-{% block stylesheets %}
+{% block stylesheet %}
+  {{ block.super }}
   <link href="{% static 'canvas_manage_course/css/dashboard.css' %}"
         rel="stylesheet"/>
 {% if no_tools_allowed %}
     <link rel="stylesheet" type="text/css" media="screen"
           href="{% static "lti-css/errors.css" %}" />
 {% endif %}
-{% endblock stylesheets %}
+{% endblock stylesheet %}
 
-{% block breadcrumb %}
+{% block dashboard_breadcrumb %}
 <nav>
   <h3>
     Manage Course
   </h3>
 </nav>
-{% endblock %}
+{% endblock dashboard_breadcrumb %}
 
-{% block content %}
+{% block tool_content %}
 <main>
 {% if no_tools_allowed %}
   {% include 'icommons_ui/_custom_error.html' %}
@@ -138,4 +139,4 @@
 {% endif %}
 </main>
 
-{% endblock content %}
+{% endblock tool_content %}

@@ -17,7 +17,7 @@
     </style>
 {% endblock %}
 
-{% block breadcrumbs %}
+{% block page_breadcrumbs %}
 <nav>
     <h3>
         <a href="{% url 'dashboard_course' %}">Manage Course</a>
@@ -27,9 +27,9 @@
         Search for people
     </h3>
 </nav>
-{% endblock breadcrumbs %}
+{% endblock page_breadcrumbs %}
 
-{% block content %}
+{% block page_content %}
     <form class="form-inline" action="{% url 'manage_people:results_list' %}" id="formName" role="form">
         {% resource_link_id %}
         {% if notfound %}
@@ -66,7 +66,7 @@
             <button type="submit" id="user_search_button" data-loading-text="Searching..." class="btn btn-submit">Search</button>
         </div>
     </form>
-{% endblock content %}
+{% endblock page_content %}
 
 {% block javascript %}
     {{ block.super }}

@@ -2,25 +2,26 @@
 
 {% load static %}
 
-{% block stylesheets %}
+{% block stylesheet %}
+  {{ block.super }}
   <link href="{% static 'canvas_manage_course/css/dashboard.css' %}"
         rel="stylesheet"/>
   <link href="{% static 'class_roster/css/class_roster.css' %}"
         rel="stylesheet"/>
-{% endblock stylesheets %}
+{% endblock stylesheet %}
 
 
-{% block breadcrumb %}
+{% block dashboard_breadcrumb %}
 <nav>
   <h1>
     <a href="{% url 'dashboard_course' %}">Manage Course</a>&nbsp;
     <small><i class="fa fa-chevron-right"></i></small>&nbsp;Class Roster
   </h1>
 </nav>
-{% endblock %}
+{% endblock dashboard_breadcrumb %}
 
 
-{% block content %}
+{% block tool_content %}
 <main>
   <div id="content" role="main">
     {% if num_of_courses > 0 %}
@@ -41,4 +42,4 @@
   {% endif %}
   </div>
 </main>
-{% endblock content %}
+{% endblock tool_content %}

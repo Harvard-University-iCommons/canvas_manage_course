@@ -4,7 +4,8 @@
 {% load django_helpers %}
 {% load tz %}
 
-{% block stylesheets %}
+{% block stylesheet %}
+{{ block.super }}
 <style>
     .content form {
         text-align: center;
@@ -16,18 +17,18 @@
         text-decoration: underline;
     }
 </style>
-{% endblock stylesheets %}
+{% endblock stylesheet %}
 
-{% block breadcrumb %}
+{% block dashboard_breadcrumb %}
 <nav>
     <h3>
         <a href="{% url 'dashboard_course' %}">Manage Course</a>&nbsp;<small><i class="fa fa-chevron-right"></i></small>
         Import iSites Content
     </h3>
 </nav>
-{% endblock %}
+{% endblock dashboard_breadcrumb%}
 
-{% block content %}
+{% block tool_content %}
 
 <main>
     <div class="content">
@@ -116,9 +117,10 @@
         {% endif %}
     </div>
 </main>
-{% endblock content %}
+{% endblock tool_content %}
 
 {% block javascript %}
+{{ block.super }}
 <script>
     $(document).ready(function(){
 

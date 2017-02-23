@@ -2,8 +2,7 @@
 
 {% load static %}
 
-
-{% block breadcrumbs %}
+{% block page_breadcrumbs %}
 <nav>
     <h3>
         <a href="{% url 'dashboard_course' %}">Manage Course</a>
@@ -13,10 +12,9 @@
         Add People
     </h3>
 </nav>
-{% endblock breadcrumbs %}
+{% endblock page_breadcrumbs %}
 
-
-{% block content %}
+{% block page_content %}
     <p><strong>{{ person.name_first }} {{ person.name_last }}</strong> has been successfully added as:</p>
     <ul class="list-with-floats" id="enrollment_confirmations">
         {% for existing_enrollment, enrollee in enrollment_results %}
@@ -46,4 +44,4 @@
         </div>
     </div>
     {% endif %}
-{% endblock content %}
+{% endblock page_content %}
