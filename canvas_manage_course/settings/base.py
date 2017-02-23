@@ -102,6 +102,7 @@ WSGI_APPLICATION = 'canvas_manage_course.wsgi.application'
 # https://docs.djangoproject.com/en/1.8/ref/settings/#databases
 
 DATABASE_APPS_MAPPING = {
+    'async': 'default',
     'auth': 'default',
     'contenttypes': 'default',
     'icommons_common': 'termtool',
