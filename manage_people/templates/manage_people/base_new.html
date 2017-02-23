@@ -3,6 +3,7 @@
 {% load static %}
 
 {% block stylesheet %}
+  {{ block.super }}
     <link rel="stylesheet" type="text/css" href="{% static "font-awesome-4.5.0/css/font-awesome.min.css" %}" media="screen"/>
     <link rel="stylesheet" type="text/css" href="{% static "manage_people/css/manage_people.css" %}" media="screen"/>
 {% endblock stylesheet %}

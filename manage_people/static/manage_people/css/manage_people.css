@@ -18,7 +18,6 @@ usage: .trans(@time:1s); or .trans(@type:linear, @what: opacity); */
 }
 /*! normalize.css v3.0.0 | MIT License | git.io/normalize */
 html {
-  font-family: sans-serif;
   -ms-text-size-adjust: 100%;
   -webkit-text-size-adjust: 100%;
 }
@@ -281,12 +280,12 @@ form .fa-asterisk {
 label {
   color: #333333;
   font-size: 1em;
-  font-family: "HelveticaNeue-Bold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-weight: bold;
   display: inline-block;
   margin-bottom: 0.75em;
 }
 label.plain {
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-weight: normal;
   margin-bottom: 0;
 }
 label.inline {
@@ -307,9 +306,16 @@ fieldset.fieldset-btn {
   text-align: right;
 }
 fieldset legend {
-  font-family: "HelveticaNeue-Bold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-weight: bold;
+}
+.form-control.col-50 {
+  /* needed to override harvard-bootstrap.css */
+  width: 50%;
 }
 .form-control {
+  -webkit-box-sizing: content-box;
+  -moz-box-sizing: content-box;
+  box-sizing: content-box;
   display: block;
   height: 1em;
   padding: 0.55em 1%;
@@ -432,7 +438,6 @@ fieldset[disabled] .input-group-right + span {
 .form-group-description {
   width: 38%;
   float: left;
-  font-family: Georgia, Times, serif;
   font-size: 0.875em;
 }
 /****** show hide helper text based on modal window or 	******
@@ -563,7 +568,7 @@ ul.list-with-floats li:nth-child(even) {
 ul.list-with-floats li.header {
   border: 0;
   background-color: #f0f1f6;
-  font-family: "HelveticaNeue-Bold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-weight: bold;
   color: #54626f;
 }
 ul.list-with-floats li.header .header-right {
@@ -590,7 +595,6 @@ fieldset[disabled] .btn {
   padding-right: 0.5em;
 }
 .btn-submit {
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   padding: 0.53em 2%;
   border-radius: 5px;
   background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #0a99ff), color-stop(1, #0abeff));
@@ -604,7 +608,6 @@ fieldset[disabled] .btn {
   color: #fff;
 }
 .btn-disabled {
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   padding: 0.53em 2%;
   border-radius: 5px;
   background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #0a99ff), color-stop(1, #0abeff));
@@ -630,7 +633,6 @@ fieldset[disabled] .btn {
   color: #6d6d6d;
 }
 .btn-submit-primary {
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   padding: 0.53em 2%;
   border-radius: 5px;
   background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #0a99ff), color-stop(1, #0abeff));
@@ -650,7 +652,6 @@ fieldset[disabled] .btn {
   color: #fafafa;
 }
 .btn-toggle {
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   padding: 0.53em 2%;
   border-radius: 5px;
   background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #0a99ff), color-stop(1, #0abeff));
@@ -688,7 +689,6 @@ button.btn-submit-primary {
 /* link look and feel but with the padding
 and spacing to match a btn-submit */
 .btn-link {
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   padding: 0.53em 2%;
   border-radius: 5px;
   background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #0a99ff), color-stop(1, #0abeff));
@@ -730,7 +730,7 @@ and spacing to match a btn-submit */
   padding: 0.4375em 0.5em;
   background-color: #999999;
   color: #fff;
-  font-family: "HelveticaNeue-Bold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-weight: bold;
   margin-bottom: 0;
 }
 .infoBlock {
@@ -754,7 +754,6 @@ body.lti-tool .infoBlock {
 }
 body.lti-tool .infoBlock-empty {
   font-size: 2.1875em;
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   color: #c2c2c2;
   text-align: center;
 }
@@ -866,14 +865,14 @@ a.right-margin {
   color: #9c0000;
 }
 .text-strong {
-  font-family: "HelveticaNeue-Bold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-weight: bold;
 }
 .text-strong-success {
-  font-family: "HelveticaNeue-Bold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-weight: bold;
   color: #017119;
 }
 .text-strong-error {
-  font-family: "HelveticaNeue-Bold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-weight: bold;
   color: #a51c30;
   color: #9c0000;
 }
@@ -889,12 +888,12 @@ aside h2 {
   text-align: center;
   font-size: 0.9375em;
   font-weight: bold;
-  font-family: "HelveticaNeue-Bold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-weight: bold;
   color: #9c0000;
   text-transform: uppercase;
 }
 .link-icon {
-  font-family: "HelveticaNeue-Bold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-weight: bold;
   color: #3e67a2;
   font-size: 1em;
   margin-bottom: 1em;

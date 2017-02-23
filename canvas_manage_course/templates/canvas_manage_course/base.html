@@ -13,16 +13,11 @@
 {% block stylesheet %}
     {{ block.super }}
     <link href="{% static 'font-awesome-4.5.0/css/font-awesome.min.css' %}" rel="stylesheet">
-{#  todo: use super() #}
 {% endblock stylesheet %}
 
 {% block content %}
     <div class="container">
-        {#  todo: rename breadcrumb #}
         {% block dashboard_breadcrumb %}{% endblock dashboard_breadcrumb %}
-        {#  todo: rename content #}
         {% block tool_content %}{% endblock tool_content %}
     </div>
 {% endblock content %}
-
-{#  todo: javascript should use super() #}
