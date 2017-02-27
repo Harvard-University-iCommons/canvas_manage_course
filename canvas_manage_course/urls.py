@@ -1,9 +1,7 @@
 from django.conf.urls import include, url
 
-from icommons_ui import views as icommons_ui_views
-
 from canvas_manage_course import views
-
+from icommons_ui import views as icommons_ui_views
 
 urlpatterns = [
     url(r'^course_dashboard$', views.dashboard_course, name='dashboard_course'),

@@ -1,6 +1,7 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 
+from class_roster import views
 
-urlpatterns = patterns('',
-    url(r'^index$', 'class_roster.views.index', name='index'),
-)
+urlpatterns = [
+    url(r'^index$', views.index, name='index'),
+]

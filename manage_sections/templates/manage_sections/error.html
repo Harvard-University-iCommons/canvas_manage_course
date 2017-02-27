@@ -1,17 +1,19 @@
-<!DOCTYPE html>
-<html>
-<head>
-<title>Manage Sections Error</title>
-</head>
-<body>
+{% extends 'icommons_ui/base_lti.html' %}
 
-<h1>Manage Sections</h1>
+{% load static %}
 
-<p>
-  We are currently unable to process your request. Please try again.
-  If the problem persists, please contact your
-  <a href="https://wiki.harvard.edu/confluence/display/canvas/Local+School+Support+Contacts" target="_blank">
-    local support staff</a>.
-</p>
-</body>
-</html>
+{% block title %}Manage Course{% endblock title %}
+
+{% block stylesheet %}{% endblock stylesheet %}
+
+{% block content %}
+  <h1>Manage Sections</h1>
+  <p>
+    We are currently unable to process your request. Please try again.
+    If the problem persists, please contact your
+    <a href="https://wiki.harvard.edu/confluence/display/canvas/Local+School+Support+Contacts" target="_blank">
+      local support staff</a>.
+  </p>
+{% endblock content %}
+
+{% block javascript %}{% endblock javascript %}
