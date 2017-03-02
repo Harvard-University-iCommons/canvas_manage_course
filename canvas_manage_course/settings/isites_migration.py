@@ -1,17 +1,20 @@
 from .aws import *
 
 INSTALLED_APPS = (
-    'icommons_common',
     'async',
     'django_rq',
+    'icommons_common',
     'isites_migration',
+    'lti_school_permissions',
+    'manage_people',
+    'manage_sections',
 )
 
 # Settings specifically for the isite_migration LTI app
 AWS_EXPORT_BUCKET_ISITES_FILES = 'isites-slide-data'
 AWS_EXPORT_BUCKET_SLIDE_TOOL = 'isites-slide-data'
 AWS_EXPORT_DOWNLOAD_TIMEOUT_SECONDS = 60
-AWS_PROFILE = 'isites_migration'
+AWS_SOURCE_BUCKET_ISITES_FILES = SECURE_SETTINGS.get('aws_source_bucket_isites_files', 'uw-isites-fsdocs-archive')
 
 # local directory where export files are stored
 EXPORT_DIR = os.path.join(BASE_DIR, 'export')

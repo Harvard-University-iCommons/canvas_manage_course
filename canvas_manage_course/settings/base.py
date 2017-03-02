@@ -234,6 +234,14 @@ LOGGING = {
             'format': '%(levelname)s\t%(name)s:%(lineno)s\t%(message)s',
         }
     },
+    'filters': {
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse'
+        },
+        'require_debug_true': {
+            '()': 'django.utils.log.RequireDebugTrue',
+        },
+    },
     # This is the default logger for any apps or libraries that use the logger
     # package, but are not represented in the `loggers` dict below.  A level
     # must be set and handlers defined.  Setting this logger is equivalent to
@@ -251,16 +259,27 @@ LOGGING = {
             'level': _DEFAULT_LOG_LEVEL,
             'formatter': 'verbose',
             'filename': os.path.join(_LOG_ROOT, 'django-canvas_manage_course.log'),
-        }
+        },
+        'console': {
+            'class': 'logging.StreamHandler',
+            'level': _DEFAULT_LOG_LEVEL,
+            'formatter': 'simple',
+            'filters': ['require_debug_true'],
+        },
     },
     'loggers': {
         'rq.worker': {
-            'handlers': ['default'],
+            'handlers': ['default', 'console'],
+            'level': _DEFAULT_LOG_LEVEL,
+            'propagate': False,
+        },
+        'icommons_common.async': {
+            'handlers': ['default', 'console'],
             'level': _DEFAULT_LOG_LEVEL,
             'propagate': False,
         },
         'isites_migration': {
-            'handlers': ['default'],
+            'handlers': ['default', 'console'],
             'level': _DEFAULT_LOG_LEVEL,
             'propagate': False,
         },
@@ -347,3 +366,8 @@ ICOMMONS_REST_API_HOST = SECURE_SETTINGS.get('icommons_rest_api_host')
 # Default to False, but if testing locally, set to True
 ICOMMONS_REST_API_SKIP_CERT_VERIFICATION = SECURE_SETTINGS.get(
     'icommons_rest_api_skip_cert_verification', False)
+
+ISITES_MIGRATION = {
+    'aws_access_key_id': SECURE_SETTINGS.get('isites_migration_aws_access_key_id'),
+    'aws_secret_access_key': SECURE_SETTINGS.get('isites_migration_aws_secret_access_key'),
+}
