@@ -16,6 +16,8 @@ class ClassRosterTests(ClassRosterBaseTestCase):
         url_link_course_number = self.test_settings['url_link_course_number']
         url_term_code = self.test_settings['url_strm_term_code']
 
+        self.load_class_roster()
+
         # Get the link URL matching the course name display
         link_url = self.main_page.get_link_url(course_name_display)
 
