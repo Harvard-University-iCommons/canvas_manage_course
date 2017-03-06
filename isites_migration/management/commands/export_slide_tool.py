@@ -119,8 +119,6 @@ class Command(BaseCommand):
                         'Key': source_object_key
                     }
 
-                    # storage_node_loc + file_node.physical_location,
-
                     s3.meta.client.copy(
                         copy_source,
                         self.dest_s3_bucket,
