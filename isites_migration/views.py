@@ -28,7 +28,7 @@ def index(request):
 
         Process.enqueue(
             migrate_files,
-            'isites_file_migration',
+            settings.ISITES_MIGRATION_QUEUE_NAME,
             keyword=keyword,
             canvas_course_id=canvas_course_id,
             term=term,

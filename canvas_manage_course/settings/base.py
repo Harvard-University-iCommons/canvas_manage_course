@@ -169,18 +169,18 @@ CACHES = {
 # RQ
 # http://python-rq.org/docs/
 
+ISITES_MIGRATION_QUEUE_NAME = 'isites_file_migration'
+
+_rq_redis_config = {
+    'HOST': REDIS_HOST,
+    'PORT': REDIS_PORT,
+    'DB': 0,
+    'DEFAULT_TIMEOUT': SECURE_SETTINGS.get('default_rq_timeout_secs', 300),
+}
+
 RQ_QUEUES = {
-    'default': {
-        'HOST': REDIS_HOST,
-        'PORT': REDIS_PORT,
-        'DB': 0,
-    },
-    'isites_file_migration': {
-        'HOST': REDIS_HOST,
-        'PORT': REDIS_PORT,
-        'DB': 0,
-        'DEFAULT_TIMEOUT': SECURE_SETTINGS.get('default_isites_migration_rq_timeout_secs', 180),
-    }
+    'default': _rq_redis_config,
+    ISITES_MIGRATION_QUEUE_NAME: _rq_redis_config
 }
 
 # Sessions
