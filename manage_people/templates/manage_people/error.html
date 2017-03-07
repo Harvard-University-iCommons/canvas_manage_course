@@ -1,14 +1,14 @@
-<!DOCTYPE html>
-<html>
-<head>
-<title>Manage People Tool Error</title>
-</head>
-<body>
+{% extends 'icommons_ui/base_lti.html' %}
 
-<h1>Manage People Tool: Error</h1>
+{% load static %}
 
-<p>
-	{{ message }}	
-</p>
-</body>
-</html>
+{% block title %}Manage Course{% endblock title %}
+
+{% block stylesheet %}{% endblock stylesheet %}
+
+{% block content %}
+  <h1>Manage People Tool: Error</h1>
+  <p>{{ message }}</p>
+{% endblock content %}
+
+{% block javascript %}{% endblock javascript %}

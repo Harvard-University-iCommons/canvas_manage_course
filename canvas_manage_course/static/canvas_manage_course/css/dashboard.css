@@ -1,12 +1,12 @@
 /* tag types */
 
-a {
+.lti a {
     text-decoration: none;
 }
-a:focus {
+.lti a:focus {
     text-decoration: none;
 }
-a:hover {
+.lti a:hover {
     text-decoration: none;
 }
 h1 {
@@ -40,7 +40,6 @@ p {
     background: #fff;
     cursor: pointer;
     display: inline-block;
-    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
     margin: 0 36px 36px 0;
     vertical-align: top;
     width: 262px;

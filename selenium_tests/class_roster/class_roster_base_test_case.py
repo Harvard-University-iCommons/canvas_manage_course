@@ -28,15 +28,14 @@ class ClassRosterBaseTestCase(CourseAdminBaseTestCase):
         self.main_page = MainPageObject(self.driver)
         self.test_settings = settings.SELENIUM_CONFIG['class_roster']
 
-        self.CANVAS_BASE_URL = settings.SELENIUM_CONFIG['canvas_base_url']
-        self.TOOL_RELATIVE_URL = self.test_settings['course_link']
         # This gets the URL of a course with a working class roster tool
+        self.TOOL_RELATIVE_URL = self.test_settings['course_link']
         self.TOOL_URL = urljoin(self.CANVAS_BASE_URL, self.TOOL_RELATIVE_URL)
 
-        # After setup, override the default URL which uses the automated test
-        # site and replace it with this course site.
-        self.main_page.get(self.TOOL_URL)
-        self.main_page.focus_on_tool_frame()
+    def load_class_roster(self):
+        # Navigate to the working class roster tool
+        self.dashboard_page.get(self.TOOL_URL)
+        self.dashboard_page.focus_on_tool_frame()
 
         # Clicks on the class roster button from the dashboard
         self.dashboard_page.select_class_roster_link()

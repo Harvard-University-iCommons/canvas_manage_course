@@ -2,7 +2,7 @@
 
 {% load static %}
 
-{% block breadcrumbs %}
+{% block page_breadcrumbs %}
 <nav>
     <h3>
         <a href="{% url 'dashboard_course' %}">Manage Course</a>
@@ -12,9 +12,9 @@
         Add People
     </h3>
 </nav>
-{% endblock breadcrumbs %}
+{% endblock page_breadcrumbs %}
 
-{% block content %}
+{% block page_content %}
     <div class="infoBlock-error alert-lti hidden">
         <ul>
             <li class="email hidden"><strong>You must choose at least one directory record</strong></li>
@@ -147,10 +147,7 @@
         <p>Not who you were searching for? <a href="{% url 'manage_people:find_user' %}">Search for a different person</a>.</p>
     </div>
 
-{% endblock content %}
-
-{% block footer %}
-{% endblock footer %}
+{% endblock page_content %}
 
 {% block javascript %}
     {{ block.super }}

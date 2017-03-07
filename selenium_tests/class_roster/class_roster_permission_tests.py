@@ -1,16 +1,15 @@
 from ddt import ddt, data, unpack
 
 from selenium_common.base_test_case import get_xl_data
-from selenium_tests.class_roster.class_roster_base_test_case import \
-    CLASS_ROSTER_PERMISSION_ROLES
-from selenium_tests.course_admin.course_admin_base_test_case import \
-    CourseAdminBaseTestCase
+from selenium_tests.class_roster.class_roster_base_test_case import (
+    ClassRosterBaseTestCase,
+    CLASS_ROSTER_PERMISSION_ROLES)
 from selenium_tests.class_roster.page_objects.class_roster_main_page import \
     MainPageObject
 
 
 @ddt
-class ClassRosterPermissionTests(CourseAdminBaseTestCase):
+class ClassRosterPermissionTests(ClassRosterBaseTestCase):
 
     @data(*get_xl_data(CLASS_ROSTER_PERMISSION_ROLES))
     @unpack

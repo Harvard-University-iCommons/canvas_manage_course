@@ -58,7 +58,8 @@ class LTIResourceLinkTests(LiveServerTestCase):
 
         # try following the redirect, we should get a 200
         session.auth = None
-        response2 = session.get(response.headers['location'])
+        url = self.live_server_url + response.headers['location']
+        response2 = session.get(url)
         mock_get_previous_isites.assert_called_with(
             self.params['lis_course_offering_sourcedid'])
         self.assertEqual(response2.status_code, requests.codes.ok)
@@ -91,11 +92,13 @@ class LTIResourceLinkTests(LiveServerTestCase):
 
         # follow the "tab 2" redirect and verify 200
         session.auth = None
-        response3 = session.get(response2.headers['location'])
+        url = self.live_server_url + response2.headers['location']
+        response3 = session.get(url)
         mock_get_previous_isites.assert_called_with(
             self.params['lis_course_offering_sourcedid'])
         self.assertEqual(response3.status_code, requests.codes.ok)
 
         # follow the "tab 1" redirect and verify 200
-        response4 = session.get(response1.headers['location'])
+        url = self.live_server_url + response1.headers['location']
+        response4 = session.get(url)
         self.assertEqual(response3.status_code, requests.codes.ok)
