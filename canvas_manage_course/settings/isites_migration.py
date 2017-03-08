@@ -1,17 +1,32 @@
+"""
+These settings are used for:
+- isites_migration.management.commands.export_slide_tool (just exporting slide
+    tool data; uses e.g.
+- jobs put on the RQ isites_export queue (which run
+    isites_migration.jobs.migrate_files)
+"""
 from .aws import *
 
 INSTALLED_APPS = (
-    'icommons_common',
     'async',
     'django_rq',
+    'icommons_common',
     'isites_migration',
+    'lti_school_permissions',
+    'manage_people',
+    'manage_sections',
 )
 
-# Settings specifically for the isite_migration LTI app
-AWS_EXPORT_BUCKET_ISITES_FILES = 'isites-slide-data'
+# Settings specifically for the isites_migration LTI app
+AWS_EXPORT_BUCKET_ISITES_FILES = SECURE_SETTINGS.get(
+    'aws_export_bucket_isites_files',
+    'isites-exports-prod')
 AWS_EXPORT_BUCKET_SLIDE_TOOL = 'isites-slide-data'
 AWS_EXPORT_DOWNLOAD_TIMEOUT_SECONDS = 60
-AWS_PROFILE = 'isites_migration'
+
+AWS_SOURCE_BUCKET_ISITES_FILES = SECURE_SETTINGS.get(
+    'aws_source_bucket_isites_files',
+    'uw-isites-fsdocs-archive')
 
 # local directory where export files are stored
 EXPORT_DIR = os.path.join(BASE_DIR, 'export')
