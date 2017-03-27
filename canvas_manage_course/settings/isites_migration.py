@@ -12,9 +12,6 @@ INSTALLED_APPS = (
     'django_rq',
     'icommons_common',
     'isites_migration',
-    'lti_school_permissions',
-    'manage_people',
-    'manage_sections',
 )
 
 # Settings specifically for the isites_migration LTI app
