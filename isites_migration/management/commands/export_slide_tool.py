@@ -1,3 +1,8 @@
+"""
+This command is intended to be used with Django settings in
+canvas_manage_course.settings.isites_migration
+"""
+
 import logging
 import os
 import mimetypes
@@ -19,12 +24,14 @@ if hasattr(ssl, '_create_unverified_context'):
 
 
 class Command(BaseCommand):
-    help = 'Exports iSites Slide Tool topic file repositories to AWS S3'
+    help = 'Exports iSites Slide Tool topic file repositories to AWS S3.\n\n' \
+           'This command is intended to be used with Django settings in ' \
+           'canvas_manage_course.settings.isites_migration.'
     requires_system_checks = True
 
     def __init__(self, *args, **kwargs):
         super(Command, self).__init__(*args, **kwargs)
-        self.s3_bucket = settings.AWS_EXPORT_BUCKET_SLIDE_TOOL
+        self.dest_s3_bucket = settings.AWS_EXPORT_BUCKET_SLIDE_TOOL
 
     def add_arguments(self, parser):
         parser.add_argument('keyword', help='the iSites keyword containing the slide tool to export')
@@ -37,15 +44,22 @@ class Command(BaseCommand):
         keyword = options['keyword']
         tool_id = options['tool_id']
 
-        logger.info("Beginning export_slide_tool for keyword %s to S3 bucket %s", keyword, self.s3_bucket)
+        logger.info("Beginning export_slide_tool for keyword %s to S3 bucket %s", keyword, self.dest_s3_bucket)
+
+        s3_source_bucket = settings.AWS_SOURCE_BUCKET_ISITES_FILES
+
         try:
             site = Site.objects.get(keyword=keyword)
         except Site.DoesNotExist:
             raise CommandError('Could not find iSite for the keyword provided.')
 
-        # Establish a boto session for uploads
-        boto_session = boto3.session.Session(profile_name=settings.AWS_PROFILE)
-        s3 = boto_session.resource('s3')
+        kw = {'aws_access_key_id': settings.ISITES_MIGRATION['aws_access_key_id'],
+              'aws_secret_access_key': settings.ISITES_MIGRATION['aws_secret_access_key']}
+        try:
+            s3 = boto3.session.Session(**kw).resource('s3')
+        except:
+            logger.exception('Error configuring s3 client')
+            raise
 
         topics = Topic.objects.filter(site__keyword=keyword, tool_id=tool_id)
         for topic in topics:
@@ -67,29 +81,53 @@ class Command(BaseCommand):
             for file_node in FileNode.objects.filter(file_repository=file_repository):
                 if file_node.file_type == 'file':
                     if file_node.storage_node:
-                        storage_node_location = file_node.storage_node.physical_location
+                        storage_node_loc = file_node.storage_node.physical_location
                     elif file_repository.storage_node:
-                        storage_node_location = file_repository.storage_node.physical_location
+                        storage_node_loc = file_repository.storage_node.physical_location
                     else:
                         logger.error("Failed to find storage node for file node %d", file_node.file_node_id)
                         continue
 
-                    file_name = os.path.basename(file_node.physical_location)
-                    s3_key = "%s/%d/%s" % (keyword, topic.topic_id, file_name)
+                    # Determine if we're dealing with an fs-docs storage node or an fs-cow
+                    if 'fs-docs' in storage_node_loc:
+                        # For pre-COW files, we need to construct the physical file location
+                        # ourselves
+                        physical_file_loc = os.path.join(
+                            file_node.file_repository_id,
+                            file_node.file_path.lstrip('/'),
+                            file_node.file_name
+                        )
+                    else:
+                        physical_file_loc = file_node.physical_location.lstrip(
+                            '/')
+
+                    file_name = os.path.basename(physical_file_loc)
+                    dest_s3_key = "%s/%d/%s" % (keyword, topic.topic_id, file_name)
                     content_type, _ = mimetypes.guess_type(file_name)
                     s3_extra_args = {}
                     if content_type is not None:
                         s3_extra_args = {'ContentType': content_type}
 
-                    s3.meta.client.upload_file(
-                        storage_node_location + file_node.physical_location,
-                        self.s3_bucket,
-                        s3_key,
+                    source_file = os.path.join(
+                        keyword, storage_node_loc, physical_file_loc
+                    ).encode('utf8')
+
+                    source_object_key = source_file[source_file.find('/fsdocs') + 1:]
+
+                    copy_source = {
+                        'Bucket': s3_source_bucket,
+                        'Key': source_object_key
+                    }
+
+                    s3.meta.client.copy(
+                        copy_source,
+                        self.dest_s3_bucket,
+                        dest_s3_key,
                         ExtraArgs=s3_extra_args
                     )
-                    logger.info("Uploaded image to S3 Key %s", s3_key)
+                    logger.info("Copied image to S3 Key %s", dest_s3_key)
 
-                    url = s3_key
+                    url = dest_s3_key
                 elif file_node.file_type == 'link':
                     try:
                         url = FileNodeAttribute.objects.get(file_node_id=file_node.file_node_id, attribute='url').value
@@ -122,11 +160,11 @@ class Command(BaseCommand):
             json_data = json.dumps(topic_data)
 
             # Store the data.json file with the slide data folder
-            s3.Object(self.s3_bucket, data_key).put(
+            s3.Object(self.dest_s3_bucket, data_key).put(
                 Body=json_data,
                 ContentType='application/json'
             )
 
-            logger.info("Uploaded file repository data to S3 Key %s", data_key)
+            logger.info("Copied file repository data to S3 Key %s", data_key)
 
-        logger.info("Finished export_slide_tool for keyword %s to S3 bucket %s", keyword, self.s3_bucket)
+        logger.info("Finished export_slide_tool for keyword %s to S3 bucket %s", keyword, self.dest_s3_bucket)

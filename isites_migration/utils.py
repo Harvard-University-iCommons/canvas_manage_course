@@ -1,13 +1,15 @@
+import errno
 import logging
 import os
 import zipfile
 import time
 import gzip
 import json
-import ssl
 import re
+from io import BytesIO
 
 import boto3
+from botocore.exceptions import ClientError
 from django.conf import settings
 from django.db.models import Q
 from django.template.loader import get_template
@@ -15,7 +17,6 @@ from django.template import Context
 from django.db import connections
 from django.utils.text import get_valid_filename
 from canvas_sdk.methods import content_migrations, files
-from canvas_sdk.exceptions import CanvasAPIError
 
 from icommons_common.models import (
     Topic, FileNode, TopicText, CourseInstance, SiteMap, Course
@@ -24,10 +25,6 @@ from icommons_common.canvas_utils import SessionInactivityExpirationRC
 
 logger = logging.getLogger(__name__)
 SDK_CONTEXT = SessionInactivityExpirationRC(**settings.CANVAS_SDK_SETTINGS)
-
-# Make unverified SSL connections for connecting to Canvas API from tool2.icommons(solaris)
-if hasattr(ssl, '_create_unverified_context'):
-    ssl._create_default_https_context = ssl._create_unverified_context
 
 
 def get_school(course_instance_id, canvas_course_id):
@@ -82,6 +79,8 @@ def export_files(keyword):
        the zipfile, and 3) name of file (key) in s3.  We're using the keyword for all
        three of these identifiers now."""
     s3_bucket = settings.AWS_EXPORT_BUCKET_ISITES_FILES
+    s3_source_bucket = settings.AWS_SOURCE_BUCKET_ISITES_FILES
+
     logger.info("Beginning iSites file export for keyword %s to S3 bucket %s",
                 keyword, s3_bucket)
 
@@ -110,9 +109,11 @@ def export_files(keyword):
         topic_titles_by_id[topic_id] = topic_title
         topic_file_repo_ids.append("icb.topic%d.files" % topic_id)
 
+    _mkdir_p(settings.EXPORT_DIR, 0o755)
     zip_filename = os.path.join(settings.EXPORT_DIR, "%s.zip" % keyword)
     logger.info('Creating zip file %s to store archive' % zip_filename)
 
+    s3 = _get_boto_session().resource('s3').meta.client
     # Write files and text directly to the archive as we go.  Allow for ZIP64
     # extension to accomodate zip files > 2GB
     with zipfile.ZipFile(zip_filename, 'w', zipfile.ZIP_STORED, True) as z_file:
@@ -125,7 +126,7 @@ def export_files(keyword):
             logger.debug("topic id for file node %d is %s",
                          file_node.file_node_id, topic_id_str)
             _export_topic_file(file_node, topic_titles_by_id[int(topic_id_str)],
-                               keyword, z_file)
+                               keyword, z_file, s3, s3_source_bucket)
         # Export all text
         for text in _get_topic_text_by_topic_id(list(topic_titles_by_id)):
             _export_topic_text(text, topic_titles_by_id[text.topic_id],
@@ -277,7 +278,7 @@ def get_previous_isites(course_instance_id):
     return previous_sites
 
 
-def _export_topic_file(file_node, topic_title, keyword, zip_file):
+def _export_topic_file(file_node, topic_title, keyword, zip_file, s3, source_bucket):
     logger.debug(u"Exporting file node %s for topic %s",
                  file_node.file_node_id, topic_title)
     # There should always be a storage node for topic files, either in the node
@@ -308,22 +309,29 @@ def _export_topic_file(file_node, topic_title, keyword, zip_file):
         file_node.file_name
     ).encode('utf8')
 
+    object_key = source_file[source_file.find('/fsdocs')+1:]
+
     try:
+        isites_doc = s3.get_object(Bucket=source_bucket, Key=object_key)
         if file_node.encoding == 'gzip':
             #  Read the whole file as a byte string and write it to the archive
-            with gzip.open(source_file, 'rb') as s_file:
-                zip_file.writestr(export_file, s_file.read())
+            bytestream = BytesIO(isites_doc['Body'].read())
+            file_content = gzip.GzipFile(None, 'rb', fileobj=bytestream).read()
+            zip_file.writestr(export_file, file_content)
         else:
-            zip_file.write(source_file, export_file)
+            zip_file.writestr(export_file, isites_doc['Body'].read())
 
         # Encoding source_file so the log string remains a bytestring
         logger.debug("Copied file %s to archive location %s",
                      source_file, export_file)
-    except (IOError, OSError):
+    except (IOError, OSError, ClientError):
         logger.exception(
-            u"Failed to export file node %d from file repository %s",
+            u"Failed to export file node %d from file repository %s using "
+            u"source bucket %s and s3 object key %s",
             file_node.file_node_id,
-            file_node.file_repository_id
+            file_node.file_repository_id,
+            source_bucket,
+            object_key
         )
 
 
@@ -374,7 +382,9 @@ def _upload_zip_file_to_s3(filename, s3_bucket, s3_key):
 
 
 def _get_boto_session():
-    return boto3.session.Session(profile_name=settings.AWS_PROFILE)
+    return boto3.session.Session(
+        aws_access_key_id=settings.ISITES_MIGRATION['aws_access_key_id'],
+        aws_secret_access_key=settings.ISITES_MIGRATION['aws_secret_access_key'])
 
 
 def _get_s3_download_url(s3_bucket, s3_key, url_download_timeout_secs):
@@ -407,3 +417,14 @@ def _get_import_folder(canvas_course_id, folder_name):
             import_folder = folder
             break
     return import_folder
+
+
+# see http://stackoverflow.com/a/600612
+def _mkdir_p(path, mode=0o777):
+    try:
+        os.makedirs(path, mode)
+    except OSError as exc:
+        if exc.errno == errno.EEXIST and os.path.isdir(path):
+            pass
+        else:
+            raise
