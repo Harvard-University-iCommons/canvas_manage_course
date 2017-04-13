@@ -89,19 +89,8 @@ WSGI_APPLICATION = 'canvas_manage_course.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.8/ref/settings/#databases
 
-DATABASE_APPS_MAPPING = {
-    'async': 'default',
-    'auth': 'default',
-    'contenttypes': 'default',
-    'icommons_common': 'coursemanager',
-    'lti_school_permissions': 'default',
-    'manage_people': 'default',
-    'manage_sections': 'default',
-}
-
-DATABASE_MIGRATION_WHITELIST = ['default']
-
-DATABASE_ROUTERS = ['icommons_common.routers.DatabaseAppsRouter', ]
+COURSE_SCHEMA_DB_NAME = 'coursemanager'
+DATABASE_ROUTERS = ['icommons_common.routers.CourseSchemaDatabaseRouter', ]
 
 DATABASES = {
     'default': {
@@ -119,9 +108,6 @@ DATABASES = {
         'PASSWORD': SECURE_SETTINGS.get('db_coursemanager_password'),
         'HOST': SECURE_SETTINGS.get('db_coursemanager_host'),
         'PORT': str(SECURE_SETTINGS.get('db_coursemanager_port')),
-        'OPTIONS': {
-            'threaded': True,
-        },
         'CONN_MAX_AGE': 0,
     }
 }
