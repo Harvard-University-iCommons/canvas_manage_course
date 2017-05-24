@@ -8,3 +8,4 @@ from .isites_migration import *
 
 EXPORT_FILES_EXCLUDED_TOOL_IDS = []
 EXPORT_FILES_EXCLUDED_TOPIC_TITLES = []
+EXPORT_FILES_README_FILENAME = None  # No README when using export tool
