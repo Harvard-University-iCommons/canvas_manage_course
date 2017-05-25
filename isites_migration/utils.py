@@ -133,8 +133,9 @@ def export_files(keyword):
                                keyword, z_file)
 
         # Only include the README if defined
-        if hasattr(settings, 'EXPORT_FILES_README_FILENAME'):
-            _export_readme(keyword, z_file)
+        readme_filename = getattr(settings, 'EXPORT_FILES_README_FILENAME', None)
+        if readme_filename is not None:
+            _export_readme(keyword, z_file, readme_filename)
 
     # Calculate the size of the archive for log purposes
     uncompressed_size = os.stat(zip_filename).st_size
@@ -361,13 +362,12 @@ def _export_topic_text(topic_text, topic_title, keyword, zip_file):
                  topic_text.text_id, export_file)
 
 
-def _export_readme(keyword, zip_file):
+def _export_readme(keyword, zip_file, readme_filename):
     logger.debug("Exporting readme file for keyword %s", keyword)
     readme_template = get_template('isites_migration/export_files_readme.html')
     content = readme_template.render(Context({}))
-    readme_file = settings.EXPORT_FILES_README_FILENAME
-    zip_file.writestr(os.path.join(keyword, readme_file), content)
-    logging.debug("Copied Readme file to export location %s", readme_file)
+    zip_file.writestr(os.path.join(keyword, readme_filename), content)
+    logging.debug("Copied Readme file to export location %s", readme_filename)
 
 
 def _upload_zip_file_to_s3(filename, s3_bucket, s3_key):
