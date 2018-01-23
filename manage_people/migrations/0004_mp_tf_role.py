@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.apps import apps as real_apps
 from django.db import migrations, models, transaction
 
 MANAGE_PEOPLE_ROLE_DATA = [
     # NOTE:
-    # 1. this is similar to 001_mp_initial. This handles the new TF role
+    # 1. This is similar to 001_mp_initial. This handles the new TF role(user_role_id=6)
     # 2.this data does not need to vary between environments, as the ids
     #  in the user_role table are the same in both qa and prod oracle
     # (user_role_id, xid_allowed)
