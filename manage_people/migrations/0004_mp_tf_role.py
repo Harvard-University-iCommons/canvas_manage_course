@@ -13,7 +13,12 @@ MANAGE_PEOPLE_ROLE_DATA = [
     (6, False)
 ]
 
-
+# Note:  This is similar to 002_mp_school_allowed_role. This handles TF role
+# for the 2 schools that have currently requested it
+SCHOOL_ALOWED_ROLE_DATA = [
+    ('colgsas', 6, False),
+    ('hds', 6, False)
+]
 
 def populate_manage_people_role(apps, schema_editor):
     ManagePeopleRole = apps.get_model('manage_people', 'ManagePeopleRole')
@@ -28,6 +33,20 @@ def reverse_manage_people_role_load(apps, schema_editor):
     ManagePeopleRole.objects.filter(user_role_id=6).delete()
 
 
+
+def populate_school_allowed_role(apps, schema_editor):
+    SchoolAllowedRole = apps.get_model('manage_people', 'SchoolAllowedRole')
+    fields = ('school_id', 'user_role_id', 'xid_allowed')
+    with transaction.atomic():  # wrap all the inserts in a transaction
+        for values in SCHOOL_ALOWED_ROLE_DATA:
+            SchoolAllowedRole.objects.create(**dict(zip(fields, values)))
+
+
+def reverse_load_school_role(apps, schema_editor):
+    SchoolAllowedRole = apps.get_model('manage_people', 'SchoolAllowedRole')
+    SchoolAllowedRole.objects.filter(user_role_id=6).delete()
+
+
 class Migration(migrations.Migration):
     dependencies = [
         ('manage_people', '0003_remove_managepeoplerole_canvas_role_label'),
@@ -39,5 +58,10 @@ class Migration(migrations.Migration):
         migrations.RunPython(
             code=populate_manage_people_role,
             reverse_code=reverse_manage_people_role_load,
+        ),
+
+        migrations.RunPython(
+            code=populate_school_allowed_role,
+            reverse_code=reverse_load_school_role,
         )
     ]
