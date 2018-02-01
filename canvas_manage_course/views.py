@@ -3,7 +3,8 @@
 import logging
 
 from django.contrib.auth.decorators import login_required
-from django.core.urlresolvers import reverse
+from django.urls import reverse
+
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from django.views.decorators.csrf import csrf_exempt
@@ -21,8 +22,14 @@ logger = logging.getLogger(__name__)
 
 @require_http_methods(['GET'])
 def tool_config(request):
-    url = "%s://%s%s" % (request.scheme, request.get_host(),
-                         reverse('lti_launch', exclude_resource_link_id=True))
+
+    if request.is_secure():
+        host = 'https://' + request.get_host()
+    else:
+        host = 'http://' + request.get_host()
+
+    url = host + reverse('lti_launch')+'?exclude_resource_link_id=True'
+
     title = 'Manage Course'
     lti_tool_config = ToolConfig(
         title=title,
