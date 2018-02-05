@@ -28,7 +28,7 @@ def tool_config(request):
     else:
         host = 'http://' + request.get_host()
 
-    url = host + reverse('lti_launch')+'?exclude_resource_link_id=True'
+    url = host + reverse('lti_launch')
 
     title = 'Manage Course'
     lti_tool_config = ToolConfig(
