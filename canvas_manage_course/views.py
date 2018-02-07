@@ -3,13 +3,11 @@
 import logging
 
 from django.contrib.auth.decorators import login_required
-from django.urls import reverse
-
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
+from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
-
 from ims_lti_py.tool_config import ToolConfig
 
 from isites_migration.utils import get_previous_isites
@@ -23,11 +21,7 @@ logger = logging.getLogger(__name__)
 @require_http_methods(['GET'])
 def tool_config(request):
 
-    if request.is_secure():
-        host = 'https://' + request.get_host()
-    else:
-        host = 'http://' + request.get_host()
-
+    host = 'https://' + request.get_host()
     url = host + reverse('lti_launch')
 
     title = 'Manage Course'

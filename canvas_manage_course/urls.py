@@ -17,8 +17,12 @@ urlpatterns = [
     url(r'^tool_config$', views.tool_config, name='tool_config'),
 ]
 
-if settings.DEBUG:
-    import debug_toolbar
-    urlpatterns += [
-        url(r'^__debug__/', include(debug_toolbar.urls)),
-    ]
+try:
+    if settings.DEBUG:
+        import debug_toolbar
+        urlpatterns += [
+            url(r'^__debug__/', include(debug_toolbar.urls)),
+        ]
+except:
+    pass
+
