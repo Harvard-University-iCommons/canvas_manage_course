@@ -219,7 +219,7 @@ def get_user_role_to_canvas_role_map(account_id='self'):
 
     logger.debug(
         u"Caching user_role_id:Canvas role map for Canvas account %s: %s",
-        account_id, json.dumps(role_map))
+        account_id, json.dumps(str(role_map)).replace("'", '"')) 
     cache.set(cache_key, role_map)
     return role_map
 

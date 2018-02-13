@@ -248,7 +248,7 @@ def get_previous_isites(course_instance_id):
     WHERE
     course_instance_id = %s
     """
-    cursor = connections['termtool'].cursor()
+    cursor = connections['coursemanager'].cursor()
 
     # Get a list of the enrollment viewer managers for the given course instance
     cursor.execute(evm_sql_query, [course_instance_id])

@@ -44,20 +44,10 @@ INSTALLED_APPS = (
     'icommons_common.monitor',
     'icommons_ui',
     'isites_migration',
-    # deprecated, but still needed for release v1.5 around for initial migration
-    # that translates lti_permissions into lti_school_permissions. See
-    # deprecation warning below, and remove when no longer required.
-    'lti_permissions',
     'lti_school_permissions',
     'manage_people',
     'manage_sections',
 )
-
-# todo: remove lti_permissions from INSTALLED_APPS when no longer needed
-warnings.warn("lti_permissions is deprecated. Once lti_school_permissions "
-              "migrations have been run to translate existing LtiPermissions "
-              "into SchoolPermissions the lti_permission entry can be removed "
-              "from INSTALLED_APPS.", DeprecationWarning)
 
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -99,40 +89,25 @@ WSGI_APPLICATION = 'canvas_manage_course.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.8/ref/settings/#databases
 
-DATABASE_APPS_MAPPING = {
-    'async': 'default',
-    'auth': 'default',
-    'contenttypes': 'default',
-    'icommons_common': 'termtool',
-    'lti_permissions': 'default',  # deprecated, but still around for migrations
-    'lti_school_permissions': 'default',
-    'manage_people': 'default',
-    'manage_sections': 'default',
-}
-
-DATABASE_MIGRATION_WHITELIST = ['default']
-
-DATABASE_ROUTERS = ['icommons_common.routers.DatabaseAppsRouter', ]
+COURSE_SCHEMA_DB_NAME = 'coursemanager'
+DATABASE_ROUTERS = ['icommons_common.routers.CourseSchemaDatabaseRouter', ]
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'ENGINE': 'django.db.backends.postgresql',
         'NAME': SECURE_SETTINGS.get('db_default_name', 'canvas_manage_course'),
         'USER': SECURE_SETTINGS.get('db_default_user', 'postgres'),
         'PASSWORD': SECURE_SETTINGS.get('db_default_password'),
         'HOST': SECURE_SETTINGS.get('db_default_host', '127.0.0.1'),
         'PORT': SECURE_SETTINGS.get('db_default_port', 5432),  # Default postgres port
     },
-    'termtool': {
+    'coursemanager': {
         'ENGINE': 'django.db.backends.oracle',
-        'NAME': SECURE_SETTINGS.get('db_termtool_name'),
-        'USER': SECURE_SETTINGS.get('db_termtool_user'),
-        'PASSWORD': SECURE_SETTINGS.get('db_termtool_password'),
-        'HOST': SECURE_SETTINGS.get('db_termtool_host'),
-        'PORT': str(SECURE_SETTINGS.get('db_termtool_port')),
-        'OPTIONS': {
-            'threaded': True,
-        },
+        'NAME': SECURE_SETTINGS.get('db_coursemanager_name'),
+        'USER': SECURE_SETTINGS.get('db_coursemanager_user'),
+        'PASSWORD': SECURE_SETTINGS.get('db_coursemanager_password'),
+        'HOST': SECURE_SETTINGS.get('db_coursemanager_host'),
+        'PORT': str(SECURE_SETTINGS.get('db_coursemanager_port')),
         'CONN_MAX_AGE': 0,
     }
 }

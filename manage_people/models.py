@@ -15,6 +15,7 @@ class ManagePeopleRole(models.Model):
     xid_allowed = models.BooleanField(default=False)
 
     class Meta:
+        app_label = u'manage_people'
         db_table = u'manage_people_role'
 
     def __unicode__(self):
@@ -37,6 +38,7 @@ class SchoolAllowedRole(models.Model):
     xid_allowed = models.BooleanField(default=False)
 
     class Meta:
+        app_label = u'manage_people'
         db_table = u'school_allowed_role'
         unique_together = ('school_id', 'user_role')
 
