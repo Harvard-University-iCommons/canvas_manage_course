@@ -44,12 +44,20 @@ def index(request):
                                                                  course_instance_id, canvas_course_id, school))
         return redirect('isites_migration:index')
 
+    print(" here1")
+    # processes = Process.objects.filter(
+    #     name='isites_migration.jobs.migrate_files',
+    #     details__at_canvas_course_id=canvas_course_id
+    # ).order_by('-date_created')
     processes = Process.objects.filter(
         name='isites_migration.jobs.migrate_files',
-        details__at_canvas_course_id=canvas_course_id
+        details__canvas_course_id=canvas_course_id
     ).order_by('-date_created')
 
+    print(" here2", processes)
+
     has_active_process = len([p for p in processes if p.state != Process.COMPLETE]) > 0
+    print(" here3,   ",has_active_process)
     return render(request, 'isites_migration/index.html', {
         'isites': get_previous_isites(course_instance_id),
         'processes': processes,

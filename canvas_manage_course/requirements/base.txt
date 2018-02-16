@@ -16,6 +16,7 @@ git+ssh://git@github.com/Harvard-University-iCommons/django-auth-lti.git@v1.2.9#
 # there is fix for a bug for django>=1.10 , that is still in a commit but is not in the released version. Unable to specify
 # a commit in the django-icommons-common's setup.py, hence including it in the consuming app till we used switch from pjson to standard json
 git+ssh://git@github.com/djangonauts/django-pgjson.git@30463d210a42b2de#egg=django-pgjson
-git+ssh://git@github.com/Harvard-University-iCommons/django-icommons-common.git@v1.33.1#egg=django-icommons-common[async]==1.33.1
+#git+ssh://git@github.com/Harvard-University-iCommons/django-icommons-common.git@v1.33.1#egg=django-icommons-common[async]==1.33.1
+-e ../django-icommons-common
 git+ssh://git@github.com/Harvard-University-iCommons/django-icommons-ui.git@v1.5.2#egg=django-icommons-ui==1.5.2
 git+ssh://git@github.com/Harvard-University-iCommons/django-canvas-lti-school-permissions@v0.6#egg=django-canvas-lti-school-permissions==0.6
