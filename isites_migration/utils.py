@@ -13,7 +13,6 @@ from botocore.exceptions import ClientError
 from django.conf import settings
 from django.db.models import Q
 from django.template.loader import get_template
-from django.template import Context
 from django.db import connections
 from django.utils.text import get_valid_filename
 from canvas_sdk.methods import content_migrations, files
@@ -365,7 +364,7 @@ def _export_topic_text(topic_text, topic_title, keyword, zip_file):
 def _export_readme(keyword, zip_file, readme_filename):
     logger.debug("Exporting readme file for keyword %s", keyword)
     readme_template = get_template('isites_migration/export_files_readme.html')
-    content = readme_template.render(Context({}))
+    content = readme_template.render({})
     zip_file.writestr(os.path.join(keyword, readme_filename), content)
     logging.debug("Copied Readme file to export location %s", readme_filename)
 

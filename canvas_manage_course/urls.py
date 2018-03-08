@@ -1,4 +1,5 @@
 from django.conf.urls import include, url
+from django.conf import settings
 
 from canvas_manage_course import views
 from icommons_ui import views as icommons_ui_views
@@ -15,3 +16,16 @@ urlpatterns = [
     url(r'^not_authorized$', icommons_ui_views.not_authorized, name='not_authorized'),
     url(r'^tool_config$', views.tool_config, name='tool_config'),
 ]
+
+# Import the debug toolbar and handle any namespace issues that may occur
+# ie: 'djdt' is not a registered namespace
+# https://github.com/jazzband/django-debug-toolbar/issues/529
+if settings.DEBUG:
+    try:
+        import debug_toolbar
+        urlpatterns += [
+            url(r'^__debug__/', include(debug_toolbar.urls)),
+        ]
+    except:
+        pass
+

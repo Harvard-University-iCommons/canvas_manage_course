@@ -46,7 +46,7 @@ def index(request):
 
     processes = Process.objects.filter(
         name='isites_migration.jobs.migrate_files',
-        details__at_canvas_course_id=canvas_course_id
+        details__canvas_course_id=canvas_course_id
     ).order_by('-date_created')
 
     has_active_process = len([p for p in processes if p.state != Process.COMPLETE]) > 0
