@@ -21,8 +21,7 @@ logger = logging.getLogger(__name__)
 @require_http_methods(['GET'])
 def tool_config(request):
 
-    host = 'https://' + request.get_host()
-    url = host + reverse('lti_launch')
+    url = "https://{}{}".format(request.get_host(), reverse('lti_launch'))
 
     title = 'Manage Course'
     lti_tool_config = ToolConfig(

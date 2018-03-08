@@ -17,12 +17,15 @@ urlpatterns = [
     url(r'^tool_config$', views.tool_config, name='tool_config'),
 ]
 
-try:
-    if settings.DEBUG:
+# Import the debug toolbar and handle any namespace issues that may occur
+# ie: 'djdt' is not a registered namespace
+# https://github.com/jazzband/django-debug-toolbar/issues/529
+if settings.DEBUG:
+    try:
         import debug_toolbar
         urlpatterns += [
             url(r'^__debug__/', include(debug_toolbar.urls)),
         ]
-except:
-    pass
+    except:
+        pass
 
