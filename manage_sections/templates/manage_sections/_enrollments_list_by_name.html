@@ -5,7 +5,7 @@
 {% regroup enrollments by user.sortable_name|to_letter_range:letter_ranges as enrollments_by_name %}
 <li class="list-group-item pagination-lti">
     <span class="pagination-lti-label pagination-lti-view">View: </span>
-    {% with name_buckets=enrollments_by_name|list_comp:'grouper' %}
+    {% with name_buckets=enrollments_by_name|list_comp %}
     <ul class="nav nav-pills nav-section-pagination">
         <li class="active"><a class="viewAll" href="#">All</a></li>
         <li class="{% if 'A-D' not in name_buckets %} disabled {% endif %}"><a class="a-d" href="#">A - D</a></li>
