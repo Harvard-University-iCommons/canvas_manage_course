@@ -58,8 +58,8 @@ class ManageSectionsTagsTest(TestCase):
         """
         Test that filter builds list comprehension for attribute
         """
-        s_list = [{'foo': 'fooVal', 'bar': 'barVal'}, {'foo': 'fooTwoVal', 'bar': 'barTwoVal'}]
-        res = manage_sections_tags.list_comp(s_list, 'foo')
+        s_list = [['fooVal', 'barVal'], ['fooTwoVal', 'barTwoVal']]
+        res = manage_sections_tags.list_comp(s_list)
         self.assertEqual(['fooVal', 'fooTwoVal'], res, "Result should match dict key values")
 
     def test_list_comp_empty_list(self):
@@ -67,7 +67,7 @@ class ManageSectionsTagsTest(TestCase):
         Test that a comprehension on an empty list returns an empty list
         """
         s_list = []
-        res = manage_sections_tags.list_comp(s_list, 'foo')
+        res = manage_sections_tags.list_comp(s_list)
         self.assertEqual([], res, "Result should match empty list")
 
     def test_enrollment_lname_last_comma_first(self):
