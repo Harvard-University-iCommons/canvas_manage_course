@@ -26,11 +26,11 @@ def to_letter_range(name, args):
 
 
 @register.filter
-def list_comp(lst, arg):
+def list_comp(lst):
     """
-    Build a list comprehension based on the key "arg" of a given list
+    Build a list comprehension by iterating over the GroupedResult list
     """
-    comp = [x[arg] for x in lst]
+    comp = [x[0] for x in lst]
     return comp
 
 
