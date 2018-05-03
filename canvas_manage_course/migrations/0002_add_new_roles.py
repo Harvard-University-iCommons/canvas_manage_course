@@ -7,6 +7,16 @@ from lti_school_permissions import settings as lti_perm_settings
 
 # Adds new roles to the lti_school_permissions table and removes all isites migration permission records.
 
+NEW_ROLES_MAP = {
+    'Course Head': ['Head Instructor', 'Course Director'],
+    'Faculty': ['Instructor', 'Primary Instructor', 'Secondary Instructor'],
+    'Teacher': ['TF/TA Instructor', 'Faculty Assistant'],
+    'TA': ['Course Assistant'],
+    'Teaching Staff': ['Preceptor'],
+    'Student': ['Enrollee'],
+    'Prospective Enrollee': ['Petitioner', 'Waitlisted'],
+}
+
 PERMISSION_NAMES = ['canvas_manage_course',
                     'class_roster',
                     'manage_people',
@@ -24,18 +34,20 @@ NEW_ROLES = [
 ]
 
 
-def _get_permissions():
-    return itertools.product(
-        PERMISSION_NAMES,
-        lti_perm_settings.SCHOOLS,  # should be all schools
-        NEW_ROLES)
-
-
 def create_school_permissions(school_permission_class):
-    fields = ('permission', 'school_id', 'canvas_role')
+    all_permissions = school_permission_class.objects.all()
 
-    for permission in _get_permissions():
-        school_permission_class.objects.create(**dict(zip(fields, permission)))
+    # Create the new set of permissions mapped from the current permissions role
+    for old_permission in all_permissions:
+        try:
+            new_roles = NEW_ROLES_MAP[old_permission.canvas_role]
+            for new_role in new_roles:
+                school_permission_class(permission=old_permission.permission,
+                                        canvas_role=new_role,
+                                        school_id=old_permission.school_id).save()
+        except KeyError:
+            # Roles that are not being mapped are not included in the mapping dict and will cause a KeyError
+            pass
 
 
 def update_school_permissions(apps, schema_editor):
@@ -54,7 +66,6 @@ def reverse_permissions_load(apps, schema_editor):
     school_permission_class.objects.filter(
         canvas_role__in=NEW_ROLES,
         permission__in=PERMISSION_NAMES,
-        school_id__in=lti_perm_settings.SCHOOLS,
     ).delete()
 
 
