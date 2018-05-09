@@ -28,7 +28,7 @@ NEW_ROLES = [
     'Primary Instructor',
     'Secondary Instructor',
     'Course Director',
-    'TF/TA Instructor',
+    'TF/TA',
     'Faculty Assistant',
     'Preceptor'
 ]
