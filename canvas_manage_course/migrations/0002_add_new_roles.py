@@ -29,7 +29,8 @@ NEW_ROLES = [
     'Course Director',
     'TF/TA',
     'Faculty Assistant',
-    'Preceptor'
+    'Preceptor',
+    'Course Assistant'
 ]
 
 
@@ -54,6 +55,13 @@ def update_school_permissions(apps, schema_editor):
                                              'SchoolPermission')
 
     create_school_permissions(school_permission_class)
+
+    # The Course Assistant role needs to have just the canvas_manage_course permission in order for the correct
+    # 'Not Allowed' message to be displayed.
+    for school in lti_perm_settings.SCHOOLS:
+        school_permission_class(permission='canvas_manage_course',
+                                canvas_role='Course Assistant',
+                                school_id=school).save()
 
     # Remove isites migrations records
     school_permission_class.objects.filter(permission='im_import_files').delete()
