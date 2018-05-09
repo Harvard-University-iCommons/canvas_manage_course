@@ -10,8 +10,8 @@ from lti_school_permissions import settings as lti_perm_settings
 NEW_ROLES_MAP = {
     'Course Head': ['Head Instructor', 'Course Director'],
     'Faculty': ['Instructor', 'Primary Instructor', 'Secondary Instructor'],
-    'Teacher': ['TF/TA Instructor', 'Faculty Assistant'],
-    'TA': ['Course Assistant'],
+    'TeacherEnrollment': ['TF/TA', 'Faculty Assistant'],
+    'TaEnrollment': ['Course Assistant'],
     'Teaching Staff': ['Preceptor'],
     'Student': ['Enrollee'],
     'Prospective Enrollee': ['Petitioner', 'Waitlisted'],
