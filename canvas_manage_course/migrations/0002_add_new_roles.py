@@ -8,7 +8,7 @@ from lti_school_permissions import settings as lti_perm_settings
 # Adds new roles to the lti_school_permissions table and removes all isites migration permission records.
 
 NEW_ROLES_MAP = {
-    'Course Head': ['Head Instructor', 'Course Director'],
+    'Head Instructor': ['Course Director'],
     'Faculty': ['Instructor', 'Primary Instructor', 'Secondary Instructor'],
     'TeacherEnrollment': ['TF/TA', 'Faculty Assistant'],
     'Teaching Staff': ['Preceptor'],
@@ -22,7 +22,6 @@ PERMISSION_NAMES = ['canvas_manage_course',
                     'manage_sections']
 
 NEW_ROLES = [
-    'Head Instructor',
     'Instructor',
     'Primary Instructor',
     'Secondary Instructor',
@@ -53,6 +52,9 @@ def create_school_permissions(school_permission_class):
 def update_school_permissions(apps, schema_editor):
     school_permission_class = apps.get_model('lti_school_permissions',
                                              'SchoolPermission')
+
+    # Make sure to rename all Course Head roles to Head Instructor prior to creating the new permissions
+    school_permission_class.objects.filter(canvas_role='Course Head').update(canvas_role='Head Instructor')
 
     create_school_permissions(school_permission_class)
 
