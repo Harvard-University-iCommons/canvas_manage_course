@@ -10,7 +10,6 @@ MANAGE_PEOPLE_ROLE_DATA = [
     #  in the user_role table are the same in both qa and prod oracle
     # (user_role_id, xid_allowed)
 
-
     (18, False),
     (19, False),
     (20, False),
