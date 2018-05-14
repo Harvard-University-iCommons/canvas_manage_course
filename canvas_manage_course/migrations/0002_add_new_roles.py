@@ -8,10 +8,9 @@ from lti_school_permissions import settings as lti_perm_settings
 # Adds new roles to the lti_school_permissions table and removes all isites migration permission records.
 
 NEW_ROLES_MAP = {
-    'Course Head': ['Head Instructor', 'Course Director'],
+    'Head Instructor': ['Course Director'],
     'Faculty': ['Instructor', 'Primary Instructor', 'Secondary Instructor'],
-    'Teacher': ['TF/TA Instructor', 'Faculty Assistant'],
-    'TA': ['Course Assistant'],
+    'TeacherEnrollment': ['TF/TA', 'Faculty Assistant'],
     'Teaching Staff': ['Preceptor'],
     'Student': ['Enrollee'],
     'Prospective Enrollee': ['Petitioner', 'Waitlisted'],
@@ -23,14 +22,14 @@ PERMISSION_NAMES = ['canvas_manage_course',
                     'manage_sections']
 
 NEW_ROLES = [
-    'Head Instructor',
     'Instructor',
     'Primary Instructor',
     'Secondary Instructor',
     'Course Director',
-    'TF/TA Instructor',
+    'TF/TA',
     'Faculty Assistant',
-    'Preceptor'
+    'Preceptor',
+    'Course Assistant'
 ]
 
 
@@ -54,7 +53,17 @@ def update_school_permissions(apps, schema_editor):
     school_permission_class = apps.get_model('lti_school_permissions',
                                              'SchoolPermission')
 
+    # Make sure to rename all Course Head roles to Head Instructor prior to creating the new permissions
+    school_permission_class.objects.filter(canvas_role='Course Head').update(canvas_role='Head Instructor')
+
     create_school_permissions(school_permission_class)
+
+    # The Course Assistant role needs to have just the canvas_manage_course permission in order for the correct
+    # 'Not Allowed' message to be displayed.
+    for school in lti_perm_settings.SCHOOLS:
+        school_permission_class(permission='canvas_manage_course',
+                                canvas_role='Course Assistant',
+                                school_id=school).save()
 
     # Remove isites migrations records
     school_permission_class.objects.filter(permission='im_import_files').delete()
