@@ -15,6 +15,6 @@ git+ssh://git@github.com/Harvard-University-iCommons/django-auth-lti.git@v1.2.9#
 git+ssh://git@github.com/Harvard-University-iCommons/django-icommons-common.git@v1.34#egg=django-icommons-common[async]==v1.34
 #git+ssh://git@github.com/Harvard-University-iCommons/django-icommons-ui.git@v1.5.2#egg=django-icommons-ui==1.5.2
 #temporarily point to branch
-git+ssh://git@github.com/Harvard-University-iCommons/django-icommons-ui.git@63fc755312563cf8b2959dc0ab9ae845a5557283#egg=django-icommons-ui
+git+ssh://git@github.com/Harvard-University-iCommons/django-icommons-ui.git@task/sapnamysore/tlt-3370/fix-styles-error-msg#egg=django-icommons-ui
 
 git+ssh://git@github.com/Harvard-University-iCommons/django-canvas-lti-school-permissions@v0.6#egg=django-canvas-lti-school-permissions==0.6
