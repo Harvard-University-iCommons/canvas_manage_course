@@ -24,7 +24,7 @@ NEW_ROLE_IDS = [18, 19, 20, 21, 22, 23, 24, 25]
 
 PERMISSION_NAMES = ['canvas_manage_course']
 
-# Note:  This is similar to 002_mp_school_allowed_role. This handles  roles
+# Note:  This is similar to 002_mp_school_allowed_role. This handles roles
 # for the schools that have currently requested it
 SCHOOL_ALOWED_ROLE_DATA = [
     ('hls', 23, False),
@@ -35,6 +35,7 @@ SCHOOL_ALOWED_ROLE_DATA = [
     ('hls', 15, False),
 
 ]
+HLS_MODIFIED_ROLE_IDS = [6, 16, 2, 15]
 
 def populate_manage_people_roles(apps, schema_editor):
     ManagePeopleRole = apps.get_model('manage_people', 'ManagePeopleRole')
@@ -60,8 +61,10 @@ def populate_school_allowed_role(apps, schema_editor):
 
 def reverse_load_school_role(apps, schema_editor):
     SchoolAllowedRole = apps.get_model('manage_people', 'SchoolAllowedRole')
-    # Note that we are only cleaning up the new role ids(and not updates to existing role)
+    # Cleanup new roles first
     SchoolAllowedRole.objects.filter(user_role_id__in=NEW_ROLE_IDS).delete()
+    # Also cleanup the hls roles that are being modified
+    SchoolAllowedRole.objects.filter(school_id='hls', user_role_id__in=HLS_MODIFIED_ROLE_IDS).delete()
 
 
 class Migration(migrations.Migration):
