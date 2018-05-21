@@ -33,9 +33,11 @@ SCHOOL_ALOWED_ROLE_DATA = [
     ('hls', 16, False),
     ('hls', 2, False),
     ('hls', 15, False),
-
+    ('colgsas', 18, False),
+    ('colgsas', 23, False)
 ]
 HLS_MODIFIED_ROLE_IDS = [6, 16, 2, 15]
+COLGSAS_CLEANUP_ROLE_IDS = [7, 9, 15]
 
 def populate_manage_people_roles(apps, schema_editor):
     ManagePeopleRole = apps.get_model('manage_people', 'ManagePeopleRole')
@@ -67,6 +69,17 @@ def reverse_load_school_role(apps, schema_editor):
     SchoolAllowedRole.objects.filter(school_id='hls', user_role_id__in=HLS_MODIFIED_ROLE_IDS).delete()
 
 
+
+# this migration is to cleanup some existing roles that have permisiions set and teh school
+# requested they be removed
+def cleanup_school_allowed_role(apps, schema_editor):
+    SchoolAllowedRole = apps.get_model('manage_people', 'SchoolAllowedRole')
+    SchoolAllowedRole.objects.filter(school_id='colgsas', user_role_id__in=COLGSAS_CLEANUP_ROLE_IDS).delete()
+
+def reverse_cleanup_school_allowed_role(apps, schema_editor):
+    SchoolAllowedRole = apps.get_model('manage_people', 'SchoolAllowedRole')
+    SchoolAllowedRole.objects.filter(school_id='colgsas', user_role_id__in=COLGSAS_CLEANUP_ROLE_IDS).delete()
+
 class Migration(migrations.Migration):
     dependencies = [
         ('manage_people', '0004_mp_tf_role'),
@@ -83,5 +96,11 @@ class Migration(migrations.Migration):
         migrations.RunPython(
             code=populate_school_allowed_role,
             reverse_code=reverse_load_school_role,
+        ),
+
+        migrations.RunPython(
+            code=cleanup_school_allowed_role,
+            reverse_code=reverse_cleanup_school_allowed_role,
         )
+
     ]
