@@ -8,7 +8,6 @@ from lti_school_permissions import settings as lti_perm_settings
 # Adds new roles to the lti_school_permissions table and removes all isites migration permission records.
 
 NEW_ROLES_MAP = {
-    'Head Instructor': ['Course Director'],
     'Faculty': ['Instructor', 'Primary Instructor', 'Secondary Instructor'],
     'TeacherEnrollment': ['TF/TA', 'Faculty Assistant'],
     'Teaching Staff': ['Preceptor'],
@@ -25,7 +24,6 @@ NEW_ROLES = [
     'Instructor',
     'Primary Instructor',
     'Secondary Instructor',
-    'Course Director',
     'TF/TA',
     'Faculty Assistant',
     'Preceptor',
