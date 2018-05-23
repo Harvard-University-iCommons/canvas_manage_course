@@ -247,8 +247,8 @@ def get_badge_info_for_users(user_id_list=None):
         logger.warn(u"The following users were not found in COURSEMANAGER while "
                     u"attempting to get their role types: %s", discrepancies)
 
-    # If person_id_badge_mapping does not have a result matching user_id 
-    # (because user_id wasn't found in the Person database above) then send a 
+    # If person_id_badge_mapping does not have a result matching user_id
+    # (because user_id wasn't found in the Person database above) then send a
     # fake role_type_cd that will return 'other' for badge label
     results_dict = {
         user_id: get_badge_label_name(person_id_badge_mapping.get(user_id,
@@ -373,10 +373,10 @@ def add_member_to_course(user_id, user_role_id, course_instance_id,
         canvas_section = get_canvas_course_section(course_instance_id)
         if canvas_section:
             canvas_enrollment = add_canvas_section_enrollee(
-                canvas_section['id'], canvas_role_name, user_id)
+                canvas_section['id'], canvas_role_name, user_id, enrollment_role_id=user_role.canvas_role_id)
         else:
             canvas_enrollment = add_canvas_course_enrollee(
-                canvas_course_id, canvas_role_name, user_id)
+                canvas_course_id, canvas_role_name, user_id, enrollment_role_id=user_role.canvas_role_id)
 
         if canvas_enrollment:
             # flush the canvas api caches on successful enrollment
