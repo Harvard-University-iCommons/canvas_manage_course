@@ -365,12 +365,12 @@ def add_to_section(request):
                 enrollment_role_id=user['enrollment_role_id'],
                 enrollment_enrollment_state='active'
             )
-            canvas_api_helper_courses.delete_cache(canvas_course_id=canvas_course_id)
-            canvas_api_helper_enrollments.delete_cache(canvas_course_id)
-            canvas_api_helper_sections.delete_cache(canvas_course_id)
         except (KeyError, CanvasAPIError):
             logger.exception("Failed to add user to section %s %s", section_id, json.dumps(user))
             failed_users.append(user)
+    canvas_api_helper_courses.delete_cache(canvas_course_id=canvas_course_id)
+    canvas_api_helper_enrollments.delete_cache(canvas_course_id)
+    canvas_api_helper_sections.delete_cache(canvas_course_id)
 
     return JsonResponse({
         'added': len(users_to_add) - len(failed_users),
