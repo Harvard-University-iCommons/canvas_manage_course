@@ -371,6 +371,7 @@ def add_to_section(request):
     canvas_api_helper_courses.delete_cache(canvas_course_id=canvas_course_id)
     canvas_api_helper_enrollments.delete_cache(canvas_course_id)
     canvas_api_helper_sections.delete_cache(canvas_course_id)
+    canvas_api_helper_sections.delete_section_cache(section_id)
 
     return JsonResponse({
         'added': len(users_to_add) - len(failed_users),
@@ -393,9 +394,13 @@ def remove_from_section(request):
         canvas_api_helper_courses.delete_cache(canvas_course_id=canvas_course_id)
         canvas_api_helper_enrollments.delete_cache(canvas_course_id)
         canvas_api_helper_sections.delete_cache(canvas_course_id)
+        canvas_api_helper_sections.delete_section_cache(user_section_id)
+
     except CanvasAPIError:
         message = "Failed to remove user from section %s in course %s", user_section_id, canvas_course_id
         logger.exception(message)
+        canvas_api_helper_sections.delete_cache(canvas_course_id)
+        canvas_api_helper_sections.delete_section_cache(user_section_id)
         return JsonResponse({'message': message}, status=500)
 
     return JsonResponse(response.json())
