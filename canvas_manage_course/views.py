@@ -78,7 +78,7 @@ def dashboard_course(request):
         view_context['custom_error_title'] = u'Not available'
         view_context['custom_error_message'] = \
             u"You do not currently have access to any of the tools available " \
-            u"in Admin Console. If you think you should have access, please " \
+            u"in this view. If you think you should have access, please " \
             u"use \"Help\" to contact Canvas support from Harvard."
 
     # Check to see if we have any iSites that are available for migration to
