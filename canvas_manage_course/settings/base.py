@@ -260,12 +260,17 @@ LOGGING = {
             'propagate': False,
         },
         'manage_people': {
-            'handlers': ['default'],
+            'handlers': ['default', 'console'],
+            'level': _DEFAULT_LOG_LEVEL,
+            'propagate': False,
+        },
+        'manage_sections': {
+            'handlers': ['default', 'console'],
             'level': _DEFAULT_LOG_LEVEL,
             'propagate': False,
         },
         'manage_people_audit_log': {
-            'handlers': ['default'],
+            'handlers': ['default', 'console'],
             'level': _DEFAULT_LOG_LEVEL,
             'propagate': False,
         },
