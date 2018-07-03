@@ -267,6 +267,10 @@ def section_details(request, section_id):
 @require_http_methods(['GET'])
 def section_user_list(request, section_id):
     canvas_course_id = request.LTI['custom_canvas_course_id']
+    canvas_api_helper_courses.delete_cache(canvas_course_id=canvas_course_id)
+    canvas_api_helper_enrollments.delete_cache(canvas_course_id)
+    canvas_api_helper_sections.delete_cache(canvas_course_id)
+    canvas_api_helper_sections.delete_section_cache(section_id)
     section = canvas_api_helper_sections.get_section(canvas_course_id, section_id)
     enrollments_raw = _filter_student_view_enrollments(section['enrollments'])
     enrollments_badged = _add_badge_label_name_to_enrollments(enrollments_raw)
@@ -368,10 +372,6 @@ def add_to_section(request):
         except (KeyError, CanvasAPIError):
             logger.exception("Failed to add user to section %s %s", section_id, json.dumps(user))
             failed_users.append(user)
-    canvas_api_helper_courses.delete_cache(canvas_course_id=canvas_course_id)
-    canvas_api_helper_enrollments.delete_cache(canvas_course_id)
-    canvas_api_helper_sections.delete_cache(canvas_course_id)
-    canvas_api_helper_sections.delete_section_cache(section_id)
 
     return JsonResponse({
         'added': len(users_to_add) - len(failed_users),
@@ -391,16 +391,9 @@ def remove_from_section(request):
         response = canvas_api_enrollments.conclude_enrollment(
             SDK_CONTEXT, canvas_course_id, user_section_id, 'delete'
         )
-        canvas_api_helper_courses.delete_cache(canvas_course_id=canvas_course_id)
-        canvas_api_helper_enrollments.delete_cache(canvas_course_id)
-        canvas_api_helper_sections.delete_cache(canvas_course_id)
-        canvas_api_helper_sections.delete_section_cache(user_section_id)
-
     except CanvasAPIError:
         message = "Failed to remove user from section %s in course %s", user_section_id, canvas_course_id
         logger.exception(message)
-        canvas_api_helper_sections.delete_cache(canvas_course_id)
-        canvas_api_helper_sections.delete_section_cache(user_section_id)
         return JsonResponse({'message': message}, status=500)
 
     return JsonResponse(response.json())
