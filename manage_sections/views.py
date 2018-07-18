@@ -365,12 +365,13 @@ def add_to_section(request):
                 enrollment_role_id=user['enrollment_role_id'],
                 enrollment_enrollment_state='active'
             )
-            canvas_api_helper_courses.delete_cache(canvas_course_id=canvas_course_id)
-            canvas_api_helper_enrollments.delete_cache(canvas_course_id)
-            canvas_api_helper_sections.delete_cache(canvas_course_id)
         except (KeyError, CanvasAPIError):
             logger.exception("Failed to add user to section %s %s", section_id, json.dumps(user))
             failed_users.append(user)
+    canvas_api_helper_courses.delete_cache(canvas_course_id=canvas_course_id)
+    canvas_api_helper_enrollments.delete_cache(canvas_course_id)
+    canvas_api_helper_sections.delete_cache(canvas_course_id)
+    canvas_api_helper_sections.delete_section_cache(section_id)
 
     return JsonResponse({
         'added': len(users_to_add) - len(failed_users),
@@ -384,6 +385,7 @@ def add_to_section(request):
 def remove_from_section(request):
     canvas_course_id = request.LTI['custom_canvas_course_id']
     user_section_id = request.POST.get('user_section_id')
+    section_id = request.POST.get('section_id')
     if not user_section_id:
         return JsonResponse({'message': "Invalid user_section_id %s" % user_section_id}, status=500)
     try:
@@ -393,9 +395,12 @@ def remove_from_section(request):
         canvas_api_helper_courses.delete_cache(canvas_course_id=canvas_course_id)
         canvas_api_helper_enrollments.delete_cache(canvas_course_id)
         canvas_api_helper_sections.delete_cache(canvas_course_id)
+        canvas_api_helper_sections.delete_section_cache(section_id)
+
     except CanvasAPIError:
         message = "Failed to remove user from section %s in course %s", user_section_id, canvas_course_id
         logger.exception(message)
+        canvas_api_helper_sections.delete_cache(canvas_course_id)
         return JsonResponse({'message': message}, status=500)
 
     return JsonResponse(response.json())
