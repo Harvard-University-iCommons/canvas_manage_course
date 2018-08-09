@@ -25,7 +25,6 @@
 {% if no_tools_allowed %}
   {% include 'icommons_ui/_custom_error.html' %}
 {% else %}
-  <main>
 
   {% if allowed.class_roster %}
     <div class="card card_color4">
@@ -136,6 +135,26 @@
     {% endif %}
   {% endif %}
 
+  {% if allowed.custom_fas_card %}
+    <div class="card card_color5">
+      <a href="#" id="fas-external">
+        <div class="card-body">
+          <div class="card-header card-header_color5">
+          </div>
+          <div class="card-content card-content_normal">
+            <h2 class="card-content-title ellipsis" title="FAS Custom Card">
+              <span class="content-link">
+                FAS Custom Card
+              </span>
+            </h2>
+            <p title="FAS Custom Card">
+              FAS Custom Card with external link
+            </p>
+          </div>
+        </div>
+      </a>
+    </div>
+  {% endif %}
 {% endif %}
 </main>
 

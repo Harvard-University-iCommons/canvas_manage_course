@@ -57,6 +57,9 @@ p {
     /* http://guidelines.hwp.harvard.edu/color-palette - lemon */
     border-bottom-color: #ffdb6d;
 }
+.card_color5 {
+    border-bottom-color: #FF2FEB;
+}
 .card_disabled {
     border-bottom-color: #ccc;
     cursor: default;
@@ -102,6 +105,9 @@ p {
 .card-header_color4 {
     /* http://guidelines.hwp.harvard.edu/color-palette - lemon */
     background-color: #ffdb6d;
+}
+.card-header_color5 {
+    background-color: #FF2FEB;
 }
 .card-header_disabled {
     background-color:#ccc;
