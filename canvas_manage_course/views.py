@@ -63,7 +63,8 @@ def dashboard_course(request):
         'class_roster',
         'im_import_files',  # isites_migration
         'manage_people',
-        'manage_sections']
+        'manage_sections',
+        'custom_fas_card_1']
 
     # Verify current user permissions to see the apps on the dashboard
     allowed = {tool: lti_permission_required_check(request, tool)
