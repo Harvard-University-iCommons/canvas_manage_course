@@ -27,7 +27,7 @@ def update_school_permissions(apps, schema_editor):
                                              'SchoolPermission')
 
     for role in all_roles:
-        school_permission_class(permission='custom_fas_card',
+        school_permission_class(permission='custom_fas_card_1',
                                 canvas_role=role,
                                 school_id='colgsas').save()
 
@@ -35,7 +35,7 @@ def update_school_permissions(apps, schema_editor):
 def reverse_permissions_load(apps, schema_editor):
     school_permission_class = apps.get_model('lti_school_permissions',
                                              'SchoolPermission')
-    school_permission_class.objects.filter(permission='custom_fas_card').delete()
+    school_permission_class.objects.filter(permission='custom_fas_card_1').delete()
 
 
 class Migration(migrations.Migration):
