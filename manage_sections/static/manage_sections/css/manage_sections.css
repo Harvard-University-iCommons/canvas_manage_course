@@ -6,6 +6,7 @@ input[type="checkbox"].add-user {
 
 #pane-container {
     top: 15px;
+    padding-bottom: 15px;
 }
 
 #pane-left .enroll_count, #pane-right .selection_count {
