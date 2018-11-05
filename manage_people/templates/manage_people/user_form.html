@@ -63,7 +63,11 @@
             data-user-role-id="{{ enrollee.user_role_id}}"
             data-canvas-role-label="{{ enrollee.canvas_role_label}}">
 
-            <a class="deleteMenu delete-icon" href="#"><i class="fa fa-trash"></i></a>
+            {% if enrollee.can_be_deleted %}
+                <a class="deleteMenu delete-icon" href="#"><i class="fa fa-trash"></i></a>
+            {% else %}
+                <a class="deleteMenu delete-icon-disabled" href="#"><i class="fa fa-trash"></i></a>
+            {% endif %}
             <span class="roster_user_name">{{ enrollee.user.sortable_name }}</span>
             <span class="label">{{ enrollee.badge_label_name }}</span>
             <span class="float-right text-strong">{{ enrollee.canvas_role_label }}</span>
