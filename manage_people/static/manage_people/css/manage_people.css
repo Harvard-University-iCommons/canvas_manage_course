@@ -918,6 +918,13 @@ aside h2 {
   opacity: 0.65;
   filter: alpha(opacity=65);
 }
+.delete-icon-disabled-tooltip {
+  padding: 0.5em;
+  color: #000;
+  cursor: not-allowed;
+  opacity: 0.65;
+  filter: alpha(opacity=65);
+}
 .modal-open {
   overflow: hidden;
 }

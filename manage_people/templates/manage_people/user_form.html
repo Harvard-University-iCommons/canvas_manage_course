@@ -63,7 +63,11 @@
             data-user-role-id="{{ enrollee.user_role_id}}"
             data-canvas-role-label="{{ enrollee.canvas_role_label}}">
 
-            <a class="deleteMenu delete-icon" href="#"><i class="fa fa-trash"></i></a>
+            {% if enrollee.can_be_deleted %}
+                <a class="deleteMenu delete-icon" href="#"><i class="fa fa-trash"></i></a>
+            {% else %}
+                <a class="delete-icon-disabled-tooltip" href="#" data-toggle="tooltip" title="This enrollment can only be deleted by an admin due to the users role."><i class="fa fa-trash"></i></a>
+            {% endif %}
             <span class="roster_user_name">{{ enrollee.user.sortable_name }}</span>
             <span class="label">{{ enrollee.badge_label_name }}</span>
             <span class="float-right text-strong">{{ enrollee.canvas_role_label }}</span>
@@ -77,6 +81,13 @@
 
 {% block javascript %}
     {{ block.super }}
+    <script type="text/javascript">
+        $(document).ready(function(){
+            $('[data-toggle="tooltip"]').tooltip({
+                placement : 'top'
+            });
+        });
+    </script>
     <script>
         var removeUserURL = "{% url 'manage_people:remove_user' %}";
     </script>

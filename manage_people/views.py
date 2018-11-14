@@ -507,6 +507,10 @@ def get_enrollments_added_through_tool(sis_course_id):
         user_id = enrollment['user'].get('sis_user_id')
         if user_id and user_id in user_badge_info_mapping:
             enrollment['badge_label_name'] = user_badge_info_mapping[user_id]
+        # Check if the given enrollment can be deleted in the current tool
+        # If it can not, we want to disable the delete option in the template
+        user_role = get_user_role_if_permitted(sis_course_id, enrollment['user_role_id'])
+        enrollment['can_be_deleted'] = True if user_role is not None else False
 
     return filtered_enrollments
 
