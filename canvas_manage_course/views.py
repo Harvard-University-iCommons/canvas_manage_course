@@ -5,7 +5,6 @@ import logging
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
-from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from ims_lti_py.tool_config import ToolConfig
@@ -21,7 +20,7 @@ logger = logging.getLogger(__name__)
 @require_http_methods(['GET'])
 def tool_config(request):
 
-    url = "https://{}{}".format(request.get_host(), reverse('lti_launch'))
+    url = "https://{}{}".format(request.get_host(), '/lti_launch')
 
     title = 'Manage Course'
     lti_tool_config = ToolConfig(
