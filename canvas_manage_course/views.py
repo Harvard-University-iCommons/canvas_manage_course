@@ -12,7 +12,7 @@ from lti_school_permissions.decorators import (
     lti_permission_required,
     lti_permission_required_check)
 
-from django_auth_lti import patch_reverse
+from django_auth_lti.patch_reverse import reverse
 from isites_migration.utils import get_previous_isites
 
 logger = logging.getLogger(__name__)
@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 @require_http_methods(['GET'])
 def tool_config(request):
 
-    url = "https://{}{}".format(request.get_host(), patch_reverse.reverse('lti_launch', exclude_resource_link_id=True))
+    url = "https://{}{}".format(request.get_host(), reverse('lti_launch', exclude_resource_link_id=True))
 
     logger.info(url)
 
