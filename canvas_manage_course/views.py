@@ -23,8 +23,6 @@ def tool_config(request):
 
     url = "https://{}{}".format(request.get_host(), reverse('lti_launch', exclude_resource_link_id=True))
 
-    logger.info(url)
-
     title = 'Manage Course'
     lti_tool_config = ToolConfig(
         title=title,
