@@ -5,15 +5,15 @@ import logging
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
+from django.core.urlresolvers import reverse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from ims_lti_py.tool_config import ToolConfig
+
+from isites_migration.utils import get_previous_isites
 from lti_school_permissions.decorators import (
     lti_permission_required,
     lti_permission_required_check)
-
-from django_auth_lti.patch_reverse import reverse
-from isites_migration.utils import get_previous_isites
 
 logger = logging.getLogger(__name__)
 
