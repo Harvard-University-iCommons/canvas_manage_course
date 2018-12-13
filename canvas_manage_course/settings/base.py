@@ -15,6 +15,8 @@ import logging
 import os
 import warnings
 
+# Need to import patch_reverse here to override the loading order of Django's reverse function.
+from django_auth_lti import patch_reverse
 from django.core.urlresolvers import reverse_lazy
 
 from .secure import SECURE_SETTINGS
@@ -29,7 +31,7 @@ DEBUG = SECURE_SETTINGS.get('enable_debug', False)
 
 # Application definition
 
-INSTALLED_APPS = (
+INSTALLED_APPS = [
     'async',
     'canvas_manage_course',
     'class_roster',
@@ -48,20 +50,20 @@ INSTALLED_APPS = (
     'lti_school_permissions',
     'manage_people',
     'manage_sections',
-)
+]
 
-MIDDLEWARE_CLASSES = (
+MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'cached_auth.Middleware',
     'django_auth_lti.middleware_patched.MultiLTILaunchAuthMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.security.SecurityMiddleware',
-)
+]
 
-AUTHENTICATION_BACKENDS = (
+AUTHENTICATION_BACKENDS = [
     'django_auth_lti.backends.LTIAuthBackend',
-)
+]
 
 LOGIN_URL = reverse_lazy('lti_auth_error')
 
