@@ -49,7 +49,7 @@ INSTALLED_APPS = [
     'manage_sections',
 ]
 
-MIDDLEWARE = [
+MIDDLEWARE_CLASSES = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'cached_auth.Middleware',
