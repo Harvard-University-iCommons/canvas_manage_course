@@ -13,10 +13,7 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import logging
 import os
-import warnings
 
-# Need to import patch_reverse here to override the loading order of Django's reverse function.
-from django_auth_lti import patch_reverse
 from django.core.urlresolvers import reverse_lazy
 
 from .secure import SECURE_SETTINGS
@@ -52,7 +49,7 @@ INSTALLED_APPS = [
     'manage_sections',
 ]
 
-MIDDLEWARE = [
+MIDDLEWARE_CLASSES = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'cached_auth.Middleware',
