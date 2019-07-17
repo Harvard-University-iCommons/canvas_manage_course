@@ -56,9 +56,9 @@ def _get_badge_info_for_users(user_id_list):
         % user_id_list
     )
 
-    people = Person.objects.filter(univ_id__in=user_id_list).values_list('univ_id', 'role_type_cd')
+    people = Person.objects.raw(_get_people_in_list_query(user_id_list))
     person_id_badge_mapping = {
-        univ_id: role_type for univ_id, role_type in people
+        p.univ_id: p.role_type_cd for p in people
     }
 
     logger.debug("IDs found and their role types: %s" % person_id_badge_mapping)
@@ -149,7 +149,7 @@ def create_section_form(request):
 
         # case insensitive sort the sections in alpha order
         section_list = sorted(section_list, key=lambda x: x[u'name'].lower())
-        
+
         return render(request, 'manage_sections/create_section_form.html', {
             'sections': section_list,
             'sisenrollmentsections': sis_enrollment_section_list
@@ -404,3 +404,20 @@ def remove_from_section(request):
         return JsonResponse({'message': message}, status=500)
 
     return JsonResponse(response.json())
+
+
+def _get_people_in_list_query(user_id_list):
+    id_list = []
+    for user_id in user_id_list:
+        id_list.append("'{}'".format(user_id))
+
+    # split user_id_list into chunks of 999 (https://www.geeksforgeeks.org/break-list-chunks-size-n-python/)
+    n = 999
+    chunks = [id_list[i * n:(i + 1) * n] for i in range((len(id_list) + n - 1) // n )]
+
+    # create the raw query with one of the chunks
+    raw_person_query = 'select * from people.v_huid_and_xid_people where univ_id in ({})'.format(','.join(chunks.pop()))
+    # if there are remaining chunks, add them to the where clause
+    for chunk in chunks:
+        raw_person_query += ' or univ_id in ({})'.format(','.join(chunk))
+    return raw_person_query

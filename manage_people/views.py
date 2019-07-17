@@ -237,9 +237,17 @@ def get_badge_info_for_users(user_id_list=None):
     if not user_id_list:
         user_id_list = []
 
+    '''
     people = Person.objects.filter(univ_id__in=user_id_list).values_list(
                  'univ_id', 'role_type_cd')
     person_id_badge_mapping = dict(people)
+    '''
+
+    people = Person.objects.raw(_get_people_in_list_query(user_id_list))
+    person_id_badge_mapping = {
+        p.univ_id: p.role_type_cd for p in people
+    }
+
     logger.debug(u"IDs found and their role types: %s", person_id_badge_mapping)
 
     discrepancies = set(user_id_list) - set(person_id_badge_mapping.keys())
@@ -656,3 +664,21 @@ def lti_key_error_response(request, key_error_exception):
     user_error_message = settings.MANAGE_PEOPLE['MSGS']['lti_request']
     return render(request, 'manage_people/error.html',
                   context={'message': user_error_message}, status=400)
+
+
+def _get_people_in_list_query(user_id_list):
+    id_list = []
+    for user_id in user_id_list:
+        id_list.append("'{}'".format(user_id))
+
+    # split user_id_list into chunks of 999 (https://www.geeksforgeeks.org/break-list-chunks-size-n-python/)
+    n = 999
+    chunks = [id_list[i * n:(i + 1) * n] for i in range((len(id_list) + n - 1) // n )]
+
+    # create the raw query with one of the chunks
+    raw_person_query = 'select * from people.v_huid_and_xid_people where univ_id in ({})'.format(','.join(chunks.pop()))
+    # if there are remaining chunks, add them to the where clause
+    for chunk in chunks:
+        raw_person_query += ' or univ_id in ({})'.format(','.join(chunk))
+    logger.debug(raw_person_query)
+    return raw_person_query
