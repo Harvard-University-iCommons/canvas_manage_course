@@ -237,12 +237,6 @@ def get_badge_info_for_users(user_id_list=None):
     if not user_id_list:
         user_id_list = []
 
-    '''
-    people = Person.objects.filter(univ_id__in=user_id_list).values_list(
-                 'univ_id', 'role_type_cd')
-    person_id_badge_mapping = dict(people)
-    '''
-
     people = Person.objects.raw(_get_people_in_list_query(user_id_list))
     person_id_badge_mapping = {
         p.univ_id: p.role_type_cd for p in people
