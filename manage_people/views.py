@@ -1,6 +1,7 @@
 import json
 import logging
 import pprint
+import re
 import urllib
 from collections import defaultdict
 
@@ -235,7 +236,7 @@ def get_badge_info_for_users(user_id_list=None):
     logger.debug(u'getting role types (to display badge info) for the following '
                  u'users: %s', user_id_list)
     if not user_id_list:
-        user_id_list = []
+        return {}
 
     people = Person.objects.raw(_get_people_in_list_query(user_id_list))
     person_id_badge_mapping = {
@@ -660,19 +661,18 @@ def lti_key_error_response(request, key_error_exception):
                   context={'message': user_error_message}, status=400)
 
 
-def _get_people_in_list_query(user_id_list):
-    id_list = []
-    for user_id in user_id_list:
-        id_list.append("'{}'".format(user_id))
+def _get_people_in_list_query(user_id_list=[]):
+    pat = re.compile('[^\w]+', re.UNICODE)
+    clean_user_ids = ["'{}'".format(pat.sub('', i)) for i in user_id_list if len(pat.sub('', i)) == 8]
+    if clean_user_ids:
+        # split clean_user_ids into chunks of 999 (https://www.geeksforgeeks.org/break-list-chunks-size-n-python/)
+        n = 999
+        chunks = [clean_user_ids[i * n:(i + 1) * n] for i in range((len(clean_user_ids) + n - 1) // n )]
 
-    # split user_id_list into chunks of 999 (https://www.geeksforgeeks.org/break-list-chunks-size-n-python/)
-    n = 999
-    chunks = [id_list[i * n:(i + 1) * n] for i in range((len(id_list) + n - 1) // n )]
-
-    # create the raw query with one of the chunks
-    raw_person_query = 'select * from people.v_huid_and_xid_people where univ_id in ({})'.format(','.join(chunks.pop()))
-    # if there are remaining chunks, add them to the where clause
-    for chunk in chunks:
-        raw_person_query += ' or univ_id in ({})'.format(','.join(chunk))
-    logger.debug(raw_person_query)
-    return raw_person_query
+        # create the raw query with one of the chunks
+        raw_person_query = 'select * from people.v_huid_and_xid_people where univ_id in ({})'.format(','.join(chunks.pop()))
+        # if there are remaining chunks, add them to the where clause
+        for chunk in chunks:
+            raw_person_query += ' or univ_id in ({})'.format(','.join(chunk))
+        logger.debug(raw_person_query)
+        return raw_person_query
