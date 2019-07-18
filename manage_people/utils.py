@@ -65,9 +65,19 @@ def get_available_roles(course_instance_id):
                        course_instance_id)
         return {}
 
+    cache_key = 'course_instance_available_roles_{}'.format(
+        course_instance_id)
+    user_roles_list = cache.get(cache_key)
+    if user_roles_list is not None:
+        logger.debug('found course_instance_available_roles in cache')
+        return user_roles_list
+    else:
+        logger.debug('available_roles CACHE MISS')
+
     try:
-        course_instance = CourseInstance.objects.get(
-                              course_instance_id=course_instance_id)
+        course_instance = CourseInstance.objects.select_related('course__school').get(
+                course_instance_id=course_instance_id
+            )
         school_id = course_instance.course.school.school_id
     except ObjectDoesNotExist:
         logger.exception(u'course instance id %s does not exist',
@@ -125,7 +135,7 @@ def get_available_roles(course_instance_id):
 
     user_roles_list = list(user_roles)
     user_roles_list.sort(key=lambda x: x['canvas_role_label'])
-
+    cache.set(cache_key, user_roles_list, 3600)
     return user_roles_list
 
 
@@ -219,7 +229,7 @@ def get_user_role_to_canvas_role_map(account_id='self'):
 
     logger.debug(
         u"Caching user_role_id:Canvas role map for Canvas account %s: %s",
-        account_id, json.dumps(str(role_map)).replace("'", '"')) 
+        account_id, json.dumps(str(role_map)).replace("'", '"'))
     cache.set(cache_key, role_map)
     return role_map
 
