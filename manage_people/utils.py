@@ -188,7 +188,7 @@ def get_user_role_if_permitted(course_instance_id, user_role_id):
                 u'user_role_id %s does not map to a valid user_role record.',
                 user_role_id)
     else:
-        logger.exception(
+        logger.warning(
             u'user_role_id %s does not map to a permitted user_role record for '
             u'course %s. Permitted roles: %s', user_role_id, course_instance_id,
             sorted([role['role_id'] for role in available_roles]))
