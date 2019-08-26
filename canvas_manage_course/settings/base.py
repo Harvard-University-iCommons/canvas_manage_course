@@ -16,7 +16,9 @@ import os
 
 from django.core.urlresolvers import reverse_lazy
 
-from .secure import SECURE_SETTINGS
+from dj_secure_settings.loader import load_secure_settings
+
+SECURE_SETTINGS = load_secure_settings()
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
