@@ -14,7 +14,7 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 import logging
 import os
 
-from django.core.urlresolvers import reverse_lazy
+from django.urls import reverse_lazy
 
 from dj_secure_settings.loader import load_secure_settings
 
@@ -267,6 +267,11 @@ LOGGING = {
         },
         'manage_people_audit_log': {
             'handlers': ['default'],
+            'level': _DEFAULT_LOG_LEVEL,
+            'propagate': False,
+        },
+        'django-ssm-parameter-store': {
+            'handlers': ['default', 'console'],
             'level': _DEFAULT_LOG_LEVEL,
             'propagate': False,
         },

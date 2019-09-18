@@ -4,7 +4,7 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 
-from async.models import Process
+from async_operations.models import Process import Process
 from isites_migration.jobs import migrate_files
 from isites_migration.utils import get_previous_isites, get_school
 from lti_school_permissions.decorators import lti_permission_required

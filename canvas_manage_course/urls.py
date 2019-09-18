@@ -1,4 +1,4 @@
-from django.conf.urls import include, url
+from django.urls import path, re_path, include
 from django.conf import settings
 
 from canvas_manage_course import views
