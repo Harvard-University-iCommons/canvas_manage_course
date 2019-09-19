@@ -60,6 +60,9 @@ def _get_badge_info_for_users(user_id_list):
     if not user_id_list:
         return {}
 
+    if len(user_id_list) > 200:
+        return {}
+
     people = Person.objects.raw(_get_people_in_list_query(user_id_list))
     person_id_badge_mapping = {
         p.univ_id: p.role_type_cd for p in people
