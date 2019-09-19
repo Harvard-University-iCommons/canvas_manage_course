@@ -131,15 +131,17 @@ def create_section_form(request):
             return render(request, 'manage_sections/error.html', status=500)
         sis_enrollment_section_list = []  # Sections fed from SIS
         section_list = []  # Sections not fed from SIS
-        canvas_sections = canvas_api_helper_sections.get_sections(canvas_course_id)
+        canvas_sections = canvas_api_helper_sections.get_sections(canvas_course_id, fetch_enrollments=False)
         if not canvas_sections:
             logger.error(
                 'No sections found for Canvas course %s' % canvas_course_id
             )
             return render(request, 'manage_sections/error.html', status=500)
         for section in canvas_sections:
-
-            section['enrollment_count'] = len(_filter_student_view_enrollments(section['enrollments']))
+            if section.get('enrollments'):
+                section['enrollment_count'] = len(_filter_student_view_enrollments(section['enrollments']))
+            else:
+                section['enrollment_count'] = 'n/a'
             sis_section_id = section.get('sis_section_id')
             if sis_section_id == course_instance_id or sis_section_id == "ci:%s" % course_instance_id:
                 # this matches the current course instance id and placed first on the list
