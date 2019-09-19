@@ -133,14 +133,21 @@ def create_section_form(request):
         sis_enrollment_section_list = []  # Sections fed from SIS
         section_list = []  # Sections not fed from SIS
 
-        # check enrollment size
-        start = time.time()
-        enrollments = canvas_api_helper_enrollments.get_enrollments(canvas_course_id)
-        logger.debug('Total time for get_enrollments is ={} for course {}'.format(time.time() - start, canvas_course_id))
-        enrollment_size = len(enrollments)
 
-        # If the size > 200, due to performnace issues for larger courses, c do not fetch enrollments
-        if enrollment_size > 200:
+        # fetch total_students_size for the course
+        kwargs = {}
+        kwargs['include'] = 'total_students'
+        start = time.time()
+        course = canvas_api_helper_courses.get_course(canvas_course_id, **kwargs)
+        logger.debug('Total time for get_course is ={} for course {}'.format(time.time() - start, canvas_course_id))
+        total_students_size = 0
+        if course:
+            total_students_size = course['total_students']
+        logger.debug('total_students_size={}'.format(total_students_size))
+
+
+        # If the size > 300, due to performnace issues for larger courses,  do not fetch enrollments
+        if total_students_size > 300:
             canvas_sections = canvas_api_helper_sections.get_sections(canvas_course_id, fetch_enrollments=False)
         else:
             canvas_sections = canvas_api_helper_sections.get_sections(canvas_course_id, fetch_enrollments=True)
