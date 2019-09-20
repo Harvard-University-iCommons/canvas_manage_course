@@ -1,6 +1,7 @@
 import json
 import logging
 import re
+import time
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
@@ -131,14 +132,32 @@ def create_section_form(request):
             return render(request, 'manage_sections/error.html', status=500)
         sis_enrollment_section_list = []  # Sections fed from SIS
         section_list = []  # Sections not fed from SIS
-        canvas_sections = canvas_api_helper_sections.get_sections(canvas_course_id, fetch_enrollments=False)
+
+
+        # fetch total_students_size for the course
+        kwargs = {}
+        kwargs['include'] = 'total_students'
+        start = time.time()
+        course = canvas_api_helper_courses.get_course(canvas_course_id, **kwargs)
+        logger.debug('Total time for get_course is ={} for course {}'.format(time.time() - start, canvas_course_id))
+        total_students_size = 0
+        if course:
+            total_students_size = course['total_students']
+        logger.debug('total_students_size={}'.format(total_students_size))
+
+
+        # If the size > 300, due to performnace issues for larger courses,  do not fetch enrollments
+        if total_students_size > 300:
+            canvas_sections = canvas_api_helper_sections.get_sections(canvas_course_id, fetch_enrollments=False)
+        else:
+            canvas_sections = canvas_api_helper_sections.get_sections(canvas_course_id, fetch_enrollments=True)
         if not canvas_sections:
             logger.error(
                 'No sections found for Canvas course %s' % canvas_course_id
             )
             return render(request, 'manage_sections/error.html', status=500)
         for section in canvas_sections:
-            if section.get('enrollments'):
+            if 'enrollments' in section:
                 section['enrollment_count'] = len(_filter_student_view_enrollments(section['enrollments']))
             else:
                 section['enrollment_count'] = 'n/a'
