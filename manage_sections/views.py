@@ -142,7 +142,13 @@ def create_section_form(request):
         logger.debug('Total time for get_course is ={} for course {}'.format(time.time() - start, canvas_course_id))
         total_students_size = 0
         if course:
-            total_students_size = course['total_students']
+            if 'total_students' not in course:
+                # this is probably  a cached object without the count. Clear the cache object and re-fetch the course
+                canvas_api_helper_courses.delete_cache(canvas_course_id=canvas_course_id)
+                course = canvas_api_helper_courses.get_course(canvas_course_id, **kwargs)
+                if course and 'total_students' in course:
+                    total_students_size = course['total_students']
+
         logger.debug('total_students_size={}'.format(total_students_size))
 
 
