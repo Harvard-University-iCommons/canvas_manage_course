@@ -143,6 +143,7 @@ def create_section_form(request):
         total_students_size = 0
         if course:
             if 'total_students' not in course:
+                logger.debug('total_students not in cached object, flushing and refetching object..')
                 # this is probably  a cached object without the count. Clear the cache object and re-fetch the course
                 canvas_api_helper_courses.delete_cache(canvas_course_id=canvas_course_id)
                 course = canvas_api_helper_courses.get_course(canvas_course_id, **kwargs)
