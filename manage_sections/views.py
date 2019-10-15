@@ -1,6 +1,7 @@
 import json
 import logging
 import re
+import time
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
@@ -131,6 +132,32 @@ def create_section_form(request):
         section_list = []  # Sections not fed from SIS
         canvas_sections = canvas_api_helper_sections.get_sections(canvas_course_id, fetch_enrollments=False)
         print('Done getting sections')
+
+        # fetch total_students_size for the course
+        kwargs = {}
+        kwargs['include'] = 'total_students'
+        start = time.time()
+        course = canvas_api_helper_courses.get_course(canvas_course_id, **kwargs)
+        logger.debug('Total time for get_course is ={} for course {}'.format(time.time() - start, canvas_course_id))
+        total_students_size = 0
+        if course:
+            if 'total_students' not in course:
+                logger.debug('total_students not in cached object, flushing and refetching object..')
+                # this is probably  a cached object without the count. Clear the cache object and re-fetch the course
+                canvas_api_helper_courses.delete_cache(canvas_course_id=canvas_course_id)
+                course = canvas_api_helper_courses.get_course(canvas_course_id, **kwargs)
+
+            if course and 'total_students' in course:
+                total_students_size = course['total_students']
+
+        logger.debug('total_students_size={}'.format(total_students_size))
+
+
+        # If the size > 300, due to performnace issues for larger courses,  do not fetch enrollments
+        if total_students_size > 300:
+            canvas_sections = canvas_api_helper_sections.get_sections(canvas_course_id, fetch_enrollments=False)
+        else:
+            canvas_sections = canvas_api_helper_sections.get_sections(canvas_course_id, fetch_enrollments=True)
         if not canvas_sections:
             logger.error(
                 'No sections found for Canvas course %s' % canvas_course_id
@@ -146,6 +173,10 @@ def create_section_form(request):
             else:
                 section['enrollment_count'] = 'n/a'
             print('Done with enrollment count')
+            if 'enrollments' in section:
+                section['enrollment_count'] = len(_filter_student_view_enrollments(section['enrollments']))
+            else:
+                section['enrollment_count'] = 'n/a'
             sis_section_id = section.get('sis_section_id')
             if sis_section_id == course_instance_id or sis_section_id == "ci:%s" % course_instance_id:
                 # this matches the current course instance id and placed first on the list

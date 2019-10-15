@@ -5,6 +5,7 @@
             (enrollee count not available)
         {% else %}
             (<span class="sectionCount">{{section.enrollment_count}}</span> user{{ section.enrollment_count|pluralize }})
+            ({{section.enrollment_count}} users)
         {% endif %}
     </a>
 </li>
