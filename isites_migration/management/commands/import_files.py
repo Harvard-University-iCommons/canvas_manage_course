@@ -67,7 +67,7 @@ class Command(BaseCommand):
             time.sleep(2)
             completed_imports = []
             failed_imports = []
-            for keyword, (canvas_course_id, progress_url) in self.canvas_progress_urls.iteritems():
+            for keyword, (canvas_course_id, progress_url) in self.canvas_progress_urls.items():
                 progress = SDK_CONTEXT.session.request('GET', progress_url).json()
                 workflow_state = progress['workflow_state']
                 if workflow_state == 'completed':

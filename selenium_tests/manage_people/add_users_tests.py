@@ -80,4 +80,4 @@ class AddingTests(ManagePeopleBaseTestCase):
     def start_message(cls, test_user_id, test_univ_id, role, role_id):
         row_log = "Attempting to add user for search term {}, " \
                   "univ_id {}, role {} (in dropdown list), role_id {}..."
-        print row_log.format(test_user_id, test_univ_id, role, role_id)
+        print(row_log.format(test_user_id, test_univ_id, role, role_id))

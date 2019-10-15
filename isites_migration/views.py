@@ -40,7 +40,7 @@ def index(request):
         # if we have a course instance id, try that first.
         school = get_school(course_instance_id, canvas_course_id)
 
-        logger.info(u'"migration started" %s %s "%s" "%s" %s %s %s' % (request.user.username, keyword, title, term,
+        logger.info('"migration started" %s %s "%s" "%s" %s %s %s' % (request.user.username, keyword, title, term,
                                                                  course_instance_id, canvas_course_id, school))
         return redirect('isites_migration:index')
 

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 
 from django.db import  migrations, models,transaction
 
@@ -74,7 +74,7 @@ def populate_school_allowed_role(apps, schema_editor):
     fields = ('school_id', 'user_role_id', 'xid_allowed')
     with transaction.atomic():  # wrap all the inserts in a transaction
         for values in SCHOOL_ALOWED_ROLE_DATA:
-            SchoolAllowedRole.objects.create(**dict(zip(fields, values)))
+            SchoolAllowedRole.objects.create(**dict(list(zip(fields, values))))
 
 def reverse_load_school_role(apps, schema_editor):
     SchoolAllowedRole = apps.get_model('manage_people', 'SchoolAllowedRole')

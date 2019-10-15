@@ -1,4 +1,4 @@
-from __future__ import unicode_literals
+
 import itertools
 
 from django.db import migrations
@@ -23,7 +23,7 @@ def create_school_default_permissions(apps, schema_editor):
     fields = ('permission', 'school_id', 'canvas_role')
 
     for permission in _get_permissions():
-        school_permission_class.objects.create(**dict(zip(fields, permission)))
+        school_permission_class.objects.create(**dict(list(zip(fields, permission))))
 
 
 def reverse_permissions_load(apps, schema_editor):

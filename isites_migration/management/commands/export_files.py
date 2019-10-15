@@ -67,7 +67,7 @@ class Command(BaseCommand):
         try:
             export_files(keyword)
             if print_results:
-                print "Success|%s.zip" % keyword
+                print("Success|%s.zip" % keyword)
         except Exception as e:
             logger.exception("Failed to complete export for keyword %s",
                              keyword)

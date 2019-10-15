@@ -5,7 +5,7 @@ from django_auth_lti import const
 from mock import patch, ANY, DEFAULT, Mock, MagicMock
 
 from manage_sections.views import section_class_list
-from test_utils import return_unmodified_input
+from .test_utils import return_unmodified_input
 
 
 @patch.multiple('manage_sections.views.canvas_api_helper_enrollments', get_enrollments=DEFAULT)

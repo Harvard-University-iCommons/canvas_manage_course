@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 
 from django.db import migrations, models, transaction
 
@@ -25,7 +25,7 @@ def populate_manage_people_role(apps, schema_editor):
     fields = ('user_role_id', 'xid_allowed')
     with transaction.atomic():  # wrap all the inserts in a transaction
         for values in MANAGE_PEOPLE_ROLE_DATA:
-            ManagePeopleRole.objects.create(**dict(zip(fields, values)))
+            ManagePeopleRole.objects.create(**dict(list(zip(fields, values))))
 
 
 def reverse_manage_people_role_load(apps, schema_editor):
@@ -39,7 +39,7 @@ def populate_school_allowed_role(apps, schema_editor):
     fields = ('school_id', 'user_role_id', 'xid_allowed')
     with transaction.atomic():  # wrap all the inserts in a transaction
         for values in SCHOOL_ALOWED_ROLE_DATA:
-            SchoolAllowedRole.objects.create(**dict(zip(fields, values)))
+            SchoolAllowedRole.objects.create(**dict(list(zip(fields, values))))
 
 
 def reverse_load_school_role(apps, schema_editor):

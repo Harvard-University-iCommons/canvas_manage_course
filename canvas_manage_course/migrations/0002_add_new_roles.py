@@ -1,4 +1,4 @@
-from __future__ import unicode_literals
+
 import itertools
 
 from django.db import migrations

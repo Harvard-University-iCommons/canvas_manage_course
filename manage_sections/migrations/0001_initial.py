@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 
 from django.apps import apps as real_apps
 from django.db import migrations
@@ -64,7 +64,7 @@ def create_lti_permissions(apps, schema_editor):
     fields = ('permission', 'school_id', 'canvas_role', 'allow')
 
     for permission in LTI_PERMISSIONS_DATA:
-        LtiPermission.objects.create(**dict(zip(fields, permission)))
+        LtiPermission.objects.create(**dict(list(zip(fields, permission))))
 
 
 def reverse_permissions_load(apps, schema_editor):

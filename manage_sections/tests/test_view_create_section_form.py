@@ -63,7 +63,7 @@ class CreateSectionFormTest(unittest.TestCase):
         is_enrollment_section_mock.return_value = False
         is_sis_mock.return_value = False
         response = create_section_form(request)
-        section_list = sorted(self.sections, key=lambda x: x[u'name'].lower())
+        section_list = sorted(self.sections, key=lambda x: x['name'].lower())
         render.assert_called_with(request, 'manage_sections/create_section_form.html', {
             'sections': section_list,
             'sisenrollmentsections': []
@@ -119,7 +119,7 @@ class CreateSectionFormTest(unittest.TestCase):
         is_enrollment_section_mock.return_value = False
         is_sis_mock.return_value = True
         response = create_section_form(request)
-        section_list = sorted(self.sections, key=lambda x: x[u'name'].lower())
+        section_list = sorted(self.sections, key=lambda x: x['name'].lower())
         self.assertIn('registrar_section_flag', get_section_replacement.return_value[0])
         self.assertEqual(get_section_replacement.return_value[0]['registrar_section_flag'], True)
         render.assert_called_with(request, 'manage_sections/create_section_form.html', {
@@ -138,7 +138,7 @@ class CreateSectionFormTest(unittest.TestCase):
         is_enrollment_section_mock.return_value = False
         is_sis_mock.return_value = False
         response = create_section_form(request)
-        section_list = sorted(self.sections, key=lambda x: x[u'name'].lower())
+        section_list = sorted(self.sections, key=lambda x: x['name'].lower())
         render.assert_called_with(request, 'manage_sections/create_section_form.html', {
             'sections': section_list,
             'sisenrollmentsections': []

@@ -1,6 +1,6 @@
 from os.path import abspath, dirname, join
 from django.conf import settings
-from urlparse import urljoin
+from urllib.parse import urljoin
 
 from selenium_tests.course_admin.course_admin_base_test_case \
     import CourseAdminBaseTestCase

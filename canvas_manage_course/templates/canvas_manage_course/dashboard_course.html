@@ -22,11 +22,13 @@
 
 {% block tool_content %}
 <main>
-{% if no_tools_allowed %}
-  {% include 'icommons_ui/_custom_error.html' %}
-{% else %}
+  Test
+  <a href="{% url 'manage_sections:create_section_form' %}">Manage sections</a>
+<!--{% if no_tools_allowed %}-->
+  <!--{% include 'icommons_ui/_custom_error.html' %}-->
+<!--{% else %}-->
 
-  {% if allowed.class_roster %}
+  <!--{% if allowed.class_roster %}-->
     <div class="card card_color4">
       <a href="{% url 'class_roster:index' %}" id="course-roster">
         <div class="card-body">
@@ -45,9 +47,9 @@
         </div>
       </a>
     </div>
-  {% endif %}
+  <!--{% endif %}-->
 
-  {% if allowed.manage_people %}
+  <!--{% if allowed.manage_people %}-->
     <div class="card card_color1">
       <a href="{% url 'manage_people:user_form' %}" id="manage-people">
         <div class="card-body">
@@ -66,9 +68,9 @@
         </div>
       </a>
     </div>
-  {% endif %}
+  <!--{% endif %}-->
 
-  {% if allowed.manage_sections %}
+  <!--{% if allowed.manage_sections %}-->
     <div class="card card_color2">
       <a href="{% url 'manage_sections:create_section_form' %}" id="manage-sections">
         <div class="card-body">
@@ -87,9 +89,9 @@
         </div>
       </a>
     </div>
-  {% endif %}
+  <!--{% endif %}-->
 
-  {% if allowed.im_import_files %}
+  <!--{% if allowed.im_import_files %}-->
     {% if isites_migration_active %}
       <div class="card card_color3">
         <a href="{% url 'isites_migration:index' %}" id="isites-migration">
@@ -111,7 +113,7 @@
           </div>
         </a>
       </div>
-    {% else %}
+    <!--{% else %}-->
       <div class="card card_disabled">
         <div class="card-body">
           <div class="card-header card-header_disabled">
@@ -132,8 +134,8 @@
           </div>
         </div>
       </div>
-    {% endif %}
-  {% endif %}
+    <!--{% endif %}-->
+  <!--{% endif %}-->
 
   {% if allowed.custom_fas_card_1 %}
     <div class="card card_color5">

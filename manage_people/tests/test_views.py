@@ -364,10 +364,10 @@ class GetBadgeInfoForUsersTests(TestCase):
         self.person_object_values = [
             ('02123456', 'WIDENER'), ('98765432', 'STUDENT'), ('ab01yz89', 'XIDHOLDER'), ('1234567890', 'SOMETHINGELSE')
         ]
-        self.user_id_input_list = dict(self.person_object_values).keys()
+        self.user_id_input_list = list(dict(self.person_object_values).keys())
         self.badge_types = [get_badge_label_name(role_type)
-                            for role_type in dict(self.person_object_values).values()]
-        self.expected_results = dict(zip(self.user_id_input_list, self.badge_types))
+                            for role_type in list(dict(self.person_object_values).values())]
+        self.expected_results = dict(list(zip(self.user_id_input_list, self.badge_types)))
 
         # copy good input and good expected results and add a bad value
         self.bad_input = list(self.user_id_input_list)

@@ -39,8 +39,8 @@ def get_school(course_instance_id, canvas_course_id):
         ci = CourseInstance.objects.get(course_instance_id=course_instance_id)
         school = ci.course.school_id
     except CourseInstance.DoesNotExist:
-        logger.exception(u'Could not determine the course instance for Canvas '
-                         u'course instance id %s' % course_instance_id)
+        logger.exception('Could not determine the course instance for Canvas '
+                         'course instance id %s' % course_instance_id)
         if canvas_course_id:
             try:
                 # get_primary_course_by_canvas_course_id could return None or throw
@@ -50,8 +50,8 @@ def get_school(course_instance_id, canvas_course_id):
                     school = ci.course.school_id
 
             except CourseInstance.DoesNotExist:
-                logger.exception(u'Could not determine the primary course instance for Canvas '
-                                 u'course id %s', canvas_course_id)
+                logger.exception('Could not determine the primary course instance for Canvas '
+                                 'course id %s', canvas_course_id)
     return school
 
 
@@ -272,14 +272,14 @@ def get_previous_isites(course_instance_id):
 
     # sort the dicts by calendar_year in descending order
     if previous_sites:
-        previous_sites = sorted(previous_sites, key=lambda x: x[u'calendar_year'],
+        previous_sites = sorted(previous_sites, key=lambda x: x['calendar_year'],
                                 reverse=True)
 
     return previous_sites
 
 
 def _export_topic_file(file_node, topic_title, keyword, zip_file, s3, source_bucket):
-    logger.debug(u"Exporting file node %s for topic %s",
+    logger.debug("Exporting file node %s for topic %s",
                  file_node.file_node_id, topic_title)
     # There should always be a storage node for topic files, either in the node
     # itself or in the repository
@@ -326,8 +326,8 @@ def _export_topic_file(file_node, topic_title, keyword, zip_file, s3, source_buc
                      source_file, export_file)
     except (IOError, OSError, ClientError):
         logger.exception(
-            u"Failed to export file node %d from file repository %s using "
-            u"source bucket %s and s3 object key %s",
+            "Failed to export file node %d from file repository %s using "
+            "source bucket %s and s3 object key %s",
             file_node.file_node_id,
             file_node.file_repository_id,
             source_bucket,
@@ -336,7 +336,7 @@ def _export_topic_file(file_node, topic_title, keyword, zip_file, s3, source_buc
 
 
 def _export_topic_text(topic_text, topic_title, keyword, zip_file):
-    logger.debug(u"Exporting text for topic %d %s",
+    logger.debug("Exporting text for topic %d %s",
                  topic_text.topic_id, topic_title)
 
     # Prevent overwriting of text with same name within a topic by
