@@ -4,7 +4,7 @@
 
 {% block stylesheet %}
   {{ block.super }}
-    <link rel="stylesheet" type="text/css" href="{% static "font-awesome-4.5.0/css/font-awesome.min.css" %}" media="screen"/>
+    <link rel="stylesheet" type="text/css" href="https://static.tlt.harvard.edu/shared/font-awesome-4.5.0/css/font-awesome.min.css" media="screen"/>
     <link rel="stylesheet" type="text/css" href="{% static "manage_people/css/manage_people.css" %}" media="screen"/>
 {% endblock stylesheet %}
 
@@ -41,8 +41,8 @@
 {% block javascript %}
     {% if not not_found %}
         {{ block.super }}
-        <script src="{% static "underscore-1.8.2/underscore.min.js" %}"></script>
-        <script src="{% static "bootstrap-datepicker/js/bootstrap-datepicker.js" %}"></script>
-        <script src="{% static "listjs/list.min.js" %}"></script>
+        <script src="https://static.tlt.harvard.edu/shared/underscore-1.8.2/underscore.min.js"></script>
+        <script src="https://static.tlt.harvard.edu/shared/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
+        <script src="https://static.tlt.harvard.edu/shared/listjs/list.min.js"></script>
     {% endif %}
 {% endblock javascript %}
