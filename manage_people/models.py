@@ -34,7 +34,7 @@ class SchoolAllowedRole(models.Model):
     '''
     school_id = models.CharField(max_length=10)  # logically an fk on
                                                  # cm.school.school_id
-    user_role = models.ForeignKey('ManagePeopleRole')
+    user_role = models.ForeignKey('ManagePeopleRole', on_delete=models.CASCADE)
     xid_allowed = models.BooleanField(default=False)
 
     class Meta:

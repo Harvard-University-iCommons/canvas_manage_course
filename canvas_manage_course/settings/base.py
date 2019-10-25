@@ -31,7 +31,7 @@ DEBUG = SECURE_SETTINGS.get('enable_debug', False)
 # Application definition
 
 INSTALLED_APPS = [
-    'async',
+    'async_operations',
     'canvas_manage_course',
     'class_roster',
     'django.contrib.auth',
@@ -194,6 +194,8 @@ STATIC_ROOT = os.path.normpath(os.path.join(BASE_DIR, 'http_static'))
 
 _DEFAULT_LOG_LEVEL = SECURE_SETTINGS.get('log_level', logging.DEBUG)
 _LOG_ROOT = SECURE_SETTINGS.get('log_root', '')  # Default to current directory
+_LOG_ROOT= ''
+
 
 # Turn off default Django logging
 # https://docs.djangoproject.com/en/1.8/topics/logging/#disabling-logging-configuration

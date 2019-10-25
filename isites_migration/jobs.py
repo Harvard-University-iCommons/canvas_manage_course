@@ -3,7 +3,7 @@ import logging
 from django.utils import timezone
 from rq import get_current_job
 
-from async_operations.models import Process import Process
+from async_operations.models import Process
 from isites_migration.utils import export_files, import_files
 
 

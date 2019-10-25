@@ -1,12 +1,15 @@
 # local environment requirements
 
--r aws.txt 
+-r aws.txt fims
  
 # below are requirements specific to the local environment
 
 ddt==1.1.1
 django-debug-toolbar==1.8
-django-sslserver==0.19
+django-sslserver==0.21
+#git+ssh://git@github.com/teddziuba/django-sslserver.git@master
+
+
 mock==2.0.0
 oauthlib==1.1.1
 pyvirtualdisplay==0.2.1

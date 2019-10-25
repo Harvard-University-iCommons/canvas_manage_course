@@ -1,7 +1,7 @@
-from django.urls import path, re_path
+from django.urls import path
 
 from class_roster import views
 
 urlpatterns = [
-    url(r'^index$', views.index, name='index'),
+    path('index', views.index, name='index'),
 ]

@@ -4,5 +4,5 @@ from isites_migration import views
 
 
 urlpatterns = [
-    url(r'^index$', views.index, name='index'),
+    path('index', views.index, name='index'),
 ]

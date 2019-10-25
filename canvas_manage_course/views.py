@@ -10,7 +10,9 @@ from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
-from ims_lti_py.tool_config import ToolConfig
+# from lti.tool_config import ToolConfig
+from lti import ToolConfig
+
 from lti_school_permissions.decorators import (
     lti_permission_required,
     lti_permission_required_check)
