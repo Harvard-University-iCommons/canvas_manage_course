@@ -10,14 +10,10 @@ from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
-# from lti.tool_config import ToolConfig
-from lti import ToolConfig
-
+from lti.tool_config import ToolConfig
 from lti_school_permissions.decorators import (
     lti_permission_required,
     lti_permission_required_check)
-
-from isites_migration.utils import get_previous_isites
 
 logger = logging.getLogger(__name__)
 
@@ -71,46 +67,38 @@ def _url(url):
     return urllib.parse.urlunparse(new_parts)
 
 
-# @login_required
+@login_required
 @require_http_methods(['POST'])
 @csrf_exempt
-# @lti_permission_required('canvas_manage_course')
+@lti_permission_required('canvas_manage_course')
 def lti_launch(request):
     return redirect('dashboard_course')
 
 
-# @login_required
-# @lti_permission_required('canvas_manage_course')
+@login_required
+@lti_permission_required('canvas_manage_course')
 def dashboard_course(request):
-    course_instance_id = '527808'
 
-    # tool_access_permission_names = [
-    #     'class_roster',
-    #     'im_import_files',  # isites_migration
-    #     'manage_people',
-    #     'manage_sections',
-    #     'custom_fas_card_1']
-    #
-    # # Verify current user permissions to see the apps on the dashboard
-    # allowed = {tool: lti_permission_required_check(request, tool)
-    #            for tool in tool_access_permission_names}
-    # no_tools_allowed = not any(allowed.values())
+    tool_access_permission_names = [
+        'class_roster',
+        'manage_people',
+        'manage_sections',
+        'custom_fas_card_1']
+
+    # Verify current user permissions to see the apps on the dashboard
+    allowed = {tool: True
+               for tool in tool_access_permission_names}
+    no_tools_allowed = not any(allowed.values())
 
     view_context = {
-        'allowed': True,
-        'no_tools_allowed': False}
+        'allowed': allowed,
+        'no_tools_allowed': no_tools_allowed}
 
-    # if no_tools_allowed:
-    #     view_context['custom_error_title'] = u'Not available'
-    #     view_context['custom_error_message'] = \
-    #         u"You do not currently have access to any of the tools available " \
-    #         u"in this view. If you think you should have access, please " \
-    #         u"use \"Help\" to contact Canvas support from Harvard."
+    if no_tools_allowed:
+        view_context['custom_error_title'] = 'Not available'
+        view_context['custom_error_message'] = \
+            "You do not currently have access to any of the tools available " \
+            "in this view. If you think you should have access, please " \
+            "use \"Help\" to contact Canvas support from Harvard."
 
-    # Check to see if we have any iSites that are available for migration to
-    # this Canvas course
-    icm_active = len(get_previous_isites(course_instance_id)) > 0
-    view_context['isites_migration_active'] = icm_active
-
-    return render(request, 'canvas_manage_course/dashboard_course.html',
-                  view_context)
+    return render(request, 'canvas_manage_course/dashboard_course.html', view_context)
