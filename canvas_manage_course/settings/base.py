@@ -41,11 +41,9 @@ INSTALLED_APPS = [
     'django.contrib.postgres',
     'django.contrib.staticfiles',
     'django_auth_lti',
-    'django_rq',
     'icommons_common',
     'icommons_common.monitor',
     'icommons_ui',
-    'isites_migration',
     'lti_school_permissions',
     'manage_people',
     'manage_sections',
@@ -145,8 +143,6 @@ CACHES = {
 
 # RQ
 # http://python-rq.org/docs/
-
-ISITES_MIGRATION_QUEUE_NAME = 'isites_file_migration'
 
 _rq_redis_config = {
     'HOST': REDIS_HOST,
@@ -257,11 +253,6 @@ LOGGING = {
             'level': _DEFAULT_LOG_LEVEL,
             'propagate': False,
         },
-        'isites_migration': {
-            'handlers': ['default', 'console'],
-            'level': _DEFAULT_LOG_LEVEL,
-            'propagate': False,
-        },
         'manage_people': {
             'handlers': ['default'],
             'level': _DEFAULT_LOG_LEVEL,
@@ -322,7 +313,6 @@ ICOMMONS_COMMON = {
 LTI_SCHOOL_PERMISSIONS_TOOL_PERMISSIONS = (
     'canvas_manage_course',  # dashboard
     'class_roster',
-    'im_import_files',  # isites_migration app
     'manage_people',
     'manage_sections'
 )
@@ -356,7 +346,3 @@ ICOMMONS_REST_API_HOST = SECURE_SETTINGS.get('icommons_rest_api_host')
 ICOMMONS_REST_API_SKIP_CERT_VERIFICATION = SECURE_SETTINGS.get(
     'icommons_rest_api_skip_cert_verification', False)
 
-ISITES_MIGRATION = {
-    'aws_access_key_id': SECURE_SETTINGS.get('isites_migration_aws_access_key_id'),
-    'aws_secret_access_key': SECURE_SETTINGS.get('isites_migration_aws_secret_access_key'),
-}

@@ -8,7 +8,6 @@ urlpatterns = [
 
     path('course_dashboard', views.dashboard_course, name='dashboard_course'),
     path('class_roster/', include(('class_roster.urls','class_roster'), namespace='class_roster')),
-    path('isites_migration/', include(('isites_migration.urls','isites_migration'), namespace='isites_migration')),
     path('lti_auth_error', icommons_ui_views.not_authorized, name='lti_auth_error'),
     path('lti_launch', views.lti_launch, name='lti_launch'),
 
