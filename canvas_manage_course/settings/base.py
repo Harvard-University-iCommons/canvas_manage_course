@@ -151,10 +151,6 @@ _rq_redis_config = {
     'DEFAULT_TIMEOUT': SECURE_SETTINGS.get('default_rq_timeout_secs', 300),
 }
 
-RQ_QUEUES = {
-    'default': _rq_redis_config,
-    ISITES_MIGRATION_QUEUE_NAME: _rq_redis_config
-}
 
 # Sessions
 
