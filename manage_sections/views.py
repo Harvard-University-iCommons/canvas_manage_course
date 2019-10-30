@@ -121,8 +121,8 @@ def _add_badge_label_name_to_enrollments(enrollments):
 def create_section_form(request):
     print('IN CREATE SECTION!!')
     try:
-        canvas_course_id = '60781'
-        course_instance_id = '527808'
+        canvas_course_id = request.LTI['custom_canvas_course_id']
+        course_instance_id = request.LTI['lis_course_offering_sourcedid']
         if course_instance_id == '' or course_instance_id is None:
             logger.error(
                 'CID unavailable for course %s' % canvas_course_id
@@ -289,7 +289,7 @@ def edit_section(request, section_id):
 # @lti_permission_required('manage_sections')
 @require_http_methods(['GET'])
 def section_details(request, section_id):
-    canvas_course_id = '60781'
+    canvas_course_id = request.LTI['custom_canvas_course_id']
     section = canvas_api_helper_sections.get_section(canvas_course_id, section_id)
     if not section:
         logger.error(
@@ -308,7 +308,7 @@ def section_details(request, section_id):
 # @lti_permission_required('manage_sections')
 @require_http_methods(['GET'])
 def section_user_list(request, section_id):
-    canvas_course_id = '60781'
+    canvas_course_id = request.LTI['custom_canvas_course_id']
     section = canvas_api_helper_sections.get_section(canvas_course_id, section_id)
     enrollments_raw = _filter_student_view_enrollments(section['enrollments'])
     enrollments_badged = _add_badge_label_name_to_enrollments(enrollments_raw)
