@@ -115,8 +115,8 @@ def _add_badge_label_name_to_enrollments(enrollments):
     return enrollments
 
 
-# @login_required
-# @lti_permission_required('manage_sections')
+@login_required
+@lti_permission_required('manage_sections')
 @require_http_methods(['GET'])
 def create_section_form(request):
     print('IN CREATE SECTION!!')
@@ -165,14 +165,10 @@ def create_section_form(request):
             return render(request, 'manage_sections/error.html', status=500)
         print('Going through canvas sections')
         for section in canvas_sections:
-            print('preparing enrollment count')
-            # if section.get('enrollments'):
-            #     section['enrollment_count'] = len(_filter_student_view_enrollments(section['enrollments']))
             if section.get('enrollments'):
                 section['enrollment_count'] = len(_filter_student_view_enrollments(section['enrollments']))
             else:
                 section['enrollment_count'] = 'n/a'
-            print('Done with enrollment count')
             if 'enrollments' in section:
                 section['enrollment_count'] = len(_filter_student_view_enrollments(section['enrollments']))
             else:
@@ -187,10 +183,9 @@ def create_section_form(request):
                 if is_sis_section(sis_section_id):
                     section['registrar_section_flag'] = True
                 section_list.append(section)
-        print('Done going through sections getting count')
 
         # case insensitive sort the sections in alpha order
-        # section_list = sorted(section_list, key=lambda x: x[u'name'].lower())
+        section_list = sorted(section_list, key=lambda x: x['name'].lower())
 
         return render(request, 'manage_sections/create_section_form.html', {
             'sections': section_list,
@@ -202,8 +197,8 @@ def create_section_form(request):
         return render(request, 'manage_sections/error.html', status=500)
 
 
-# @login_required
-# @lti_permission_required('manage_sections')
+@login_required
+@lti_permission_required('manage_sections')
 @require_http_methods(['POST'])
 def create_section(request):
     canvas_course_id = request.LTI['custom_canvas_course_id']
@@ -225,9 +220,9 @@ def create_section(request):
 
     return render(request, 'manage_sections/section_list.html', {'section': course_section})
 
-#
-# @login_required
-# @lti_permission_required('manage_sections')
+
+@login_required
+@lti_permission_required('manage_sections')
 @require_http_methods(['POST'])
 def edit_section(request, section_id):
     canvas_course_id = request.LTI['custom_canvas_course_id']
@@ -304,8 +299,8 @@ def section_details(request, section_id):
     })
 
 
-# @login_required
-# @lti_permission_required('manage_sections')
+@login_required
+@lti_permission_required('manage_sections')
 @require_http_methods(['GET'])
 def section_user_list(request, section_id):
     canvas_course_id = request.LTI['custom_canvas_course_id']
@@ -350,8 +345,8 @@ def remove_section(request, section_id):
     return JsonResponse(section)
 
 
-# @login_required
-# @lti_permission_required('manage_sections')
+@login_required
+@lti_permission_required('manage_sections')
 @require_safe
 def section_class_list(request, section_id):
     """
@@ -382,8 +377,8 @@ def section_class_list(request, section_id):
     })
 
 
-# @login_required
-# @lti_permission_required('manage_sections')
+@login_required
+@lti_permission_required('manage_sections')
 @require_http_methods(['POST'])
 def add_to_section(request):
     try:
@@ -421,8 +416,8 @@ def add_to_section(request):
     })
 
 
-# @login_required
-# @lti_permission_required('manage_sections')
+@login_required
+@lti_permission_required('manage_sections')
 @require_http_methods(['POST'])
 def remove_from_section(request):
     canvas_course_id = request.LTI['custom_canvas_course_id']

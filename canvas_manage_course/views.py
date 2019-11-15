@@ -78,27 +78,23 @@ def lti_launch(request):
 @login_required
 @lti_permission_required('canvas_manage_course')
 def dashboard_course(request):
-
     tool_access_permission_names = [
         'class_roster',
         'manage_people',
         'manage_sections',
         'custom_fas_card_1']
-
     # Verify current user permissions to see the apps on the dashboard
-    allowed = {tool: True
+    allowed = {tool: lti_permission_required_check(request, tool)
                for tool in tool_access_permission_names}
     no_tools_allowed = not any(allowed.values())
 
     view_context = {
         'allowed': allowed,
         'no_tools_allowed': no_tools_allowed}
-
     if no_tools_allowed:
         view_context['custom_error_title'] = 'Not available'
         view_context['custom_error_message'] = \
             "You do not currently have access to any of the tools available " \
             "in this view. If you think you should have access, please " \
             "use \"Help\" to contact Canvas support from Harvard."
-
     return render(request, 'canvas_manage_course/dashboard_course.html', view_context)

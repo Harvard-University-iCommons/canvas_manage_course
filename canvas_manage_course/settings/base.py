@@ -264,11 +264,6 @@ LOGGING = {
             'level': _DEFAULT_LOG_LEVEL,
             'propagate': False,
         },
-        'django-ssm-parameter-store': {
-            'handlers': ['default', 'console'],
-            'level': _DEFAULT_LOG_LEVEL,
-            'propagate': False,
-        },
     }
 }
 
