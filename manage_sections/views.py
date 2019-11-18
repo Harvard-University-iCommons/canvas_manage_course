@@ -119,7 +119,6 @@ def _add_badge_label_name_to_enrollments(enrollments):
 @lti_permission_required('manage_sections')
 @require_http_methods(['GET'])
 def create_section_form(request):
-    print('IN CREATE SECTION!!')
     try:
         canvas_course_id = request.LTI['custom_canvas_course_id']
         course_instance_id = request.LTI['lis_course_offering_sourcedid']
@@ -131,7 +130,6 @@ def create_section_form(request):
         sis_enrollment_section_list = []  # Sections fed from SIS
         section_list = []  # Sections not fed from SIS
         canvas_sections = canvas_api_helper_sections.get_sections(canvas_course_id, fetch_enrollments=False)
-        print('Done getting sections')
 
         # fetch total_students_size for the course
         kwargs = {}
@@ -163,7 +161,6 @@ def create_section_form(request):
                 'No sections found for Canvas course %s' % canvas_course_id
             )
             return render(request, 'manage_sections/error.html', status=500)
-        print('Going through canvas sections')
         for section in canvas_sections:
             if section.get('enrollments'):
                 section['enrollment_count'] = len(_filter_student_view_enrollments(section['enrollments']))
