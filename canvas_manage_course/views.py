@@ -2,7 +2,6 @@
 
 import logging
 import urllib.request, urllib.parse, urllib.error
-import urllib.parse
 
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse

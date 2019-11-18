@@ -162,10 +162,6 @@ def create_section_form(request):
             )
             return render(request, 'manage_sections/error.html', status=500)
         for section in canvas_sections:
-            if section.get('enrollments'):
-                section['enrollment_count'] = len(_filter_student_view_enrollments(section['enrollments']))
-            else:
-                section['enrollment_count'] = 'n/a'
             if 'enrollments' in section:
                 section['enrollment_count'] = len(_filter_student_view_enrollments(section['enrollments']))
             else:
@@ -277,8 +273,8 @@ def edit_section(request, section_id):
                   {'section': course_section})
 
 
-# @login_required
-# @lti_permission_required('manage_sections')
+@login_required
+@lti_permission_required('manage_sections')
 @require_http_methods(['GET'])
 def section_details(request, section_id):
     canvas_course_id = request.LTI['custom_canvas_course_id']
