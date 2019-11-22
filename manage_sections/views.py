@@ -129,7 +129,6 @@ def create_section_form(request):
             return render(request, 'manage_sections/error.html', status=500)
         sis_enrollment_section_list = []  # Sections fed from SIS
         section_list = []  # Sections not fed from SIS
-        canvas_sections = canvas_api_helper_sections.get_sections(canvas_course_id, fetch_enrollments=False)
 
         # fetch total_students_size for the course
         kwargs = {}
