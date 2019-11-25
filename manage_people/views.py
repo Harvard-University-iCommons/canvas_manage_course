@@ -2,12 +2,12 @@ import json
 import logging
 import pprint
 import re
-import urllib
+import urllib.request, urllib.parse, urllib.error
 from collections import defaultdict
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.db import IntegrityError
 from django.db.models import Q
 from django.http import HttpResponseRedirect, JsonResponse
@@ -127,8 +127,8 @@ def results_list(request):
     # audit all searches for a given ID, regardless of whether they are
     # successful for now, this includes typos (see TLT-876)
     audit_logger.info(
-        u"User=%s searched for user with query string='%s' for"
-        u"canvas_course_id=%s",
+        "User=%s searched for user with query string='%s' for"
+        "canvas_course_id=%s",
         request.user.username, search_term, canvas_course_id)
 
     # show the find_user page if the search came up empty
@@ -147,8 +147,8 @@ def results_list(request):
     # are deletable via Manage People.
     available_roles = get_available_roles(course_instance_id)
     enrolled_roles_by_id = get_enrolled_roles_for_user_ids(
-        canvas_course_id, search_results.keys())
-    user_ids_with_enrollments = enrolled_roles_by_id.keys()
+        canvas_course_id, list(search_results.keys()))
+    user_ids_with_enrollments = list(enrolled_roles_by_id.keys())
 
     # If there is was a found enrollment for the searched user, capture the
     # first/last name for use in the template
@@ -164,7 +164,7 @@ def results_list(request):
     # same userid - TLT-1101)
     unique_results = {
         user_id: person
-        for user_id, person in search_results.items()
+        for user_id, person in list(search_results.items())
         if user_id not in user_ids_with_enrollments
     }
 
@@ -220,7 +220,7 @@ def find_person(search_term):
 
     person_results = Person.objects.filter(**filter_kvp)
     if len(person_results) == 0:
-        logger.info(u'Search term %s was not found.', search_term)
+        logger.info('Search term %s was not found.', search_term)
 
     results_dict = {}
     for person in person_results:
@@ -233,8 +233,8 @@ def find_person(search_term):
 
 def get_badge_info_for_users(user_id_list=None):
     # TODO: documentation and line-by-line comments and remove unused code
-    logger.debug(u'getting role types (to display badge info) for the following '
-                 u'users: %s', user_id_list)
+    logger.debug('getting role types (to display badge info) for the following '
+                 'users: %s', user_id_list)
     if not user_id_list:
         return {}
 
@@ -243,12 +243,12 @@ def get_badge_info_for_users(user_id_list=None):
         p.univ_id: p.role_type_cd for p in people
     }
 
-    logger.debug(u"IDs found and their role types: %s", person_id_badge_mapping)
+    logger.debug("IDs found and their role types: %s", person_id_badge_mapping)
 
     discrepancies = set(user_id_list) - set(person_id_badge_mapping.keys())
     if discrepancies:
-        logger.warn(u"The following users were not found in COURSEMANAGER while "
-                    u"attempting to get their role types: %s", discrepancies)
+        logger.warn("The following users were not found in COURSEMANAGER while "
+                    "attempting to get their role types: %s", discrepancies)
 
     # If person_id_badge_mapping does not have a result matching user_id
     # (because user_id wasn't found in the Person database above) then send a
@@ -259,7 +259,7 @@ def get_badge_info_for_users(user_id_list=None):
             for user_id in user_id_list
     }
 
-    logger.debug(u"found the following badge information for the users: %s",
+    logger.debug("found the following badge information for the users: %s",
                  results_dict)
     return results_dict
 
@@ -286,7 +286,7 @@ def add_users(request):
             'errors': 'no_user_selected',
         }
         return HttpResponseRedirect(
-            "%s?%s" % (reverse('manage_people:results_list'), urllib.urlencode(kwargs))
+            "%s?%s" % (reverse('manage_people:results_list'), urllib.parse.urlencode(kwargs))
         )
 
     course = canvas_api_helper_courses.get_course(canvas_course_instance_id)
@@ -294,7 +294,7 @@ def add_users(request):
 
     # For each selected user id, attempt to create an enrollment
     enrollment_results = []
-    for user_id, user_role_id in users_to_add.items():
+    for user_id, user_role_id in list(users_to_add.items()):
         # Add the returned (existing_enrollment, person) tuple to the results
         # list
         enrollment_results.append(
@@ -304,7 +304,7 @@ def add_users(request):
     # get the updated (or cached) Canvas role list so we can show the right
     # role labels for these enrollments
     canvas_roles_by_role_id = get_roles_for_account_id('self')
-    user_roles = UserRole.objects.values()
+    user_roles = list(UserRole.objects.values())
     labels_by_user_role_id = {
         role['role_id']: canvas_roles_by_role_id[
             int(role['canvas_role_id'])]['label']
@@ -340,20 +340,20 @@ def add_member_to_course(user_id, user_role_id, course_instance_id,
     enrollment.user_id = user_id
     enrollment.role_id = user_role_id
     enrollment.course_instance_id = course_instance_id
-    logger.debug(u'Adding %s to %s table as user_role_id %s',
+    logger.debug('Adding %s to %s table as user_role_id %s',
                  user_id, enrollment._meta.db_table, user_role_id)
     existing_enrollment = False
     try:
         enrollment.save()
     except IntegrityError as e:
         existing_enrollment = True
-        logger.exception(u'Unable to save user %s to table %s as user_role_id '
-                         u"%s.  It's possible the user is already enrolled.",
+        logger.exception('Unable to save user %s to table %s as user_role_id '
+                         "%s.  It's possible the user is already enrolled.",
                          user_id, enrollment._meta.db_table, user_role_id)
     except RuntimeError as e:
         existing_enrollment = True
-        logger.exception(u'Unexpected error while saving user %s to table %s '
-                         u'as user_role_id %s.',
+        logger.exception('Unexpected error while saving user %s to table %s '
+                         'as user_role_id %s.',
                          user_id, enrollment._meta.db_table, user_role_id)
 
     # get and annotate a Person instance for this enrollment
@@ -389,8 +389,8 @@ def add_member_to_course(user_id, user_role_id, course_instance_id,
             canvas_api_helper_sections.delete_cache(canvas_course_id)
         else:
             logger.error(
-                u'Unable to enroll %s as user_role_id %s (Canvas role id %s) '
-                u'for course instance id %s.', user_id, user_role_id,
+                'Unable to enroll %s as user_role_id %s (Canvas role id %s) '
+                'for course instance id %s.', user_id, user_role_id,
                 user_role.canvas_role_id, course_instance_id)
     return existing_enrollment, person
 
@@ -401,7 +401,7 @@ def get_enrollments_added_through_tool(sis_course_id):
     then filters out the course enrollees that are fed via sis import feed
     process or cross-registration.
     """
-    logger.debug(u'get_enrollments_added_through_tool(course_instance_id=%s)',
+    logger.debug('get_enrollments_added_through_tool(course_instance_id=%s)',
                  sis_course_id)
 
     section_id_param = 'sis_section_id:' + str(sis_course_id)
@@ -411,10 +411,10 @@ def get_enrollments_added_through_tool(sis_course_id):
                 section_id_param)
     except CanvasAPIError as api_error:
         logger.error(
-            u'CanvasAPIError in get_all_list_data call for sis_course_id=%s. '
-            u'Exception=%s:', sis_course_id, api_error)
+            'CanvasAPIError in get_all_list_data call for sis_course_id=%s. '
+            'Exception=%s:', sis_course_id, api_error)
         return []
-    logger.debug(u"size of enrollees in canvas= %s" % len(canvas_enrollments))
+    logger.debug("size of enrollees in canvas= %s" % len(canvas_enrollments))
 
     # get the list of enrolles from Course Manager DB, who are eligible to be
     # deleted via this tool.  This is achieved by using a filter to exclude
@@ -433,13 +433,13 @@ def get_enrollments_added_through_tool(sis_course_id):
             ids = list(model.objects.filter(query).values_list('user_id',
                                                                'role_id'))
         except Exception as e:
-            logger.exception(u'unable to look up course members in %s: %s',
+            logger.exception('unable to look up course members in %s: %s',
                              model._meta.db_table, e)
         else:
-            logger.debug(u'eligible %s members = %s',
+            logger.debug('eligible %s members = %s',
                          model._meta.db_table, ids)
         eligible_ids.update(ids)
-    logger.debug(u'full set of eligible user/role ids: %s', eligible_ids)
+    logger.debug('full set of eligible user/role ids: %s', eligible_ids)
 
     # get a mapping of canvas role_id to UserRole ids
     canvas_role_to_user_role = get_canvas_to_user_role_id_map()
@@ -469,7 +469,7 @@ def get_enrollments_added_through_tool(sis_course_id):
                     'canvas_role_label': canvas_roles_by_role_id.get(
                         enrollment['role_id'])['label']})
                 filtered_enrollments.append(enrollment)
-                logger.debug(u'MP filter out registrar fed: Allowing (%s, %s)',
+                logger.debug('MP filter out registrar fed: Allowing (%s, %s)',
                              user_id, user_role_id)
             else:
                 # Log the users not yet in Canvas or who do not match because
@@ -478,10 +478,10 @@ def get_enrollments_added_through_tool(sis_course_id):
                 # have sortable_name and assumes sis_user_id is the source of
                 # truth in Canvas (see comment above re:TLT-705)
                 logger.info(
-                    u'Manage People: Canvas %s (Canvas role_id %s, '
-                    u'user_role_id %s) enrollment for user %s (CM user id %s) '
-                    u'was either not found in the Coursemanager DB, or was '
-                    u'registrar-fed.  Not including it in the results list.',
+                    'Manage People: Canvas %s (Canvas role_id %s, '
+                    'user_role_id %s) enrollment for user %s (CM user id %s) '
+                    'was either not found in the Coursemanager DB, or was '
+                    'registrar-fed.  Not including it in the results list.',
                     enrollment['role'],
                     enrollment['role_id'],
                     canvas_role_to_user_role[enrollment['role_id']],
@@ -490,13 +490,13 @@ def get_enrollments_added_through_tool(sis_course_id):
         else:
             # Problem with canvas enrollee data structure
             logger.info(
-                u'Manage People: Canvas enrollment does not have user '
-                u'information associated with it. Enrollment info: %s',
+                'Manage People: Canvas enrollment does not have user '
+                'information associated with it. Enrollment info: %s',
                 enrollment)
 
     # Sort the users by sortable_name
     filtered_enrollments.sort(key=lambda x: x['user']['sortable_name'])
-    logger.debug(u'size of filtered and sorted enrollments= %s',
+    logger.debug('size of filtered and sorted enrollments= %s',
                  len(filtered_enrollments))
 
     # add custom display badge information for enrollees to the filtered
@@ -541,8 +541,8 @@ def remove_user(request):
 
     if int(user_role.canvas_role_id) != int(canvas_role_id):
         logger.exception(
-            u'The specified Canvas role %s does not correspond with user role '
-            u'%s record\'s Canvas role (%s).', canvas_role_id, user_role_id,
+            'The specified Canvas role %s does not correspond with user role '
+            '%s record\'s Canvas role (%s).', canvas_role_id, user_role_id,
             user_role.canvas_role_id)
         return JsonResponse(
             {'result': 'failure',
@@ -557,7 +557,7 @@ def remove_user(request):
                 SDK_CONTEXT, enrollments.list_enrollments_users, user_id)
     except CanvasAPIError as api_error:
         logger.exception(
-            u"CanvasAPIError trying to get enrollments for user %s",
+            "CanvasAPIError trying to get enrollments for user %s",
             sis_user_id, api_error)
         return JsonResponse(
             {'result': 'failure',
@@ -579,8 +579,8 @@ def remove_user(request):
                                             enrollment_id, task='delete')
         except CanvasAPIError as api_error:
             logger.exception(
-                u'Canvas API Error trying to delete user %s with enrollment id '
-                u'%s from course instance %s: %s',
+                'Canvas API Error trying to delete user %s with enrollment id '
+                '%s from course instance %s: %s',
                 sis_user_id, enrollment_id, course_instance_id, api_error
             )
             return JsonResponse(
@@ -594,8 +594,8 @@ def remove_user(request):
     canvas_api_helper_sections.delete_cache(canvas_course_id)
 
     logger.debug(
-        u'Now removing user with user_id=%s from course_instance_id=%s in '
-        u'CourseManager DB.',
+        'Now removing user with user_id=%s from course_instance_id=%s in '
+        'CourseManager DB.',
         sis_user_id, course_instance_id
     )
 
@@ -606,8 +606,8 @@ def remove_user(request):
                          course_instance_id=course_instance_id,
                          user_id=sis_user_id)
     except model_class.DoesNotExist:
-        logger.exception(u'Unable to remove user %s from %s membership in '
-                         u'course %s: no such membership exists.', sis_user_id,
+        logger.exception('Unable to remove user %s from %s membership in '
+                         'course %s: no such membership exists.', sis_user_id,
                          model_class._meta.db_table, course_instance_id)
         return JsonResponse(
             {'result': 'failure',
@@ -619,7 +619,7 @@ def remove_user(request):
         enrollment.delete()
     except Exception as e:
         logger.exception(
-            u"Error in deleting user=%s from course_instance_id=%s: %s",
+            "Error in deleting user=%s from course_instance_id=%s: %s",
             sis_user_id, course_instance_id, e.message
         )
         return JsonResponse(
@@ -629,7 +629,7 @@ def remove_user(request):
 
     # Record the delete in the audit log
     audit_logger.info(
-        u'Course Enrollee=%s was deleted by user=%s for canvas_course_id=%s',
+        'Course Enrollee=%s was deleted by user=%s for canvas_course_id=%s',
         sis_user_id, request.user.username, canvas_course_id)
 
     response_data = {
@@ -655,7 +655,7 @@ def get_role_type(role_type_cd):
 
 
 def lti_key_error_response(request, key_error_exception):
-    logger.error(u'Exception: KeyError: %s' % key_error_exception.message)
+    logger.error('Exception: KeyError: %s' % key_error_exception.message)
     user_error_message = settings.MANAGE_PEOPLE['MSGS']['lti_request']
     return render(request, 'manage_people/error.html',
                   context={'message': user_error_message}, status=400)

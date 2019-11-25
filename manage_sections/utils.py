@@ -28,7 +28,7 @@ def unique_enrollments_not_in_section_filter(section_id, enrollments):
     section_set = {role_key(x) for x in enrollments if x['course_section_id'] == int(section_id)}
     # Use a temporary dictionary to get unique enrollments based on the "role_key".  Filter out any
     # records where the role_key is present in the current section (by using the section_set above)
-    return {role_key(x): x for x in enrollments if role_key(x) not in section_set}.values()
+    return list({role_key(x): x for x in enrollments if role_key(x) not in section_set}.values())
 
 
 def get_section_by_id(section_id):

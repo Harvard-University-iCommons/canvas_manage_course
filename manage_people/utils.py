@@ -61,7 +61,7 @@ def get_available_roles(course_instance_id):
     :return: dict of allowed roles mapped by canvas_role_id
     """
     if not course_instance_id:
-        logger.warning(u'get_available_roles called with course_instance_id %s',
+        logger.warning('get_available_roles called with course_instance_id %s',
                        course_instance_id)
         return {}
 
@@ -80,16 +80,16 @@ def get_available_roles(course_instance_id):
             )
         school_id = course_instance.course.school.school_id
     except ObjectDoesNotExist:
-        logger.exception(u'course instance id %s does not exist',
+        logger.exception('course instance id %s does not exist',
                          course_instance_id)
         return {}
     except AttributeError:
-        logger.exception(u'unable to find school id for course instance %s',
+        logger.exception('unable to find school id for course instance %s',
                          course_instance_id)
         return {}
     except RuntimeError as e:
-        logger.exception(u'unexpected error %s attempting to find school id '
-                         u'for course instance %s', e, course_instance_id)
+        logger.exception('unexpected error %s attempting to find school id '
+                         'for course instance %s', e, course_instance_id)
         return {}
 
     # if the school defined a set of allowed roles, use only those
@@ -107,8 +107,8 @@ def get_available_roles(course_instance_id):
 
     # now get the role details, add in xid_allowed
     user_role_query = UserRole.objects.filter(
-                           role_id__in=xid_allowed_by_role_id.keys())
-    user_roles = user_role_query.values()
+                           role_id__in=list(xid_allowed_by_role_id.keys()))
+    user_roles = list(user_role_query.values())
 
     available = []
     for role in user_roles:
@@ -154,8 +154,8 @@ def get_course_member_class(user_role):
     elif int(user_role.guest):
         return CourseGuest
     else:
-        raise RuntimeError(u'User role %s is neither staff, nor student, nor '
-                           u'guest.  Unable to determine which table to use.',
+        raise RuntimeError('User role %s is neither staff, nor student, nor '
+                           'guest.  Unable to determine which table to use.',
                            user_role)
 
 
@@ -185,12 +185,12 @@ def get_user_role_if_permitted(course_instance_id, user_role_id):
             user_role = UserRole.objects.get(role_id=user_role_id)
         except UserRole.DoesNotExist:
             logger.exception(
-                u'user_role_id %s does not map to a valid user_role record.',
+                'user_role_id %s does not map to a valid user_role record.',
                 user_role_id)
     else:
         logger.warning(
-            u'user_role_id %s does not map to a permitted user_role record for '
-            u'course %s. Permitted roles: %s', user_role_id, course_instance_id,
+            'user_role_id %s does not map to a permitted user_role record for '
+            'course %s. Permitted roles: %s', user_role_id, course_instance_id,
             sorted([role['role_id'] for role in available_roles]))
 
     return user_role
@@ -222,13 +222,13 @@ def get_user_role_to_canvas_role_map(account_id='self'):
         return role_map
 
     canvas_roles_by_canvas_role_id = get_roles_for_account_id(account_id)
-    user_roles = UserRole.objects.values()
+    user_roles = list(UserRole.objects.values())
     role_map = {
         role['role_id']: canvas_roles_by_canvas_role_id[role['canvas_role_id']]
         for role in user_roles if role.get('canvas_role_id')}
 
     logger.debug(
-        u"Caching user_role_id:Canvas role map for Canvas account %s: %s",
+        "Caching user_role_id:Canvas role map for Canvas account %s: %s",
         account_id, json.dumps(str(role_map)).replace("'", '"'))
     cache.set(cache_key, role_map)
     return role_map

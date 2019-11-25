@@ -54,14 +54,14 @@ class GetBadgeInfoForUsersTests(unittest.TestCase):
             ('ab01yz89', 'XIDHOLDER'),
             ('1234567890', 'SOMETHINGELSE')
         ]
-        self.user_id_input_list = dict(self.person_object_values).keys()
+        self.user_id_input_list = list(dict(self.person_object_values).keys())
         self.badge_types = [
             _get_badge_label_for_role_type(role_type)
             for role_type
-            in dict(self.person_object_values).values()
+            in list(dict(self.person_object_values).values())
         ]
         self.expected_results = dict(
-            zip(self.user_id_input_list, self.badge_types)
+            list(zip(self.user_id_input_list, self.badge_types))
         )
 
         # copy good input and good expected results and add a bad value

@@ -14,7 +14,7 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 import logging
 import os
 
-from django.core.urlresolvers import reverse_lazy
+from django.urls import reverse_lazy
 
 from dj_secure_settings.loader import load_secure_settings
 
@@ -31,7 +31,7 @@ DEBUG = SECURE_SETTINGS.get('enable_debug', False)
 # Application definition
 
 INSTALLED_APPS = [
-    'async',
+    'async_operations',
     'canvas_manage_course',
     'class_roster',
     'django.contrib.auth',
@@ -41,17 +41,15 @@ INSTALLED_APPS = [
     'django.contrib.postgres',
     'django.contrib.staticfiles',
     'django_auth_lti',
-    'django_rq',
     'icommons_common',
     'icommons_common.monitor',
     'icommons_ui',
-    'isites_migration',
     'lti_school_permissions',
     'manage_people',
     'manage_sections',
 ]
 
-MIDDLEWARE_CLASSES = [
+MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'cached_auth.Middleware',
@@ -146,8 +144,6 @@ CACHES = {
 # RQ
 # http://python-rq.org/docs/
 
-ISITES_MIGRATION_QUEUE_NAME = 'isites_file_migration'
-
 _rq_redis_config = {
     'HOST': REDIS_HOST,
     'PORT': REDIS_PORT,
@@ -155,10 +151,6 @@ _rq_redis_config = {
     'DEFAULT_TIMEOUT': SECURE_SETTINGS.get('default_rq_timeout_secs', 300),
 }
 
-RQ_QUEUES = {
-    'default': _rq_redis_config,
-    ISITES_MIGRATION_QUEUE_NAME: _rq_redis_config
-}
 
 # Sessions
 
@@ -194,6 +186,8 @@ STATIC_ROOT = os.path.normpath(os.path.join(BASE_DIR, 'http_static'))
 
 _DEFAULT_LOG_LEVEL = SECURE_SETTINGS.get('log_level', logging.DEBUG)
 _LOG_ROOT = SECURE_SETTINGS.get('log_root', '')  # Default to current directory
+_LOG_ROOT= ''
+
 
 # Turn off default Django logging
 # https://docs.djangoproject.com/en/1.8/topics/logging/#disabling-logging-configuration
@@ -255,11 +249,6 @@ LOGGING = {
             'level': _DEFAULT_LOG_LEVEL,
             'propagate': False,
         },
-        'isites_migration': {
-            'handlers': ['default', 'console'],
-            'level': _DEFAULT_LOG_LEVEL,
-            'propagate': False,
-        },
         'manage_people': {
             'handlers': ['default'],
             'level': _DEFAULT_LOG_LEVEL,
@@ -315,7 +304,6 @@ ICOMMONS_COMMON = {
 LTI_SCHOOL_PERMISSIONS_TOOL_PERMISSIONS = (
     'canvas_manage_course',  # dashboard
     'class_roster',
-    'im_import_files',  # isites_migration app
     'manage_people',
     'manage_sections'
 )
@@ -349,7 +337,3 @@ ICOMMONS_REST_API_HOST = SECURE_SETTINGS.get('icommons_rest_api_host')
 ICOMMONS_REST_API_SKIP_CERT_VERIFICATION = SECURE_SETTINGS.get(
     'icommons_rest_api_skip_cert_verification', False)
 
-ISITES_MIGRATION = {
-    'aws_access_key_id': SECURE_SETTINGS.get('isites_migration_aws_access_key_id'),
-    'aws_secret_access_key': SECURE_SETTINGS.get('isites_migration_aws_secret_access_key'),
-}

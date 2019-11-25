@@ -1,14 +1,15 @@
 # local environment requirements
 
--r aws.txt 
+-r aws.txt
  
 # below are requirements specific to the local environment
 
 ddt==1.1.1
-django-debug-toolbar==1.8
-django-sslserver==0.19
+django-debug-toolbar==1.9
+django-sslserver==0.21
+
+
 mock==2.0.0
-oauthlib==1.1.1
 pyvirtualdisplay==0.2.1
 requests-oauthlib==0.8.0
 selenium==2.53.2

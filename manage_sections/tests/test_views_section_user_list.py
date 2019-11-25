@@ -5,7 +5,7 @@ from django_auth_lti import const
 from mock import patch, ANY, Mock, DEFAULT
 
 from manage_sections.views import section_user_list
-from test_utils import return_unmodified_input
+from .test_utils import return_unmodified_input
 
 
 @patch.multiple('lti_school_permissions.decorators', is_allowed=Mock(return_value=True))

@@ -45,10 +45,7 @@ class MonitorResponseView(BaseMonitorResponseView):
 
 def _filter_student_view_enrollments(enrollments):
     # Filter "Test Student" out of enrollments, "Test Student" is added via the "View as student" feature
-    return filter(
-        lambda x: x['type'] != settings.MANAGE_SECTIONS.get('TEST_STUDENT_ROLE', 'StudentViewEnrollment'),
-        enrollments
-    )
+    return [x for x in enrollments if x['type'] != settings.MANAGE_SECTIONS.get('TEST_STUDENT_ROLE', 'StudentViewEnrollment')]
 
 
 def _get_badge_info_for_users(user_id_list):
@@ -133,7 +130,6 @@ def create_section_form(request):
         sis_enrollment_section_list = []  # Sections fed from SIS
         section_list = []  # Sections not fed from SIS
 
-
         # fetch total_students_size for the course
         kwargs = {}
         kwargs['include'] = 'total_students'
@@ -181,7 +177,7 @@ def create_section_form(request):
                 section_list.append(section)
 
         # case insensitive sort the sections in alpha order
-        section_list = sorted(section_list, key=lambda x: x[u'name'].lower())
+        section_list = sorted(section_list, key=lambda x: x['name'].lower())
 
         return render(request, 'manage_sections/create_section_form.html', {
             'sections': section_list,
