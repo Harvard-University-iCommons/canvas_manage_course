@@ -186,7 +186,6 @@ STATIC_ROOT = os.path.normpath(os.path.join(BASE_DIR, 'http_static'))
 
 _DEFAULT_LOG_LEVEL = SECURE_SETTINGS.get('log_level', logging.DEBUG)
 _LOG_ROOT = SECURE_SETTINGS.get('log_root', '')  # Default to current directory
-_LOG_ROOT= ''
 
 
 # Turn off default Django logging
