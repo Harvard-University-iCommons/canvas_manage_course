@@ -1,5 +1,5 @@
 from os.path import abspath, dirname, join
-from urlparse import urljoin
+from urllib.parse import urljoin
 
 from django.conf import settings
 

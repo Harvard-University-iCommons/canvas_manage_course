@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 
 from django.db import  migrations, models,transaction
+import django.db.models.deletion
+
 
 SCHOOL_ALOWED_ROLE_DATA = [
     ('gse', 9, False),
@@ -74,7 +76,7 @@ def populate_school_allowed_role(apps, schema_editor):
     fields = ('school_id', 'user_role_id', 'xid_allowed')
     with transaction.atomic():  # wrap all the inserts in a transaction
         for values in SCHOOL_ALOWED_ROLE_DATA:
-            SchoolAllowedRole.objects.create(**dict(zip(fields, values)))
+            SchoolAllowedRole.objects.create(**dict(list(zip(fields, values))))
 
 def reverse_load_school_role(apps, schema_editor):
     SchoolAllowedRole = apps.get_model('manage_people', 'SchoolAllowedRole')
@@ -92,7 +94,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('school_id', models.CharField(max_length=10)),
-                ('user_role', models.ForeignKey(to='manage_people.ManagePeopleRole')),
+                ('user_role', models.ForeignKey(to='manage_people.ManagePeopleRole', on_delete=django.db.models.deletion.CASCADE)),
                 ('xid_allowed', models.BooleanField(default=False)),
             ],
             options={

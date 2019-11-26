@@ -15,12 +15,12 @@ class ManagePeopleRole(models.Model):
     xid_allowed = models.BooleanField(default=False)
 
     class Meta:
-        app_label = u'manage_people'
-        db_table = u'manage_people_role'
+        app_label = 'manage_people'
+        db_table = 'manage_people_role'
 
     def __unicode__(self):
-        return u'user role id:{}, xid:{}allowed'.format(
-            self.user_role_id, u'' if self.xid_allowed else u'not ')
+        return 'user role id:{}, xid:{}allowed'.format(
+            self.user_role_id, '' if self.xid_allowed else 'not ')
 
 
 class SchoolAllowedRole(models.Model):
@@ -34,16 +34,16 @@ class SchoolAllowedRole(models.Model):
     '''
     school_id = models.CharField(max_length=10)  # logically an fk on
                                                  # cm.school.school_id
-    user_role = models.ForeignKey('ManagePeopleRole')
+    user_role = models.ForeignKey('ManagePeopleRole', on_delete=models.CASCADE)
     xid_allowed = models.BooleanField(default=False)
 
     class Meta:
-        app_label = u'manage_people'
-        db_table = u'school_allowed_role'
+        app_label = 'manage_people'
+        db_table = 'school_allowed_role'
         unique_together = ('school_id', 'user_role')
 
     def __unicode__(self):
-        return u'school:{}, manage people role id:{}, xid:{}allowed'.format(
+        return 'school:{}, manage people role id:{}, xid:{}allowed'.format(
             self.school_id,
             self.user_role.user_role_id,
             '' if self.xid_allowed else 'not '
