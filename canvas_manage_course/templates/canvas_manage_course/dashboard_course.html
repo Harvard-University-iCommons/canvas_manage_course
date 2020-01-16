@@ -109,6 +109,27 @@
       </a>
     </div>
   {% endif %}
+  
+  {% if allowed.fa_info %}
+    <div class="card card_color6">
+      <a href="{% url 'fa_info:index' %}" id="fa-info" target="_blank">
+        <div class="card-body">
+          <div class="card-header card-header_color6">
+          </div>
+          <div class="card-content card-content_normal">
+            <h2 class="card-content-title ellipsis" title="FA Info Link">
+              <span class="content-link">
+                FA Info
+              </span>
+            </h2>
+            <p title="FA Info link">
+              Go to this course's FA Info page.
+            </p>
+          </div>
+        </div>
+      </a>
+    </div>
+  {% endif %}
 {% endif %}
 </main>
 

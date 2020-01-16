@@ -60,6 +60,9 @@ p {
 .card_color5 {
     border-bottom-color: #FF2FEB;
 }
+.card_color6 {
+    border-bottom-color: #D16103;
+}
 .card_disabled {
     border-bottom-color: #ccc;
     cursor: default;
@@ -108,6 +111,9 @@ p {
 }
 .card-header_color5 {
     background-color: #FF2FEB;
+}
+.card-header_color6 {
+    background-color: #D16103;
 }
 .card-header_disabled {
     background-color:#ccc;

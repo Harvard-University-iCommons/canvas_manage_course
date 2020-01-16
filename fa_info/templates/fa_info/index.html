@@ -1,0 +1,28 @@
+{% extends 'canvas_manage_course/base.html' %}
+
+{% load static %}
+
+{% block stylesheet %}
+  {{ block.super }}
+  <link href="{% static 'canvas_manage_course/css/dashboard.css' %}"
+        rel="stylesheet"/>
+{% endblock stylesheet %}
+
+
+{% block dashboard_breadcrumb %}
+<nav>
+  <h1>
+    <a href="{% url 'dashboard_course' %}">Manage Course</a>&nbsp;
+    <small><i class="fa fa-chevron-right"></i></small>&nbsp;FA Info
+  </h1>
+</nav>
+{% endblock dashboard_breadcrumb %}
+
+
+{% block tool_content %}
+<main>
+  <div id="content" role="main">
+    Fall back instructions.
+  </div>
+</main>
+{% endblock tool_content %}
