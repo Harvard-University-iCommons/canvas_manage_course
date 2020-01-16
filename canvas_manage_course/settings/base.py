@@ -304,7 +304,7 @@ ICOMMONS_COMMON = {
 LTI_SCHOOL_PERMISSIONS_TOOL_PERMISSIONS = (
     'canvas_manage_course',  # dashboard
     'class_roster',
-    'fa_info'
+    'fa_info',
     'manage_people',
     'manage_sections'
 )
