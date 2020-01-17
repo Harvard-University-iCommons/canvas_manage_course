@@ -14,9 +14,11 @@ def index(request):
     
     term_id = course_instance.term.cs_strm
     course_id = course_instance.course.registrar_code
-    url = "https://hrvc9dev.my.harvard.edu/psc/hrvc9dev/EMPLOYEE/HRMS/c/HU_FIN"\
-        "AL_ASSMNT.HU_FINAL_ASSMNT.GBL?Page=HU_EXAM_ROSTER_INS&Action=U&ExactK"\
-        "eys=Y&INSTITUTION=HRVRD&ACAD_CAREER=FAS&STRM={}&CRSE_ID={}".format(term_id, course_id)
+    url = "https://portal.my.harvard.edu/psp/hrvihprd/EMPLOYEE/HRMS/c/HU_FINAL"\
+        "_ASSMNT.HU_FINAL_ASSMNT.GBL?Page=HU_EXAM_ROSTER_INS&Action=U&ExactKey"\
+        "s=Y&INSTITUTION=HRVRD&ACAD_CAREER=FAS&STRM={}&CRSE_ID={}".format(term_id, course_id)
     if not term_id or not course_id:
         return render(request, 'fa_info/index.html')
     return redirect(url)
+ 
+ 
