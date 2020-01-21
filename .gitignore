@@ -17,3 +17,6 @@ secure*.py*
 !secure.py.j2
 data/
 http_static/
+cert.pem
+key.pem
+.envrc

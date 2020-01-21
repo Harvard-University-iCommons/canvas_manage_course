@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.postgres',
     'django.contrib.staticfiles',
     'django_auth_lti',
+    'fa_info',
     'icommons_common',
     'icommons_common.monitor',
     'icommons_ui',
@@ -303,6 +304,7 @@ ICOMMONS_COMMON = {
 LTI_SCHOOL_PERMISSIONS_TOOL_PERMISSIONS = (
     'canvas_manage_course',  # dashboard
     'class_roster',
+    'fa_info',
     'manage_people',
     'manage_sections'
 )
@@ -335,4 +337,3 @@ ICOMMONS_REST_API_HOST = SECURE_SETTINGS.get('icommons_rest_api_host')
 # Default to False, but if testing locally, set to True
 ICOMMONS_REST_API_SKIP_CERT_VERIFICATION = SECURE_SETTINGS.get(
     'icommons_rest_api_skip_cert_verification', False)
-

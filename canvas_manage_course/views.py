@@ -81,7 +81,8 @@ def dashboard_course(request):
         'class_roster',
         'manage_people',
         'manage_sections',
-        'custom_fas_card_1']
+        'custom_fas_card_1',
+        'fa_info']
     # Verify current user permissions to see the apps on the dashboard
     allowed = {tool: lti_permission_required_check(request, tool)
                for tool in tool_access_permission_names}
