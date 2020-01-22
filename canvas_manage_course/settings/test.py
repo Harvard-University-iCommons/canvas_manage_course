@@ -35,10 +35,10 @@ Unit tests should be able to run without talking to external services like
 redis/elasticache.  Let's disable the caching middleware, and use the db
 to store session data.
 """
-MIDDLEWARE_CLASSES = list(MIDDLEWARE_CLASSES)
-MIDDLEWARE_CLASSES[MIDDLEWARE_CLASSES.index('cached_auth.Middleware')] = \
+MIDDLEWARE = list(MIDDLEWARE)
+MIDDLEWARE[MIDDLEWARE.index('cached_auth.Middleware')] = \
     'django.contrib.auth.middleware.AuthenticationMiddleware'
-MIDDLEWARE_CLASSES = tuple(MIDDLEWARE_CLASSES)
+MIDDLEWARE = tuple(MIDDLEWARE)
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 
 """
