@@ -620,7 +620,7 @@ def remove_user(request):
     except Exception as e:
         logger.exception(
             "Error in deleting user=%s from course_instance_id=%s: %s",
-            sis_user_id, course_instance_id, e.message
+            sis_user_id, course_instance_id, e
         )
         return JsonResponse(
             {'result': 'failure',
