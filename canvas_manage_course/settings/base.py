@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import logging
 import os
+from icommons_common.logging import JSON_LOG_FORMAT, ContextFilter
 
 from django.urls import reverse_lazy
 
@@ -184,6 +185,16 @@ STATIC_URL = '/static/'
 STATIC_ROOT = os.path.normpath(os.path.join(BASE_DIR, 'http_static'))
 
 # Logging
+class ContextFilter(logging.Filter):
+    def __init__(self, **kwargs):
+        self.extra = kwargs
+
+    def filter(self, record):
+
+        for k in self.extra:
+            setattr(record, k, self.extra[k])
+
+        return True
 
 _DEFAULT_LOG_LEVEL = SECURE_SETTINGS.get('log_level', logging.DEBUG)
 _LOG_ROOT = SECURE_SETTINGS.get('log_root', '')  # Default to current directory
@@ -192,20 +203,31 @@ _LOG_ROOT = SECURE_SETTINGS.get('log_root', '')  # Default to current directory
 # Turn off default Django logging
 # https://docs.djangoproject.com/en/1.8/topics/logging/#disabling-logging-configuration
 LOGGING_CONFIG = None
+_JSON_LOG_FORMAT = '%(asctime)s %(created)f %(exc_info)s %(filename)s %(funcName)s %(levelname)s %(levelno)s %(name)s %(lineno)d %(module)s %(message)s %(pathname)s %(process)s'
 
 LOGGING = {
     'version': 1,
-    'disable_existing_loggers': False,
+    'disable_existing_loggers': True,
     'formatters': {
         'verbose': {
             'format': '%(levelname)s\t%(asctime)s.%(msecs)03dZ\t%(name)s:%(lineno)s\t%(message)s',
             'datefmt': '%Y-%m-%dT%H:%M:%S'
+        },
+        'json': {
+            '()': 'pythonjsonlogger.jsonlogger.JsonFormatter',
+            'format': _JSON_LOG_FORMAT,
         },
         'simple': {
             'format': '%(levelname)s\t%(name)s:%(lineno)s\t%(message)s',
         }
     },
     'filters': {
+        'context': {
+            '()': 'canvas_manage_course.settings.base.ContextFilter',
+            'env': SECURE_SETTINGS.get('env_name'),
+            'project': 'canvas_course_info',
+            'department': 'uw',
+        },
         'require_debug_false': {
             '()': 'django.utils.log.RequireDebugFalse'
         },
@@ -213,32 +235,48 @@ LOGGING = {
             '()': 'django.utils.log.RequireDebugTrue',
         },
     },
-    # This is the default logger for any apps or libraries that use the logger
-    # package, but are not represented in the `loggers` dict below.  A level
-    # must be set and handlers defined.  Setting this logger is equivalent to
-    # setting and empty string logger in the loggers dict below, but the separation
-    # here is a bit more explicit.  See link for more details:
-    # https://docs.python.org/2.7/library/logging.config.html#dictionary-schema-details
-    'root': {
-        'level': logging.WARNING,
-        'handlers': ['default'],
-    },
+
     'handlers': {
         # Log to a file by default that can be rotated by logrotate
         'default': {
-            'class': 'logging.handlers.WatchedFileHandler',
+            'class': 'splunk_handler.SplunkHandler',
+            'formatter': 'json',
+            'sourcetype': 'json',
+            'source': 'django-canvas_manage_course',
+            'host': 'http-inputs-harvard.splunkcloud.com',
+            'port': '443',
+            'index': 'soc-isites',
+            'token': SECURE_SETTINGS['splunk_token'],
             'level': _DEFAULT_LOG_LEVEL,
-            'formatter': 'verbose',
-            'filename': os.path.join(_LOG_ROOT, 'django-canvas_manage_course.log'),
+            # 'formatter': 'verbose',
+            # 'filename': os.path.join(_LOG_ROOT, 'django-canvas_manage_course.log'),
+            'filters': ['context'],
+        },
+        'gunicorn': {
+            'class': 'splunk_handler.SplunkHandler',
+            'formatter': 'json',
+            'sourcetype': 'json',
+            'source': 'gunicorn-canvas_manage_course',
+            'host': 'http-inputs-harvard.splunkcloud.com',
+            'port': '443',
+            'index': 'soc-isites',
+            'token': SECURE_SETTINGS['splunk_token'],
+            'level': _DEFAULT_LOG_LEVEL,
+            'filters': ['context'],
         },
         'console': {
             'class': 'logging.StreamHandler',
             'level': _DEFAULT_LOG_LEVEL,
-            'formatter': 'simple',
+            'formatter': 'verbose',
             'filters': ['require_debug_true'],
         },
     },
     'loggers': {
+        'gunicorn': {
+            'handlers': ['gunicorn', 'console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
         'rq.worker': {
             'handlers': ['default', 'console'],
             'level': _DEFAULT_LOG_LEVEL,
