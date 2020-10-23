@@ -11,6 +11,7 @@ psycopg2==2.7.3.2
 requests==2.22.0
 django-storages==1.7.1
 django_rq==2.1.0
+django-watchman==1.1.0
 
 
 git+ssh://git@github.com/penzance/canvas_python_sdk.git@v1.0#egg=canvas-python-sdk==1.0
