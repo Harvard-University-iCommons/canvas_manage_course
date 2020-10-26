@@ -17,7 +17,7 @@ django-watchman==1.1.0
 git+ssh://git@github.com/penzance/canvas_python_sdk.git@v1.0#egg=canvas-python-sdk==1.0
 git+ssh://git@github.com/Harvard-University-iCommons/django-auth-lti.git@v2.0.1#egg=django-auth-lti==2.0.1
 
-git+ssh://git@github.com/Harvard-University-iCommons/django-icommons-common.git@v2.2.1#egg=django-icommons-common==2.1
+git+ssh://git@github.com/Harvard-University-iCommons/django-icommons-common.git@v2.1rc1#egg=django-icommons-common==2.1
 git+ssh://git@github.com/Harvard-University-iCommons/django-icommons-ui.git@v2.0#egg=django-icommons-ui==2.0
 git+ssh://git@github.com/Harvard-University-iCommons/django-canvas-lti-school-permissions@v1.0#egg=django-canvas-lti-school-permissions==1.0
 git+ssh://git@github.com/Harvard-University-iCommons/django-ssm-parameter-store.git@v0.2#egg=django-ssm-parameter-store==0.2
