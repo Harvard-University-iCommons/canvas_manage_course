@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'lti_school_permissions',
     'manage_people',
     'manage_sections',
+    'watchman'
 ]
 
 MIDDLEWARE = [
