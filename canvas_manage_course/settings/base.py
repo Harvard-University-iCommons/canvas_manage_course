@@ -227,7 +227,7 @@ LOGGING = {
         'context': {
             '()': 'canvas_manage_course.settings.base.ContextFilter',
             'env': SECURE_SETTINGS.get('env_name'),
-            'project': 'canvas_course_info',
+            'project': 'canvas_manage_course',
             'department': 'uw',
         },
         'require_debug_false': {
