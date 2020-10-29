@@ -308,7 +308,12 @@ def add_users(request):
     labels_by_user_role_id = {
         role['role_id']: canvas_roles_by_role_id[
             int(role['canvas_role_id'])]['label']
-        for role in user_roles if role.get('canvas_role_id')}
+        for role in user_roles
+        if role.get('canvas_role_id')
+        and canvas_roles_by_role_id.get(
+            int(role['canvas_role_id'])
+        )
+    }
 
     # annotate enrollments with the Canvas role label
     for (_, person) in enrollment_results:
