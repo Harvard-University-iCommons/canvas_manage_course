@@ -224,8 +224,11 @@ def get_user_role_to_canvas_role_map(account_id='self'):
     canvas_roles_by_canvas_role_id = get_roles_for_account_id(account_id)
     user_roles = list(UserRole.objects.values())
     role_map = {
-        role['role_id']: canvas_roles_by_canvas_role_id[role['canvas_role_id']]
-        for role in user_roles if role.get('canvas_role_id')}
+        role["role_id"]: canvas_roles_by_canvas_role_id[role["canvas_role_id"]]
+        for role in user_roles
+        if role.get("canvas_role_id")
+        and canvas_roles_by_canvas_role_id.get(role["canvas_role_id"])
+    }
 
     logger.debug(
         "Caching user_role_id:Canvas role map for Canvas account %s: %s",

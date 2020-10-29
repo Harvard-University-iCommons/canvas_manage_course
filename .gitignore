@@ -20,3 +20,5 @@ http_static/
 cert.pem
 key.pem
 .envrc
+secure.*
+parameters.*
