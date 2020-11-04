@@ -186,17 +186,17 @@ STATIC_URL = '/static/'
 
 STATIC_ROOT = os.path.normpath(os.path.join(BASE_DIR, 'http_static'))
 
-# Logging
-class ContextFilter(logging.Filter):
-    def __init__(self, **kwargs):
-        self.extra = kwargs
-
-    def filter(self, record):
-
-        for k in self.extra:
-            setattr(record, k, self.extra[k])
-
-        return True
+# # Logging
+# class ContextFilter(logging.Filter):
+#     def __init__(self, **kwargs):
+#         self.extra = kwargs
+#
+#     def filter(self, record):
+#
+#         for k in self.extra:
+#             setattr(record, k, self.extra[k])
+#
+#         return True
 
 _DEFAULT_LOG_LEVEL = SECURE_SETTINGS.get('log_level', logging.DEBUG)
 _LOG_ROOT = SECURE_SETTINGS.get('log_root', '')  # Default to current directory
@@ -205,7 +205,7 @@ _LOG_ROOT = SECURE_SETTINGS.get('log_root', '')  # Default to current directory
 # Turn off default Django logging
 # https://docs.djangoproject.com/en/1.8/topics/logging/#disabling-logging-configuration
 LOGGING_CONFIG = None
-_JSON_LOG_FORMAT = '%(asctime)s %(created)f %(exc_info)s %(filename)s %(funcName)s %(levelname)s %(levelno)s %(name)s %(lineno)d %(module)s %(message)s %(pathname)s %(process)s'
+# _JSON_LOG_FORMAT = '%(asctime)s %(created)f %(exc_info)s %(filename)s %(funcName)s %(levelname)s %(levelno)s %(name)s %(lineno)d %(module)s %(message)s %(pathname)s %(process)s'
 
 LOGGING = {
     'version': 1,
@@ -217,7 +217,7 @@ LOGGING = {
         },
         'json': {
             '()': 'pythonjsonlogger.jsonlogger.JsonFormatter',
-            'format': _JSON_LOG_FORMAT,
+            'format': JSON_LOG_FORMAT,
         },
         'simple': {
             'format': '%(levelname)s\t%(name)s:%(lineno)s\t%(message)s',
@@ -225,7 +225,7 @@ LOGGING = {
     },
     'filters': {
         'context': {
-            '()': 'canvas_manage_course.settings.base.ContextFilter',
+            '()': 'icommons_common.logging.ContextFilter',
             'env': SECURE_SETTINGS.get('env_name'),
             'project': 'canvas_manage_course',
             'department': 'uw',
@@ -250,7 +250,6 @@ LOGGING = {
             'index': 'soc-isites',
             'token': SECURE_SETTINGS['splunk_token'],
             'level': _DEFAULT_LOG_LEVEL,
-            # 'formatter': 'verbose',
             # 'filename': os.path.join(_LOG_ROOT, 'django-canvas_manage_course.log'),
             'filters': ['context'],
         },
