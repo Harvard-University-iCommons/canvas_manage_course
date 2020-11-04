@@ -186,18 +186,6 @@ STATIC_URL = '/static/'
 
 STATIC_ROOT = os.path.normpath(os.path.join(BASE_DIR, 'http_static'))
 
-# # Logging
-# class ContextFilter(logging.Filter):
-#     def __init__(self, **kwargs):
-#         self.extra = kwargs
-#
-#     def filter(self, record):
-#
-#         for k in self.extra:
-#             setattr(record, k, self.extra[k])
-#
-#         return True
-
 _DEFAULT_LOG_LEVEL = SECURE_SETTINGS.get('log_level', logging.DEBUG)
 _LOG_ROOT = SECURE_SETTINGS.get('log_root', '')  # Default to current directory
 
@@ -205,7 +193,6 @@ _LOG_ROOT = SECURE_SETTINGS.get('log_root', '')  # Default to current directory
 # Turn off default Django logging
 # https://docs.djangoproject.com/en/1.8/topics/logging/#disabling-logging-configuration
 LOGGING_CONFIG = None
-# _JSON_LOG_FORMAT = '%(asctime)s %(created)f %(exc_info)s %(filename)s %(funcName)s %(levelname)s %(levelno)s %(name)s %(lineno)d %(module)s %(message)s %(pathname)s %(process)s'
 
 LOGGING = {
     'version': 1,

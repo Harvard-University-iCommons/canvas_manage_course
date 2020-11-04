@@ -12,6 +12,8 @@ requests==2.22.0
 django-storages==1.7.1
 django_rq==2.1.0
 django-watchman==1.2.0
+splunk_handler==2.2.0
+python-json-logger==0.1.11
 
 
 git+ssh://git@github.com/penzance/canvas_python_sdk.git@v1.0#egg=canvas-python-sdk==1.0
