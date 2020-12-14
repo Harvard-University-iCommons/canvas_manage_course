@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import logging
 import os
+from icommons_common.logging import JSON_LOG_FORMAT, ContextFilter
 
 from django.urls import reverse_lazy
 
@@ -48,9 +49,11 @@ INSTALLED_APPS = [
     'lti_school_permissions',
     'manage_people',
     'manage_sections',
+    'watchman'
 ]
 
 MIDDLEWARE = [
+    'allow_cidr.middleware.AllowCIDRMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'cached_auth.Middleware',
@@ -183,8 +186,6 @@ STATIC_URL = '/static/'
 
 STATIC_ROOT = os.path.normpath(os.path.join(BASE_DIR, 'http_static'))
 
-# Logging
-
 _DEFAULT_LOG_LEVEL = SECURE_SETTINGS.get('log_level', logging.DEBUG)
 _LOG_ROOT = SECURE_SETTINGS.get('log_root', '')  # Default to current directory
 
@@ -195,17 +196,27 @@ LOGGING_CONFIG = None
 
 LOGGING = {
     'version': 1,
-    'disable_existing_loggers': False,
+    'disable_existing_loggers': True,
     'formatters': {
         'verbose': {
             'format': '%(levelname)s\t%(asctime)s.%(msecs)03dZ\t%(name)s:%(lineno)s\t%(message)s',
             'datefmt': '%Y-%m-%dT%H:%M:%S'
+        },
+        'json': {
+            '()': 'pythonjsonlogger.jsonlogger.JsonFormatter',
+            'format': JSON_LOG_FORMAT,
         },
         'simple': {
             'format': '%(levelname)s\t%(name)s:%(lineno)s\t%(message)s',
         }
     },
     'filters': {
+        'context': {
+            '()': 'icommons_common.logging.ContextFilter',
+            'env': SECURE_SETTINGS.get('env_name'),
+            'project': 'canvas_manage_course',
+            'department': 'uw',
+        },
         'require_debug_false': {
             '()': 'django.utils.log.RequireDebugFalse'
         },
@@ -213,32 +224,47 @@ LOGGING = {
             '()': 'django.utils.log.RequireDebugTrue',
         },
     },
-    # This is the default logger for any apps or libraries that use the logger
-    # package, but are not represented in the `loggers` dict below.  A level
-    # must be set and handlers defined.  Setting this logger is equivalent to
-    # setting and empty string logger in the loggers dict below, but the separation
-    # here is a bit more explicit.  See link for more details:
-    # https://docs.python.org/2.7/library/logging.config.html#dictionary-schema-details
-    'root': {
-        'level': logging.WARNING,
-        'handlers': ['default'],
-    },
+
     'handlers': {
         # Log to a file by default that can be rotated by logrotate
         'default': {
-            'class': 'logging.handlers.WatchedFileHandler',
+            'class': 'splunk_handler.SplunkHandler',
+            'formatter': 'json',
+            'sourcetype': 'json',
+            'source': 'django-canvas_manage_course',
+            'host': 'http-inputs-harvard.splunkcloud.com',
+            'port': '443',
+            'index': 'soc-isites',
+            'token': SECURE_SETTINGS['splunk_token'],
             'level': _DEFAULT_LOG_LEVEL,
-            'formatter': 'verbose',
-            'filename': os.path.join(_LOG_ROOT, 'django-canvas_manage_course.log'),
+            # 'filename': os.path.join(_LOG_ROOT, 'django-canvas_manage_course.log'),
+            'filters': ['context'],
+        },
+        'gunicorn': {
+            'class': 'splunk_handler.SplunkHandler',
+            'formatter': 'json',
+            'sourcetype': 'json',
+            'source': 'gunicorn-canvas_manage_course',
+            'host': 'http-inputs-harvard.splunkcloud.com',
+            'port': '443',
+            'index': 'soc-isites',
+            'token': SECURE_SETTINGS['splunk_token'],
+            'level': _DEFAULT_LOG_LEVEL,
+            'filters': ['context'],
         },
         'console': {
             'class': 'logging.StreamHandler',
             'level': _DEFAULT_LOG_LEVEL,
-            'formatter': 'simple',
+            'formatter': 'verbose',
             'filters': ['require_debug_true'],
         },
     },
     'loggers': {
+        'gunicorn': {
+            'handlers': ['gunicorn', 'console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
         'rq.worker': {
             'handlers': ['default', 'console'],
             'level': _DEFAULT_LOG_LEVEL,
@@ -337,3 +363,11 @@ ICOMMONS_REST_API_HOST = SECURE_SETTINGS.get('icommons_rest_api_host')
 # Default to False, but if testing locally, set to True
 ICOMMONS_REST_API_SKIP_CERT_VERIFICATION = SECURE_SETTINGS.get(
     'icommons_rest_api_skip_cert_verification', False)
+
+WATCHMAN_TOKENS = SECURE_SETTINGS['watchman_token']
+WATCHMAN_TOKEN_NAME = SECURE_SETTINGS['watchman_token_name']
+WATCHMAN_CHECKS = (
+    'watchman.checks.databases',
+    'watchman.checks.caches',
+)
+

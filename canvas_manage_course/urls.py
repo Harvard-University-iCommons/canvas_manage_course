@@ -3,6 +3,8 @@ from django.conf import settings
 
 from canvas_manage_course import views
 from icommons_ui import views as icommons_ui_views
+import watchman.views
+
 
 urlpatterns = [
 
@@ -18,6 +20,10 @@ urlpatterns = [
     path('manage_sections/', include(('manage_sections.urls','manage_sections'), namespace='manage_sections')),
     path('not_authorized', icommons_ui_views.not_authorized, name='not_authorized'),
     path('tool_config', views.tool_config, name='tool_config'),
+
+    path('w/', include('watchman.urls')),
+    re_path(r'^status/?$', watchman.views.bare_status),
+
 ]
 
 # Import the debug toolbar and handle any namespace issues that may occur
