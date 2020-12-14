@@ -150,8 +150,9 @@ def create_section_form(request):
         logger.debug('total_students_size={}'.format(total_students_size))
 
 
-        # If the size > 300, due to performnace issues for larger courses,  do not fetch enrollments
-        if total_students_size > 300:
+        # If the size > 250, due to performance issues for larger courses,  do not fetch enrollments
+        # Changing this from 300 to 250 due to some timeouts noticed in Dec 2020
+        if total_students_size > 250:
             canvas_sections = canvas_api_helper_sections.get_sections(canvas_course_id, fetch_enrollments=False)
         else:
             canvas_sections = canvas_api_helper_sections.get_sections(canvas_course_id, fetch_enrollments=True)
