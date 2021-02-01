@@ -2,6 +2,7 @@
 
 bind = '0.0.0.0:8000'
 workers = 3
+timeout = 50
 
 # These log settings assume that gunicorn log config will be included in the django base.py logging configuration
 accesslog = '-'
