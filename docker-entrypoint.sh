@@ -5,4 +5,4 @@
 
 # Start Gunicorn processes
 echo Starting Gunicorn.
-exec ./python_venv/bin/gunicorn -c canvas_manage_course/settings/gunicorn_conf.py canvas_manage_course.wsgi:application
+exec ./python_venv/bin/gunicorn -c canvas_manage_course/settings/gunicorn_config.py canvas_manage_course.wsgi:application
