@@ -1,1 +1,1 @@
-web: gunicorn -c gunicorn.py canvas_manage_course.wsgi:application
+web: gunicorn -c gunicorn_conf.py canvas_manage_course.wsgi:application
