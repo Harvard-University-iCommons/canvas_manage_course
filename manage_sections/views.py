@@ -329,13 +329,24 @@ def remove_section(request, section_id):
             status=422
         )
 
-    section = canvas_api_helper_sections.delete_section(canvas_course_id, section_id)
-    if not section:
-        message = "Failed to remove section %s from course %s" % (section_id, canvas_course_id)
-        logger.error(message)
-        return JsonResponse({'message': message}, status=500)
+    enrollments = canvas_api_enrollments.list_enrollments_sections(SDK_CONTEXT, section_id).json()
+    if len(enrollments) == 0:
+        section = canvas_api_helper_sections.delete_section(canvas_course_id, section_id)
+        return JsonResponse(section)
+    else:
+        # delete enrollments, then delete section
+        for enrollment in enrollments:
+            user_section_id = enrollment.get('id', '')
+            if not user_section_id:
+                return JsonResponse({'message': "Invalid user_section_id %s" % user_section_id}, status=500)
+            
+            canvas_api_helper_enrollments.conclude_enrollment(
+                SDK_CONTEXT, canvas_course_id, user_section_id
+            )
+            logger.debug(f'Successful deletion of user {user_section_id} from course {canvas_course_id}')
+        section = canvas_api_helper_sections.delete_section(canvas_course_id, section_id)
 
-    return JsonResponse(section)
+        return JsonResponse(section)
 
 
 @login_required
