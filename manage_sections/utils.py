@@ -1,9 +1,19 @@
 import re
-from canvas_sdk.methods import sections
+from canvas_sdk.methods import (
+    sections,
+    enrollments as canvas_api_enrollments
+)
+from canvas_sdk.exceptions import CanvasAPIError
 from django.conf import settings
 from django.http import HttpResponse
+
 from icommons_common.canvas_utils import SessionInactivityExpirationRC
 from icommons_common.models import CourseInstance
+from icommons_common.canvas_api.helpers import (
+    courses as canvas_api_helper_courses,
+    enrollments as canvas_api_helper_enrollments,
+    sections as canvas_api_helper_sections
+)
 
 from django.shortcuts import render
 from django.utils.safestring import mark_safe
@@ -113,3 +123,44 @@ def validate_course_id(section_canvas_course_id, request_canvas_course_id):
     if section_canvas_course_id == request_canvas_course_id:
         return True
     return False
+
+
+def delete_enrollments(enrollments, course_id):
+    """
+    Delete a list of enrollments via Canvas API.
+    Clears cache of section, enrollment, and
+    course data.
+    
+    :param enrollments: a list of enrollments
+    :type enrollments: List[str]
+    :return: Tuple(List[str], Boolean)
+    """
+    is_empty = False
+    deleted_enrollments = []
+    
+    if not enrollments:
+        is_empty = True
+        return (deleted_enrollments, is_empty)
+
+    for enrollment in enrollments:
+        user_section_id = enrollment.get('id', '')
+        if not user_section_id:
+            return (deleted_enrollments, is_empty)
+        try:
+            response = canvas_api_enrollments.conclude_enrollment(
+                SDK_CONTEXT, course_id, user_section_id, 'delete'
+            )
+        except CanvasAPIError:
+            canvas_api_helper_sections.delete_cache(course_id)
+            return (delete_enrollments, is_empty)
+        
+        deleted_enrollments.append(response)
+    
+    is_empty = True
+    
+    canvas_api_helper_courses.delete_cache(canvas_course_id=course_id)
+    canvas_api_helper_enrollments.delete_cache(course_id)
+    canvas_api_helper_sections.delete_cache(course_id)
+    canvas_api_helper_sections.delete_section_cache(user_section_id)
+    
+    return (deleted_enrollments, is_empty)
