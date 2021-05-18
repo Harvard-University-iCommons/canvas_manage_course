@@ -130,10 +130,6 @@ def delete_enrollments(enrollments, course_id):
     Delete a list of enrollments via Canvas API.
     Clears cache of section, enrollment, and
     course data.
-    
-    :param enrollments: a list of enrollments
-    :type enrollments: List[str]
-    :return: Tuple(List[str], Boolean)
     """
     is_empty = False
     deleted_enrollments = []
