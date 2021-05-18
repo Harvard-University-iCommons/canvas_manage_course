@@ -60,24 +60,29 @@
                 <p class="text-danger">We've encountered an error creating the requested section. Please try again.</p>
             </div>
         </form>
-
-        <div class="modal fade" id="confirmDelSection" tabindex="-1" role="dialog" aria-labelledby="confirmDelSectionLabel" aria-hidden="true">
-          <div class="modal-dialog">
-            <div class="modal-content">
-              <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-                <h4 class="modal-title" id="confirmDelSectionLabel">Confirm Delete</h4>
-              </div>
-              <div class="modal-body">
-                Permanently delete this section?
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary" id="btnConfirmDelSection">Yes, Delete</button>
-              </div>
+        
+        {% for section in sections %}
+            <div class="modal fade" id="confirmDelSection" tabindex="-1" role="dialog" aria-labelledby="confirmDelSectionLabel" data-id= "{{ section.id }}" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title" id="confirmDelSectionLabel">Confirm Delete</h4>
+                </div>
+                <div class="modal-body">
+                    Permanently delete this section?
+                    {% if section.enrollment_count > 0 %}
+                        Note: there are currently {{ section.enrollment_count }} enrollments in this section.
+                    {% endif %}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="btnConfirmDelSection">Yes, Delete</button>
+                </div>
+                </div>
             </div>
-          </div>
-        </div>
+            </div>
+        {% endfor %}
     </div>
 
 </div>
@@ -383,6 +388,10 @@ $(document).ready(function(){
                 $('#formEditErr').removeClass('showSecton').addClass('hide');
     }
 
+    // function enrollmentAlert(element) {
+    //     if element
+    // }
+
 
     function editSection(sectionName, url, sectionCount){
         var formData = {"section_name_input" : sectionName, "enrollment_count" : sectionCount};
@@ -428,8 +437,10 @@ $(document).ready(function(){
     $("#sectionsMenu").on('click', '.remove_data', function(e) {
         var url = this.href;
         var userLine = $(this).closest("li");
+        var id = userLine[0].id
+        var modalSelector = '[data-id = "' + id + '"]'
 
-        $('#confirmDelSection').modal({ keyboard:false })
+        $(modalSelector).modal({ keyboard:false })
         .one('click', '#btnConfirmDelSection', function() {
             $.ajax({
                 url: url,
@@ -452,7 +463,7 @@ $(document).ready(function(){
                 }
             })
             .always(function() {
-                $('#confirmDelSection').modal('hide');
+                $(modalSelector).modal('hide');
             });
         });
         e.preventDefault();
