@@ -150,6 +150,7 @@ def delete_enrollments(enrollments, course_id):
             canvas_api_helper_sections.delete_cache(course_id)
             return (delete_enrollments, is_empty)
         
+        canvas_api_helper_sections.delete_section_cache(user_section_id)
         deleted_enrollments.append(response)
     
     is_empty = True
@@ -157,6 +158,5 @@ def delete_enrollments(enrollments, course_id):
     canvas_api_helper_courses.delete_cache(canvas_course_id=course_id)
     canvas_api_helper_enrollments.delete_cache(course_id)
     canvas_api_helper_sections.delete_cache(course_id)
-    canvas_api_helper_sections.delete_section_cache(user_section_id)
     
     return (deleted_enrollments, is_empty)
