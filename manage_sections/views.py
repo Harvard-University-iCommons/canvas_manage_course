@@ -331,19 +331,16 @@ def remove_section(request, section_id):
         )
 
     enrollments = canvas_api_enrollments.list_enrollments_sections(SDK_CONTEXT, section_id).json()
-    if len(enrollments) == 0:
-        section = canvas_api_helper_sections.delete_section(canvas_course_id, section_id)
-        return JsonResponse(section)
-    
-    # delete enrollments, then delete section
-    responses, is_empty = delete_enrollments(enrollments, canvas_course_id)
-    if not is_empty:
-        return JsonResponse({
-            'message': f'Issue clearing enrollments prior to deletion. Unable to delete section {section_id} from course {canvas_course_id}'},
-            status=500
-        )
-    section = canvas_api_helper_sections.delete_section(canvas_course_id, section_id)
+    if len(enrollments) > 0:
+        # delete enrollments before deleting section
+        responses, is_empty = delete_enrollments(enrollments, canvas_course_id)
+        if not is_empty:
+            return JsonResponse({
+                'message': f'Issue clearing enrollments prior to deletion. Unable to delete section {section_id} from course {canvas_course_id}'},
+                status=500
+            )
 
+    section = canvas_api_helper_sections.delete_section(canvas_course_id, section_id)
     return JsonResponse(section)
 
 
