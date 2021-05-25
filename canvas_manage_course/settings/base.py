@@ -13,7 +13,7 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import logging
 import os
-from icommons_common.logging import JSON_LOG_FORMAT, ContextFilter
+from icommons_common.logging import JSON_LOG_FORMAT
 
 from django.urls import reverse_lazy
 
@@ -187,7 +187,6 @@ STATIC_URL = '/static/'
 STATIC_ROOT = os.path.normpath(os.path.join(BASE_DIR, 'http_static'))
 
 _DEFAULT_LOG_LEVEL = SECURE_SETTINGS.get('log_level', logging.DEBUG)
-_LOG_ROOT = SECURE_SETTINGS.get('log_root', '')  # Default to current directory
 
 
 # Turn off default Django logging
@@ -226,7 +225,6 @@ LOGGING = {
     },
 
     'handlers': {
-        # Log to a file by default that can be rotated by logrotate
         'default': {
             'class': 'splunk_handler.SplunkHandler',
             'formatter': 'json',
@@ -237,7 +235,6 @@ LOGGING = {
             'index': 'soc-isites',
             'token': SECURE_SETTINGS['splunk_token'],
             'level': _DEFAULT_LOG_LEVEL,
-            # 'filename': os.path.join(_LOG_ROOT, 'django-canvas_manage_course.log'),
             'filters': ['context'],
         },
         'gunicorn': {

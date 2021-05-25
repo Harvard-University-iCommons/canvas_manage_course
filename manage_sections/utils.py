@@ -1,12 +1,13 @@
+import logging
 import re
+
+from django.conf import settings
+
 from canvas_sdk.methods import (
     sections,
     enrollments as canvas_api_enrollments
 )
 from canvas_sdk.exceptions import CanvasAPIError
-from django.conf import settings
-from django.http import HttpResponse
-
 from icommons_common.canvas_utils import SessionInactivityExpirationRC
 from icommons_common.models import CourseInstance
 from icommons_common.canvas_api.helpers import (
@@ -15,8 +16,8 @@ from icommons_common.canvas_api.helpers import (
     sections as canvas_api_helper_sections
 )
 
-from django.shortcuts import render
-from django.utils.safestring import mark_safe
+
+logger = logging.getLogger(__name__)
 
 # Set up the request context that will be used for canvas API calls
 SDK_CONTEXT = SessionInactivityExpirationRC(**settings.CANVAS_SDK_SETTINGS)
@@ -130,6 +131,11 @@ def delete_enrollments(enrollments, course_id):
     Delete a list of enrollments via Canvas API.
     Clears cache of section, enrollment, and
     course data.
+
+    Returns a tuple `(deleted_enrollments, is_empty)`:
+    - `deleted_enrollments` is a list of successful Canvas SDK responses
+    - `is_empty` is a boolean indicating to the caller whether the section
+    was successfully emptied (or was already empty)
     """
     is_empty = False
     deleted_enrollments = []
@@ -141,14 +147,31 @@ def delete_enrollments(enrollments, course_id):
     for enrollment in enrollments:
         user_section_id = enrollment.get('id', '')
         if not user_section_id:
+            logger.error(
+                f'Unexpected error while concluding enrollment for '
+                f'course_id:{course_id}; no user_section_id available '
+                f'for enrollment {enrollment}',
+                extra={
+                    'deleted_enrollments': deleted_enrollments,
+                    'enrollment_causing_error': enrollment,
+                    'enrollments_requested': enrollments,
+                }
+            )
             return (deleted_enrollments, is_empty)
+        response = None
         try:
             response = canvas_api_enrollments.conclude_enrollment(
                 SDK_CONTEXT, course_id, user_section_id, 'delete'
             )
-        except CanvasAPIError:
+        except CanvasAPIError as e:
+            logger.exception(
+                f'Unexpected error while concluding enrollment for '
+                f'user_section_id:{user_section_id}, '
+                f'course_id:{course_id}',
+                extra={'canvas_api_error': getattr(e, 'error_json', None)},
+            )
             canvas_api_helper_sections.delete_cache(course_id)
-            return (delete_enrollments, is_empty)
+            return (deleted_enrollments, is_empty)
         
         canvas_api_helper_sections.delete_section_cache(user_section_id)
         deleted_enrollments.append(response)
