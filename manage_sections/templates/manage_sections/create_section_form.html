@@ -425,7 +425,7 @@ $(document).ready(function(){
     }
 
     function addEnrollmentCountText(enrollmentCount) {
-        modalBody = $(".modal-body")
+        var modalBody = $(".modal-body");
         if (enrollmentCount > 0) {
             modalBody.text(
                 `Permanently delete this section? There are currently ${enrollmentCount} enrollments in this section.`
@@ -435,41 +435,46 @@ $(document).ready(function(){
         }
     }
 
-    $("#sectionsMenu").on('click', '.remove_data', function(e) {
-        var url = this.href;
-        var userLine = $(this).closest("li");
-        var enrollmentCount = parseInt(userLine.find(".sectionCount").text());
+    function onClickRemoveSection(e) {
+        e.preventDefault(); // do not allow browser to load the href URL
+        const currentSectionRow = $(this).closest('li');
+        $('#btnConfirmDelSection').data({url: this.href, sectionId: currentSectionRow.data('sectionId')});
+        const enrollmentCount = parseInt(currentSectionRow.find(".sectionCount").text());
+        addEnrollmentCountText(enrollmentCount);
+        $('#confirmDelSection').modal({ keyboard:false }).show();
+    }
 
-        addEnrollmentCountText(enrollmentCount)
-        $('#confirmDelSection').modal({ keyboard:false }) 
-        .one('click', '#btnConfirmDelSection', function() {
-            $.ajax({
-                url: url,
-                type : "POST",
-                success : function(json) {
-                    $("#message").hide();
-                    userLine.fadeOut('slow', function(){
-                        userLine.remove();
-                    });
-                    show_if_none();
-                },
-                error : function(xhr) {
-                    $("#message").addClass('alert alert-danger').show();
-                    if (xhr.status ==422){
-                         $("#message").text(xhr.responseText);
-                    }
-                    else{
-                        $("#message").text("Error: Section has not been deleted ");
-                    }
+    function onClickConfirmRemoveSection(e) {
+        const removeUrl = $(this).data('url');
+        const sectionId = $(this).data('sectionId');
+        const sectionRow = $('[data-section-id="' + sectionId + '"]');
+        $.ajax({
+            url: removeUrl,
+            type : "POST",
+            success : function(json) {
+                $("#message").hide();
+                sectionRow.fadeOut('slow', function() {
+                    sectionRow.remove();
+                });
+                show_if_none();
+            },
+            error : function(xhr) {
+                $("#message").addClass('alert alert-danger').show();
+                if (xhr.status == 422) {
+                        $("#message").text(xhr.responseText);
                 }
-            })
-            .always(function() {
-                $('#confirmDelSection').modal('hide');
-            });
+                else {
+                    $("#message").text("Error: Section has not been deleted ");
+                }
+            }
+        })
+        .always(function() {
+            $('#confirmDelSection').modal('hide');
         });
-        e.preventDefault();
-    });
+    }
 
+    $("#sectionsMenu").on('click', '.remove_data', onClickRemoveSection);
+    $("#btnConfirmDelSection").on('click', onClickConfirmRemoveSection);
 });
 </script>
 {% endblock %}
