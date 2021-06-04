@@ -22,3 +22,6 @@ key.pem
 .envrc
 secure.*
 parameters.*
+.vscode/
+# for pyenv local
+.python-version

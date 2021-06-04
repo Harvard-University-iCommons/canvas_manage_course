@@ -4,7 +4,7 @@ This project provides a collection of utilies used to administer Harvard Academi
 
 ## Deploying
 
-Uses the tlt-ops `django_deploy` playbook.
+Uses the [standard Django ECS Fargate deployment process](https://wiki.harvard.edu/confluence/display/k459/Standard+Django+ECS+Deployment+Process).
 
 ## Running locally
 
