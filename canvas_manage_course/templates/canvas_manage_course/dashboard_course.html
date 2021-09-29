@@ -28,106 +28,106 @@
 
   {% if allowed.class_roster %}
     <div class="card card_color4">
-      <a href="{% url 'class_roster:index' %}" id="course-roster">
-        <div class="card-body">
-          <div class="card-header card-header_color4">
-          </div>
-          <div class="card-content card-content_normal">
-            <h2 class="card-content-title ellipsis" title="Class Roster">
-              <span class="content-link">
-                Class Roster
-              </span>
-            </h2>
-            <p title="Class Roster">
-              View your class roster(s) in my.harvard
-            </p>
-          </div>
+      <div class="card-body">
+        <div class="card-header card-header_color4">
         </div>
-      </a>
+        <a href="{% url 'class_roster:index' %}" id="course-roster">
+        <div class="card-content card-content_normal">
+          <h2 class="card-content-title ellipsis" title="Class Roster">
+            <span class="content-link">
+              Class Roster
+            </span>
+          </h2>
+          <p title="Class Roster">
+            View your class roster(s) in my.harvard
+          </p>
+        </div>
+        </a>
+      </div>
     </div>
   {% endif %}
 
   {% if allowed.manage_people %}
     <div class="card card_color1">
-      <a href="{% url 'manage_people:user_form' %}" id="manage-people">
-        <div class="card-body">
-          <div class="card-header card-header_color1">
-          </div>
-          <div class="card-content card-content_normal">
-            <h2 class="card-content-title ellipsis" title="Manage People">
-              <span class="content-link">
-                Manage People
-              </span>
-            </h2>
-            <p title="Manage People">
-              Add or remove people from your course
-            </p>
-          </div>
+      <div class="card-body">
+        <div class="card-header card-header_color1">
         </div>
-      </a>
+        <a href="{% url 'manage_people:user_form' %}" id="manage-people">
+        <div class="card-content card-content_normal">
+          <h2 class="card-content-title ellipsis" title="Manage People">
+            <span class="content-link">
+              Manage People
+            </span>
+          </h2>
+          <p title="Manage People">
+            Add or remove people from your course
+          </p>
+        </div>
+        </a>
+      </div>
     </div>
   {% endif %}
 
   {% if allowed.manage_sections %}
     <div class="card card_color2">
-      <a href="{% url 'manage_sections:create_section_form' %}" id="manage-sections">
-        <div class="card-body">
-          <div class="card-header card-header_color2">
-          </div>
-          <div class="card-content card-content_normal">
-            <h2 class="card-content-title ellipsis" title="Manage Sections">
-              <span class="content-link">
-                Manage Sections
-              </span>
-            </h2>
-            <p title="Manage Sections">
-              Create, edit, and delete course sections
-            </p>
-          </div>
+      <div class="card-body">
+        <div class="card-header card-header_color2">
         </div>
-      </a>
+        <a href="{% url 'manage_sections:create_section_form' %}" id="manage-sections">
+        <div class="card-content card-content_normal">
+          <h2 class="card-content-title ellipsis" title="Manage Sections">
+            <span class="content-link">
+              Manage Sections
+            </span>
+          </h2>
+          <p title="Manage Sections">
+            Create, edit, and delete course sections
+          </p>
+        </div>
+        </a>
+      </div>
     </div>
   {% endif %}
 
   {% if allowed.custom_fas_card_1 %}
     <div class="card card_color5">
-      <a href="https://atg.fas.harvard.edu/adding-apps-to-canvas" id="fas-external" target="_blank">
-        <div class="card-body">
-          <div class="card-header card-header_color5">
-          </div>
-          <div class="card-content card-content_normal">
-            <h2 class="card-content-title ellipsis" title="Add apps to Canvas">
-              <span class="content-link">
-                Add apps to Canvas
-              </span>
-            </h2>
-            <p title="Add apps to Canvas">
-              Explore and activate apps that can add features to your Canvas site
-            </p>
-          </div>
+      <div class="card-body">
+        <div class="card-header card-header_color5">
         </div>
-      </a>
+        <a href="https://atg.fas.harvard.edu/adding-apps-to-canvas" id="fas-external" target="_blank">
+        <div class="card-content card-content_normal">
+          <h2 class="card-content-title ellipsis" title="Add apps to Canvas">
+            <span class="content-link">
+              Add apps to Canvas
+            </span>
+          </h2>
+          <p title="Add apps to Canvas">
+            Explore and activate apps that can add features to your Canvas site
+          </p>
+        </div>
+        </a>
+      </div>
     </div>
   {% endif %}
   
   {% if allowed.fa_info %}
     <div class="card card_color6">
-      <a href="{% url 'fa_info:index' %}" id="fa-info" target="_blank">
-        <div class="card-body">
-          <div class="card-header card-header_color6">
-          </div>
-          <div class="card-content card-content_normal">
-            <h2 class="card-content-title ellipsis" title="FA Info Link">
-              <span class="content-link">
-                Final Assessment Form
-              </span>
-            </h2>
-            <p title="FA Info link">
-              Go to this course's FAINFO page.
-            </p>
-          </div>
+      <div class="card-body">
+        <div class="card-header card-header_color6">
         </div>
-      </a>
+        <a href="{% url 'fa_info:index' %}" id="fa-info" target="_blank">
+        <div class="card-content card-content_normal">
+          <h2 class="card-content-title ellipsis" title="FA Info Link">
+            <span class="content-link">
+              Final Assessment Form
+            </span>
+          </h2>
+          <p title="FA Info link">
+            Go to this course's FAINFO page.
+          </p>
+        </div>
+        </a>
+      </div>
     </div>
   {% endif %}
 {% endif %}
