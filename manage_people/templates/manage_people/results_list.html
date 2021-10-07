@@ -68,7 +68,12 @@
                       data-role="{{ role.role }}"
                       data-role-id="{{ role.role_id }}"
                       data-role-label="{{ role.canvas_role_label }}">
-                    {{ person.email_address }} <span class="label">{{ person.badge_label_name }}</span>
+                    {{ person.email_address }}
+                    {% if person.badge_label_name != 'XID' %}
+                        <span class="label">{{ person.badge_label_name }}</span>
+                    {% else %}
+                        <span class="label">HKL</span>
+                    {% endif %}
                     <span class="float-right text-strong">
                       Enrolled as a {{ role.canvas_role_label }}
                     </span>
@@ -108,7 +113,11 @@
                             {% endif %}
                             <label class="plain" for="record-{{ forloop.counter }}">
                                 {{ result.name_first }} {{ result.name_last }} ({{ result.email_address }})
-                                <span class="label">{{ result.badge_label_name }}</span>
+                                {% if result.badge_label_name != 'XID' %}
+                                    <span class="label">{{ result.badge_label_name }}</span>
+                                {% else %}
+                                    <span class="label">HKL</span>
+                                {% endif %}
                             </label>
                             
                             <div class="float-right">
