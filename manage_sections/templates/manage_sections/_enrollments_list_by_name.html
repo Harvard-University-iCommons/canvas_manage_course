@@ -51,7 +51,11 @@
             {% endif %}
             <span class="studentRole">{{enrollee.role_label}}</span>
             <span class="studentName">{{enrollee.user.name}}</span>
-            <span class="label label-{{enrollee.badge_label_name|lower}}">{{enrollee.badge_label_name|upper}}</span>
+            {% if enrollee.badge_label_name != 'XID' %}
+                <span class="label label-{{enrollee.badge_label_name|lower}}">{{enrollee.badge_label_name|upper}}</span>
+            {% else %}
+                <span class="label label-{{enrollee.badge_label_name|lower}}">HKL</span>
+            {% endif %}
         </li>
     {% endfor %}
 {% endfor %}
