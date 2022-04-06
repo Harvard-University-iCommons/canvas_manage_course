@@ -1,14 +1,14 @@
 boto3==1.9.210
-Django==2.2.23
-cx-Oracle==7.2.2
+Django==2.2.27
+cx-Oracle==8.3.0
 django-allow-cidr==0.3.1
 django-cached-authentication-middleware==0.2.2
 django-redis-cache==2.0.0
 hiredis==1.0.0
 kitchen==1.2.4
 redis==3.3.8
-psycopg2==2.7.3.2
-requests==2.22.0
+psycopg2==2.8.6
+requests==2.27.1
 django-storages==1.7.1
 django_rq==2.1.0
 django-watchman==1.2.0
@@ -16,10 +16,10 @@ splunk_handler==2.2.0
 python-json-logger==0.1.11
 
 
-git+ssh://git@github.com/penzance/canvas_python_sdk.git@v1.0#egg=canvas-python-sdk==1.0
-git+ssh://git@github.com/Harvard-University-iCommons/django-auth-lti.git@v2.0.1#egg=django-auth-lti==2.0.1
+git+ssh://git@github.com/penzance/canvas_python_sdk.git@v1.2.0#egg=canvas-python-sdk==1.2.0
+git+ssh://git@github.com/Harvard-University-iCommons/django-auth-lti.git@v2.0.4#egg=django-auth-lti==2.0.4
 
-git+ssh://git@github.com/Harvard-University-iCommons/django-icommons-common.git@v2.3#egg=django-icommons-common==2.3
+git+ssh://git@github.com/Harvard-University-iCommons/django-icommons-common.git@v2.5#egg=django-icommons-common==2.5
 git+ssh://git@github.com/Harvard-University-iCommons/django-icommons-ui.git@v2.0#egg=django-icommons-ui==2.0
 git+ssh://git@github.com/Harvard-University-iCommons/django-canvas-lti-school-permissions@v1.0#egg=django-canvas-lti-school-permissions==1.0
-git+ssh://git@github.com/Harvard-University-iCommons/django-ssm-parameter-store.git@v0.3#egg=django-ssm-parameter-store==0.3
+git+ssh://git@github.com/Harvard-University-iCommons/django-ssm-parameter-store.git@v0.6#egg=django-ssm-parameter-store==0.6
