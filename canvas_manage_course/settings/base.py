@@ -256,6 +256,16 @@ LOGGING = {
             'filters': ['require_debug_true'],
         },
     },
+    # This is the default logger for any apps or libraries that use the logger
+    # package, but are not represented in the `loggers` dict below.  A level
+    # must be set and handlers defined.  Setting this logger is equivalent to
+    # setting and empty string logger in the loggers dict below, but the separation
+    # here is a bit more explicit.  See link for more details:
+    # https://docs.python.org/3.7/library/logging.config.html#dictionary-schema-details
+    'root': {
+        'level': logging.INFO,
+        'handlers': ['default', 'console'],
+    },
     'loggers': {
         'gunicorn': {
             'handlers': ['gunicorn', 'console'],
@@ -367,4 +377,3 @@ WATCHMAN_CHECKS = (
     'watchman.checks.databases',
     'watchman.checks.caches',
 )
-
