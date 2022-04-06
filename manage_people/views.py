@@ -434,6 +434,7 @@ def get_enrollments_added_through_tool(sis_course_id):
              (Q(source__isnull=True) |
               ~(Q(source__icontains='feed') | Q(source='xreg_map'))))
     for model in COURSE_MEMBER_CLASSES:
+        ids = None
         try:
             ids = list(model.objects.filter(query).values_list('user_id',
                                                                'role_id'))
@@ -443,15 +444,20 @@ def get_enrollments_added_through_tool(sis_course_id):
         else:
             logger.debug('eligible %s members = %s',
                          model._meta.db_table, ids)
-        eligible_ids.update(ids)
+        if ids:
+            eligible_ids.update(ids)
     logger.debug('full set of eligible user/role ids: %s', eligible_ids)
 
     # get a mapping of canvas role_id to UserRole ids
     canvas_role_to_user_role = get_canvas_to_user_role_id_map()
 
+    logger.debug(f'canvas_role_to_user_role: {canvas_role_to_user_role}')
+
     # get the updated (or cached) Canvas role list so we can show the right
     # Canvas role labels for the enrollments
     canvas_roles_by_role_id = get_roles_for_account_id('self')
+
+    logger.debug(f'canvas_roles_by_role_id: {canvas_roles_by_role_id}')
 
     # Further filter users to remove users who may not yet be be in canvas.
     # For the moment we are treating COURSEMANAGER as the single source of truth
@@ -462,6 +468,7 @@ def get_enrollments_added_through_tool(sis_course_id):
 
     filtered_enrollments = []
     for enrollment in canvas_enrollments:
+        logger.debug(f'looking at canvas enrollment {enrollment}')
         if enrollment.get('user'):
             # If sis_user_id exists, use it; if not, use login_id; if neither
             # exist then log it and do not include
@@ -469,10 +476,11 @@ def get_enrollments_added_through_tool(sis_course_id):
                            enrollment['user'].get('login_id'))
             user_role_id = canvas_role_to_user_role[enrollment['role_id']]
             if user_id and (user_id, user_role_id) in eligible_ids:
+                logger.debug(f'looking up enrollment {user_id} role_id {enrollment.get("role_id")} in canvas_roles_by_role_id')
                 enrollment.update({
                     'user_role_id': user_role_id,
                     'canvas_role_label': canvas_roles_by_role_id.get(
-                        enrollment['role_id'])['label']})
+                        enrollment['role_id'], {}).get('label', f'Unknown role {enrollment["role_id"]}')})
                 filtered_enrollments.append(enrollment)
                 logger.debug('MP filter out registrar fed: Allowing (%s, %s)',
                              user_id, user_role_id)
