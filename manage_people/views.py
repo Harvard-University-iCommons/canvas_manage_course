@@ -457,8 +457,6 @@ def get_enrollments_added_through_tool(sis_course_id):
     # Canvas role labels for the enrollments
     canvas_roles_by_role_id = get_roles_for_account_id('self')
 
-    logger.debug(f'canvas_roles_by_role_id: {canvas_roles_by_role_id}')
-
     # Further filter users to remove users who may not yet be be in canvas.
     # For the moment we are treating COURSEMANAGER as the single source of truth
     # for who should be enrolled in a course, but we also need to get Canvas
