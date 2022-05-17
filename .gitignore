@@ -25,3 +25,7 @@ parameters.*
 .vscode/
 # for pyenv local
 .python-version
+
+# files generated via `runserver_plus` CLI command
+*.crt
+*.key
