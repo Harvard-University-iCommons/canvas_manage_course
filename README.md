@@ -23,15 +23,15 @@ Particular difficulties are sometimes found when installing the following direct
 
 Run, and ensure the ENV environment var will be able to point the django-ssm-parameter-store library to appropriate SSM params (either locally, via a file, or on SSM, in which case ensure your local default AWS profile is authenticated to the correct environment and that you're on VPN so you can connect to non-local databases and caches).
 
-Note that the django-sslserver default server and port is 127.0.0.1:8000. If your LTI configuration was set up with a different port, e.g. 8443, you'll need to specify it as in the snippet below.
+Note that the runserver_plus default server and port is 127.0.0.1:8000. If your LTI configuration was set up with a different port, e.g. 8443, you'll need to specify it as in the snippet below.
 
 ```sh
 export ENV=dev
 export DJANGO_SETTINGS_MODULE=canvas_manage_course.settings.local
 # ensure you're connected to VPN
-python manage.py runsslserver
+python manage.py runserver_plus --cert-file cert.crt
 # to use a different port:
-# python manage.py runsslserver 127.0.0.1:8443
+python manage.py runserver_plus 127.0.0.1:8443 --cert-file cert.crt
 ```
 
 Access at https://local.tlt.harvard.edu:(port)/.
