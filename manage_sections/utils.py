@@ -10,7 +10,7 @@ from canvas_sdk.methods import (
 from canvas_sdk.exceptions import CanvasAPIError
 from icommons_common.canvas_utils import SessionInactivityExpirationRC
 from icommons_common.models import CourseInstance
-from icommons_common.canvas_api.helpers import (
+from canvas_sdk.canvas_api.helpers import (
     courses as canvas_api_helper_courses,
     enrollments as canvas_api_helper_enrollments,
     sections as canvas_api_helper_sections
@@ -120,7 +120,7 @@ def validate_course_id(section_canvas_course_id, request_canvas_course_id):
     # check and convert the canvas_id from request to an int
     if not isinstance(request_canvas_course_id, int):
         request_canvas_course_id = int(request_canvas_course_id)
-        
+
     if section_canvas_course_id == request_canvas_course_id:
         return True
     return False
@@ -139,7 +139,7 @@ def delete_enrollments(enrollments, course_id):
     """
     is_empty = False
     deleted_enrollments = []
-    
+
     if not enrollments:
         is_empty = True
         return (deleted_enrollments, is_empty)
@@ -172,14 +172,14 @@ def delete_enrollments(enrollments, course_id):
             )
             canvas_api_helper_sections.delete_cache(course_id)
             return (deleted_enrollments, is_empty)
-        
+
         canvas_api_helper_sections.delete_section_cache(user_section_id)
         deleted_enrollments.append(response)
-    
+
     is_empty = True
-    
+
     canvas_api_helper_courses.delete_cache(canvas_course_id=course_id)
     canvas_api_helper_enrollments.delete_cache(course_id)
     canvas_api_helper_sections.delete_cache(course_id)
-    
+
     return (deleted_enrollments, is_empty)

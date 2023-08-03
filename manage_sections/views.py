@@ -14,7 +14,7 @@ from canvas_sdk.exceptions import CanvasAPIError
 
 from icommons_common.models import Person
 from icommons_common.monitor.views import BaseMonitorResponseView
-from icommons_common.canvas_api.helpers import (
+from canvas_sdk.canvas_api.helpers import (
     courses as canvas_api_helper_courses,
     enrollments as canvas_api_helper_enrollments,
     sections as canvas_api_helper_sections
@@ -150,23 +150,19 @@ def create_section_form(request):
 
         logger.debug('total_students_size={}'.format(total_students_size))
 
+        canvas_sections = canvas_api_helper_sections.get_sections(canvas_course_id, fetch_enrollments=False)
 
-        # If the size > 250, due to performance issues for larger courses,  do not fetch enrollments
-        # Changing this from 300 to 250 due to some timeouts noticed in Dec 2020
-        if total_students_size > 250:
-            canvas_sections = canvas_api_helper_sections.get_sections(canvas_course_id, fetch_enrollments=False)
-        else:
-            canvas_sections = canvas_api_helper_sections.get_sections(canvas_course_id, fetch_enrollments=True)
         if not canvas_sections:
             logger.error(
                 'No sections found for Canvas course %s' % canvas_course_id
             )
             return render(request, 'manage_sections/error.html', status=500)
         for section in canvas_sections:
-            if 'enrollments' in section:
-                section['enrollment_count'] = len(_filter_student_view_enrollments(section['enrollments']))
+            if 'total_students' in section:
+                section['enrollment_count'] = section['total_students']
             else:
                 section['enrollment_count'] = 'n/a'
+
             sis_section_id = section.get('sis_section_id')
             if sis_section_id == course_instance_id or sis_section_id == "ci:%s" % course_instance_id:
                 # this matches the current course instance id and placed first on the list
