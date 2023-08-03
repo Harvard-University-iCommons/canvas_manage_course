@@ -4,7 +4,7 @@
         {% if section.enrollment_count == 'n/a' %}
             (enrollee count not available)
         {% else %}
-            ({{section.enrollment_count}} users)
+            ({{section.enrollment_count}} student{{section.enrollment_count|pluralize}})
         {% endif %}
     </a>
 </li>

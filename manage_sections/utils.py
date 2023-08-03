@@ -10,7 +10,7 @@ from canvas_sdk.methods import (
 from canvas_sdk.exceptions import CanvasAPIError
 from icommons_common.canvas_utils import SessionInactivityExpirationRC
 from icommons_common.models import CourseInstance
-from canvas_sdk.canvas_api.helpers import (
+from canvas_api.helpers import (
     courses as canvas_api_helper_courses,
     enrollments as canvas_api_helper_enrollments,
     sections as canvas_api_helper_sections
