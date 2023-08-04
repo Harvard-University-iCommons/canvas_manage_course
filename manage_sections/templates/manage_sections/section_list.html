@@ -13,7 +13,7 @@
         {% if section.enrollment_count == 'n/a' %}
             (enrollee count not available)
         {% else %}
-            (<span class="sectionCount">{{section.enrollment_count}}</span> student{{ section.enrollment_count|pluralize }})
+            (<span class="sectionCount">{{section.enrollment_count}}</span> student{{ section.enrollment_count|pluralize }}<span style="font-size: larger;">*</span>)
         {% endif %}
     </a>
     <div class="editMenu">

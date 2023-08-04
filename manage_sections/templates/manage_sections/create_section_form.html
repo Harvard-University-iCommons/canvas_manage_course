@@ -23,7 +23,7 @@
     </div>
 
     <div class="row row-lti col-md-8">
-        
+
         <h3>Registrar Enrollment(s):</h3>
         <p><small>
           These sections are fed from the Registrar's office.
@@ -36,31 +36,32 @@
         <button id="addSection" class="btn btn-primary"><i class="fa fa-plus"></i> Add A Section</button>
         <h3>Section(s):</h3>
         <ul id="sectionsMenu" class="listNav list-group list-unstyled">
-             
+
             {%  for section in sections %}
                 {% include "manage_sections/section_list.html" with data=section %}
-            {% endfor %}    
+            {% endfor %}
         </ul>
-        
+        <p><span style="font-size: larger;">*</span> does not include teaching staff enrollments</p>
+
         <form class="hide" action="{% url 'manage_sections:create_section' %}" method="post" id="formId">
             <label for="newSectionName" class="sr-only">Enter a section name</label>
-            <input type="text" id="newSectionName" placeholder="Enter Section Name" class="form-control " /> 
+            <input type="text" id="newSectionName" placeholder="Enter Section Name" class="form-control " />
             <span class="closeInput closeAdd cancelAdd"><i class="fa fa-times cancelAdd"></i></span>
             <div id="formErr" class="hide">
                 <p class="text-danger">We've encountered an error creating the requested section. Please try again.</p>
             </div>
         </form>
-        
+
         <form class="hide" action="#" method="post" id="editSection">
             <input type="hidden" id="editSectionId"/>
             <label for="editSectionName" class="sr-only">Edit section name</label>
-            <input type="text" id="editSectionName" class="form-control " /> 
+            <input type="text" id="editSectionName" class="form-control " />
             <span class="closeInput closeEdit cancelEdit "><i class="fa fa-times cancelEdit"></i></span>
             <div id="formEditErr" class="hide">
                 <p class="text-danger">We've encountered an error creating the requested section. Please try again.</p>
             </div>
         </form>
-        
+
 
         <div class="modal fade" id="confirmDelSection" tabindex="-1" role="dialog" aria-labelledby="confirmDelSectionLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -90,17 +91,17 @@
 <script type="text/javascript">
 
 $(document).ready(function(){
-    //tooltip for buttons (done this way because of dynamically created icons)    
+    //tooltip for buttons (done this way because of dynamically created icons)
     $('body').tooltip({
         selector: '[rel=tooltip]'
     });
     $('[rel=tooltip]').tooltip({
         container: 'body'
     });
-    
+
 
     //the sections menu
-    var $menu = $('#sectionsMenu'); 
+    var $menu = $('#sectionsMenu');
 
     //the input field
     var $newSectionInput = $('#newSectionName');
@@ -133,7 +134,7 @@ $(document).ready(function(){
 
                     break;
                 }
-                
+
                 $menu.trigger('insertSection');
                 e.preventDefault();
                 break;
@@ -142,14 +143,14 @@ $(document).ready(function(){
                 e.preventDefault();
                 break;
         }
-       
+
     });
 
 
     //listen when the user has click away from the text input
     $(document).bind('mousedown',function(e){
         //checks to see the form input is visible
-        if ( !($newSectionInput.is(':hidden')) ) 
+        if ( !($newSectionInput.is(':hidden')) )
         {
             //closing the input text field when clicking on the x
             if ($(e.target).hasClass('cancelAdd')){
@@ -179,7 +180,7 @@ $(document).ready(function(){
             //cancel the edit operation by hiding form and restoring
             //to previous section name
             if ( $(e.target).hasClass('cancelEdit') )
-                cancelEditing();        
+                cancelEditing();
 
             //1 listens for mouse click and if the input is empty
             //keep the input open with error class
@@ -191,7 +192,7 @@ $(document).ready(function(){
                 $newSectionInput.focus();
                 $('#editSectionName').parent().addClass('has-error');
                 $('#editSectionName').attr('placeholder', 'You must provide a name');
-            
+
             }
             //allow them to click on the input field but once they click
             //outside then continue with the update
@@ -238,7 +239,7 @@ $(document).ready(function(){
         if ( $('#formErr').hasClass('showSection') )
             $('#formErr').removeClass('showSection').addClass('hide');
     });
-    
+
     //AJAX custom event
     $menu.bind('insertSection',function(){
         var posting = $.post( "{% url 'manage_sections:create_section' %}", { "section_name_input" : $("input#newSectionName").val()} );
@@ -248,13 +249,13 @@ $(document).ready(function(){
             $newSectionInput.val('');
             //toggle the text box after success
             $newSectionInput.trigger('toggle');
-            
+
         }).fail(function(xhr,textStatus) {
             $newSectionInput.val('');
             $newSectionInput.parent().addClass('has-error');
             $('#formErr').removeClass('hide').addClass('showSection');
         });
-      
+
     });
 
     //$editSectionForm holds the form that does the editing
@@ -271,7 +272,7 @@ $(document).ready(function(){
     //the height of the li at the moment that is been edited
     var $liToEditHeight;
 
-    //using .on method so that we can can click on dynamically 
+    //using .on method so that we can can click on dynamically
     //generated HTML elements
     $(document).on('click', '.editSection', function(){
         var url = this.href;
@@ -308,13 +309,13 @@ $(document).ready(function(){
         return false;
     });
 
-    //store the elements that are inside the <li> before the 
+    //store the elements that are inside the <li> before the
     //edit icon get's clicked
     function cancelEditing(){
         $liToEditChildren.appendTo($liToEdit);
-        $editSectionForm.removeClass('showSection').addClass('hide'); 
+        $editSectionForm.removeClass('showSection').addClass('hide');
     };
-    
+
     //listening to tab and enter. If the text input is empty then
     //throw an error else continue adding the section
     $(document).on('keydown', '#editSectionName', function(e){
@@ -353,7 +354,7 @@ $(document).ready(function(){
                     //call the AJAX update
                     editSection($('#editSectionName').val(), $editSectionForm.attr('action'), $sectionCount);
                 }
-                
+
                 e.preventDefault();
                 break;
             case 27:
@@ -368,7 +369,7 @@ $(document).ready(function(){
         }
     });
 
-    
+
     //removes the error styles for the input element
     //takes in a jquery object
     function removeHasError(ele) {
@@ -387,7 +388,7 @@ $(document).ready(function(){
         var formData = {"section_name_input" : sectionName, "enrollment_count" : sectionCount};
 
         $.ajax({
-                    url : url, 
+                    url : url,
                     type : "POST",
                     data : formData,
                     success : function(json) {
@@ -407,7 +408,7 @@ $(document).ready(function(){
                         else{
                             $('#editSectionName').val($sectionName);
                         }
-                        
+
                         $editSectionForm.removeClass('hide').addClass('showSection');
                         $('#editSectionName').parent().addClass('has-error');
                         $('#editSectionName').focus();
