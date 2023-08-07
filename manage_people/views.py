@@ -352,14 +352,16 @@ def add_member_to_course(user_id, user_role_id, course_instance_id,
         enrollment.save()
     except IntegrityError as e:
         existing_enrollment = True
-        logger.exception('Unable to save user %s to table %s as user_role_id '
-                         "%s.  It's possible the user is already enrolled.",
-                         user_id, enrollment._meta.db_table, user_role_id)
+        logger.exception(
+            f'Unable to save user {user_id} to table {enrollment._meta.db_table} '
+            f'as user_role_id {user_role_id} in course instance {course_instance_id}'
+        )
     except RuntimeError as e:
         existing_enrollment = True
-        logger.exception('Unexpected error while saving user %s to table %s '
-                         'as user_role_id %s.',
-                         user_id, enrollment._meta.db_table, user_role_id)
+        logger.exception(
+            f'Unexpected error while saving user {user_id} to table {enrollment._meta.db_table} '
+            f'as user_role_id {user_role_id} in course instance {course_instance_id}'
+        )
 
     # get and annotate a Person instance for this enrollment
     person = Person.objects.filter(univ_id=user_id)[0]
@@ -394,9 +396,9 @@ def add_member_to_course(user_id, user_role_id, course_instance_id,
             canvas_api_helper_sections.delete_cache(canvas_course_id)
         else:
             logger.error(
-                'Unable to enroll %s as user_role_id %s (Canvas role id %s) '
-                'for course instance id %s.', user_id, user_role_id,
-                user_role.canvas_role_id, course_instance_id)
+                f'Unable to enroll {user_id} as user_role_id {user_role_id} '
+                f'(Canvas role id {user_role.canvas_role_id}) for course instance id {course_instance_id}.'
+            )
     return existing_enrollment, person
 
 
@@ -673,12 +675,12 @@ def lti_key_error_response(request, key_error_exception):
 
 
 def _get_people_in_list_query(user_id_list=[]):
-    pat = re.compile('[^\w]+', re.UNICODE)
+    pat = re.compile(r'[^\w]+', re.UNICODE)
     clean_user_ids = ["'{}'".format(pat.sub('', i)) for i in user_id_list if len(pat.sub('', i)) == 8]
     if clean_user_ids:
         # split clean_user_ids into chunks of 999 (https://www.geeksforgeeks.org/break-list-chunks-size-n-python/)
         n = 999
-        chunks = [clean_user_ids[i * n:(i + 1) * n] for i in range((len(clean_user_ids) + n - 1) // n )]
+        chunks = [clean_user_ids[i * n:(i + 1) * n] for i in range((len(clean_user_ids) + n - 1) // n)]
 
         # create the raw query with one of the chunks
         raw_person_query = 'select * from people.v_huid_and_xid_people where univ_id in ({})'.format(','.join(chunks.pop()))
