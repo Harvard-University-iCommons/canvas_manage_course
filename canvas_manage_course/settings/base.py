@@ -317,7 +317,7 @@ CANVAS_SDK_SETTINGS = {
     'auth_token': SECURE_SETTINGS.get('canvas_token', None),
     'base_api_url': CANVAS_URL + '/api',
     'max_retries': 3,
-    'per_page': 40,
+    'per_page': 100,
     'session_inactivity_expiration_time_secs': 50,
 }
 
