@@ -27,6 +27,7 @@ from manage_people.models import (
 
 cache = caches['shared']
 CACHE_KEY_CANVAS_ROLES_BY_USER_ROLE_ID_FOR_ACCOUNT = "canvas-roles-by-user-role-id-for-account-{}"
+CACHE_KEY_USER_ROLE_BY_ID = "user-role-by-id-{}"
 logger = logging.getLogger(__name__)
 IS_XID_RE = re.compile('[a-z]', re.IGNORECASE)
 SDK_CONTEXT = SessionInactivityExpirationRC(**settings.CANVAS_SDK_SETTINGS)
@@ -182,7 +183,11 @@ def get_user_role_if_permitted(course_instance_id, user_role_id):
 
     if int(user_role_id) in [int(role['role_id']) for role in available_roles]:
         try:
-            user_role = UserRole.objects.get(role_id=user_role_id)
+            cache_key = CACHE_KEY_USER_ROLE_BY_ID.format(user_role_id)
+            user_role = cache.get(cache_key)
+            if user_role is None:
+                user_role = UserRole.objects.get(role_id=user_role_id)
+                cache.set(cache_key, user_role, 3600)
         except UserRole.DoesNotExist:
             logger.exception(
                 'user_role_id %s does not map to a valid user_role record.',

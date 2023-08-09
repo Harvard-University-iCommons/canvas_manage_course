@@ -2,51 +2,43 @@ import json
 import logging
 import pprint
 import re
-import urllib.request, urllib.parse, urllib.error
+import time
+import urllib.error
+import urllib.parse
+import urllib.request
 from collections import defaultdict
-
-from django.conf import settings
-from django.contrib.auth.decorators import login_required
-from django.urls import reverse
-from django.db import IntegrityError
-from django.db.models import Q
-from django.http import HttpResponseRedirect, JsonResponse
-from django.shortcuts import render
-from django.views.decorators.http import require_http_methods
 
 from canvas_sdk.exceptions import CanvasAPIError
 from canvas_sdk.methods import enrollments
 from canvas_sdk.utils import get_all_list_data
-from icommons_common.canvas_api.helpers.roles import get_roles_for_account_id
-from icommons_common.canvas_utils import (
-    SessionInactivityExpirationRC,
-    add_canvas_course_enrollee,
-    add_canvas_section_enrollee,
-    get_canvas_course_section,
-)
-from icommons_common.models import (
-    CourseEnrollee,
-    CourseGuest,
-    CourseInstance,
-    CourseStaff,
-    Person,
-    UserRole
-)
-from icommons_common.canvas_api.helpers import (
-    courses as canvas_api_helper_courses,
-    enrollments as canvas_api_helper_enrollments,
+from django.conf import settings
+from django.contrib.auth.decorators import login_required
+from django.db import IntegrityError
+from django.db.models import Q
+from django.http import HttpResponseRedirect, JsonResponse
+from django.shortcuts import render
+from django.urls import reverse
+from django.views.decorators.http import require_http_methods
+from icommons_common.canvas_api.helpers import \
+    courses as canvas_api_helper_courses
+from icommons_common.canvas_api.helpers import \
+    enrollments as canvas_api_helper_enrollments
+from icommons_common.canvas_api.helpers import \
     sections as canvas_api_helper_sections
-)
+from icommons_common.canvas_api.helpers.roles import get_roles_for_account_id
+from icommons_common.canvas_utils import (SessionInactivityExpirationRC,
+                                          add_canvas_course_enrollee,
+                                          add_canvas_section_enrollee,
+                                          get_canvas_course_section)
+from icommons_common.models import (CourseEnrollee, CourseGuest,
+                                    CourseInstance, CourseStaff, Person,
+                                    UserRole)
 from lti_school_permissions.decorators import lti_permission_required
 
-from manage_people.utils import (
-    get_available_roles,
-    get_canvas_role_name,
-    get_canvas_to_user_role_id_map,
-    get_course_member_class,
-    get_user_role_if_permitted
-)
-
+from manage_people.utils import (get_available_roles, get_canvas_role_name,
+                                 get_canvas_to_user_role_id_map,
+                                 get_course_member_class,
+                                 get_user_role_if_permitted)
 
 SDK_CONTEXT = SessionInactivityExpirationRC(**settings.CANVAS_SDK_SETTINGS)
 
@@ -188,12 +180,22 @@ def get_enrolled_roles_for_user_ids(canvas_course_id, search_results_user_ids):
     are already enrolled in the course and to display Canvas role names.
     Do not match XIDs.
     """
-    canvas_enrollments = get_all_list_data(
-            SDK_CONTEXT, enrollments.list_enrollments_courses, canvas_course_id)
+    t0 = time.perf_counter()
+    logger.debug(f'search_results_user_ids: {search_results_user_ids}')
+    canvas_enrollments = []
+    for user_id in search_results_user_ids:
+        canvas_enrollments.extend(
+            get_all_list_data(SDK_CONTEXT, enrollments.list_enrollments_courses, canvas_course_id, user_id=f'sis_user_id:{user_id}', per_page=100)
+        )
+    t1 = time.perf_counter()
+    logger.debug(f'canvas_enrollments: {canvas_enrollments}')
+    logger.debug(f'*** TIMING list_enrollments_courses took {t1 - t0} seconds')
 
     # get the updated (or cached) Canvas role list so we can show the right
     # role labels for these enrollments
     canvas_roles_by_role_id = get_roles_for_account_id('self')
+    t2 = time.perf_counter()
+    logger.debug(f'*** TIMING get_roles_for_account_id took {t2 - t1} seconds')
 
     found_ids = defaultdict(list)
     for enrollment in canvas_enrollments:
@@ -207,10 +209,13 @@ def get_enrolled_roles_for_user_ids(canvas_course_id, search_results_user_ids):
                     {'canvas_role_label': canvas_roles_by_role_id[
                         enrollment['role_id']]['label']})
                 found_ids[sis_user_id].append(enrollment)
+
+    t3 = time.perf_counter()
+    logger.debug(f'*** TIMING getting role labels took {t3 - t2} seconds')
     return found_ids
 
-
 def find_person(search_term):
+    t0 = time.perf_counter()
     if "@" in search_term:
         # treat it as an email address
         filter_kvp = {'email_address__iexact': search_term}
@@ -219,6 +224,8 @@ def find_person(search_term):
         filter_kvp = {'univ_id__iexact': search_term}
 
     person_results = Person.objects.filter(**filter_kvp)
+    t1 = time.perf_counter()
+    logger.debug(f'*** TIMING Person filter took {t1 - t0} seconds')
     if len(person_results) == 0:
         logger.info('Search term %s was not found.', search_term)
 
@@ -228,10 +235,13 @@ def find_person(search_term):
         # Identify which custom CSS label to use
         person.mycustom = person.badge_label_name.lower()
         results_dict[person.univ_id] = person
+    t2 = time.perf_counter()
+    logger.debug(f'*** TIMING getting badge label names took {t2 - t1} seconds')
     return results_dict
 
 
 def get_badge_info_for_users(user_id_list=None):
+    t0 = time.perf_counter()
     # TODO: documentation and line-by-line comments and remove unused code
     logger.debug('getting role types (to display badge info) for the following '
                  'users: %s', user_id_list)
@@ -261,6 +271,8 @@ def get_badge_info_for_users(user_id_list=None):
 
     logger.debug("found the following badge information for the users: %s",
                  results_dict)
+    t1 = time.perf_counter()
+    logger.debug(f'*** TIMING get_badge_info_for_users took {t1 - t0} seconds')
     return results_dict
 
 
@@ -408,7 +420,8 @@ def get_enrollments_added_through_tool(sis_course_id):
     then filters out the course enrollees that are fed via sis import feed
     process or cross-registration.
     """
-    logger.debug('get_enrollments_added_through_tool(course_instance_id=%s)',
+    t0 = time.perf_counter()
+    logger.debug('*** TIMING get_enrollments_added_through_tool(course_instance_id=%s)',
                  sis_course_id)
 
     section_id_param = 'sis_section_id:' + str(sis_course_id)
@@ -422,7 +435,8 @@ def get_enrollments_added_through_tool(sis_course_id):
             'Exception=%s:', sis_course_id, api_error)
         return []
     logger.debug("size of enrollees in canvas= %s" % len(canvas_enrollments))
-
+    t1 = time.perf_counter()
+    logger.debug(f'*** TIMING list_enrollments_sections took {t1 - t0} seconds')
     # get the list of enrolles from Course Manager DB, who are eligible to be
     # deleted via this tool.  This is achieved by using a filter to exclude
     # users with values equal to e.g. 'xmlfeed','fasfeed', or 'xreg_map' in the
@@ -449,16 +463,19 @@ def get_enrollments_added_through_tool(sis_course_id):
         if ids:
             eligible_ids.update(ids)
     logger.debug('full set of eligible user/role ids: %s', eligible_ids)
+    t2 = time.perf_counter()
+    logger.debug(f'*** TIMING looking up eligible course members took {t2 - t1} seconds')
 
     # get a mapping of canvas role_id to UserRole ids
     canvas_role_to_user_role = get_canvas_to_user_role_id_map()
-
+    t3 = time.perf_counter()
+    logger.debug(f'*** TIMING looking up get_canvas_to_user_role_id_map took {t3 - t2} seconds')
     logger.debug(f'canvas_role_to_user_role: {canvas_role_to_user_role}')
 
     # get the updated (or cached) Canvas role list so we can show the right
     # Canvas role labels for the enrollments
     canvas_roles_by_role_id = get_roles_for_account_id('self')
-
+    t4 = time.perf_counter()
     # Further filter users to remove users who may not yet be be in canvas.
     # For the moment we are treating COURSEMANAGER as the single source of truth
     # for who should be enrolled in a course, but we also need to get Canvas
@@ -506,11 +523,14 @@ def get_enrollments_added_through_tool(sis_course_id):
                 'Manage People: Canvas enrollment does not have user '
                 'information associated with it. Enrollment info: %s',
                 enrollment)
+    t5 = time.perf_counter()
+    logger.debug(f'*** TIMING filtering enrollments took {t5 - t4} seconds')
 
     # Sort the users by sortable_name
     filtered_enrollments.sort(key=lambda x: x['user']['sortable_name'])
     logger.debug('size of filtered and sorted enrollments= %s',
                  len(filtered_enrollments))
+    t6 = time.perf_counter()
 
     # add custom display badge information for enrollees to the filtered
     # Canvas enrollment objects badge information is used on user_form to
@@ -519,15 +539,22 @@ def get_enrollments_added_through_tool(sis_course_id):
     user_id_list = [enrollment['user'].get('sis_user_id')
                         for enrollment in filtered_enrollments]
     user_badge_info_mapping = get_badge_info_for_users(user_id_list)
+    t7 = time.perf_counter()
+    logger.debug(f'*** TIMING getting badge info for users took {t7 - t6} seconds')
+    # user_badge_info_mapping = {}
     for enrollment in filtered_enrollments:
         user_id = enrollment['user'].get('sis_user_id')
         if user_id and user_id in user_badge_info_mapping:
             enrollment['badge_label_name'] = user_badge_info_mapping[user_id]
         # Check if the given enrollment can be deleted in the current tool
         # If it can not, we want to disable the delete option in the template
+        t6_1 = time.perf_counter()
         user_role = get_user_role_if_permitted(sis_course_id, enrollment['user_role_id'])
+        t6_2 = time.perf_counter()
+        logger.debug(f'*** TIMING get_user_role_if_permitted {t6_2 - t6_1} seconds')
         enrollment['can_be_deleted'] = True if user_role is not None else False
-
+    t8 = time.perf_counter()
+    logger.debug(f'*** TIMING getting can_be_deleted took {t8 - t7} seconds')
     return filtered_enrollments
 
 
