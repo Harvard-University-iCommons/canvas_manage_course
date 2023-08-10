@@ -184,9 +184,12 @@ def get_enrolled_roles_for_user_ids(canvas_course_id, search_results_user_ids):
     logger.debug(f'search_results_user_ids: {search_results_user_ids}')
     canvas_enrollments = []
     for user_id in search_results_user_ids:
-        canvas_enrollments.extend(
-            get_all_list_data(SDK_CONTEXT, enrollments.list_enrollments_courses, canvas_course_id, user_id=f'sis_user_id:{user_id}', per_page=100)
-        )
+        try:
+            canvas_enrollments.extend(
+                get_all_list_data(SDK_CONTEXT, enrollments.list_enrollments_courses, canvas_course_id, user_id=f'sis_user_id:{user_id}', per_page=100)
+            )
+        except:
+            logger.exception(f'Canvas API returned an error when searching for enrollments for {user_id}. That user may not exist in Canvas at all.')
     t1 = time.perf_counter()
     logger.debug(f'canvas_enrollments: {canvas_enrollments}')
     logger.debug(f'*** TIMING list_enrollments_courses took {t1 - t0} seconds')
