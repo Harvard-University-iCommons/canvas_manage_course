@@ -130,6 +130,11 @@
       </div>
     </div>
   {% endif %}
+
+  {# Place build information into a HTML comment to avoid cluttering the page for users #}
+  {% if build_info %}
+      <!-- BUILD INFO: {{ build_info.image_tag }} | {{ build_info.image_hash_tag }} | {{ build_info.build_timestamp }} -->
+  {% endif %}
 {% endif %}
 </main>
 
