@@ -3,6 +3,9 @@ import logging
 import re
 import time
 
+from canvas_api.helpers import courses as canvas_api_helper_courses
+from canvas_api.helpers import enrollments as canvas_api_helper_enrollments
+from canvas_api.helpers import sections as canvas_api_helper_sections
 from canvas_sdk.exceptions import CanvasAPIError
 from canvas_sdk.methods import enrollments as canvas_api_enrollments
 from canvas_sdk.methods import users as canvas_api_users
@@ -11,16 +14,6 @@ from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.shortcuts import render
 from django.views.decorators.http import require_http_methods, require_safe
-
-from canvas_sdk.methods import enrollments as canvas_api_enrollments
-from canvas_sdk.exceptions import CanvasAPIError
-
-from icommons_common.models import Person
-from icommons_common.monitor.views import BaseMonitorResponseView
-from canvas_api.helpers import (
-    courses as canvas_api_helper_courses,
-    enrollments as canvas_api_helper_enrollments,
-    sections as canvas_api_helper_sections
 from icommons_common.models import (CourseEnrollee, CourseGuest,
                                     CourseInstance, CourseStaff, Person,
                                     UserRole)
@@ -213,7 +206,7 @@ def create_section(request):
         logger.exception(f'Exception in create_section: {e}')
         return render(request, 'manage_sections/error.html', status=500)
 
-    canvas_course_section = canvas_api_helper_sections.create_section(canvas_course_id, section_name.strip(), course_section_sis_section_id=created_db_section.course_instance_id)
+    canvas_course_section = canvas_api_helper_sections.create_section(canvas_course_id, section_name.strip(), sis_section_id=created_db_section.course_instance_id)
 
     # Append section count to course_section object so the badge will appear correctly. Setting to zero
     # for newly created section.
@@ -535,8 +528,7 @@ def remove_from_section(request):
         table = CourseGuest
 
     try:
-        enrollment = table.objects.get(course_instance_id=int(sis_section_id), user_id=int(huid), role=db_role).delete()
-        enrollment.save()
+        table.objects.get(course_instance_id=int(sis_section_id), user_id=int(huid), role=db_role).delete()
     except Exception as e:
         message = f"Failed to retrieve record from {table} from DB: {e}"
         logger.exception(message)
