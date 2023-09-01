@@ -9,6 +9,15 @@ from canvas_sdk.methods import (
     enrollments as canvas_api_enrollments
 )
 from canvas_sdk.exceptions import CanvasAPIError
+from canvas_sdk.methods import enrollments as canvas_api_enrollments
+from canvas_sdk.methods import sections
+from django.conf import settings
+from icommons_common.canvas_api.helpers import \
+    courses as canvas_api_helper_courses
+from icommons_common.canvas_api.helpers import \
+    enrollments as canvas_api_helper_enrollments
+from icommons_common.canvas_api.helpers import \
+    sections as canvas_api_helper_sections
 from icommons_common.canvas_utils import SessionInactivityExpirationRC
 from icommons_common.models import CourseInstance
 from canvas_api.helpers import (
@@ -203,3 +212,26 @@ def delete_enrollments(enrollments, course_id):
     canvas_api_helper_sections.delete_cache(course_id)
 
     return (deleted_enrollments, is_empty)
+
+
+def create_db_section(course_instance: CourseInstance, section_name: str):
+    try:
+        db_course_section = CourseInstance(
+            cs_class_type='N',
+            parent_course_instance_id=course_instance.course_instance_id,
+            course_id=course_instance.course_id,
+            term=course_instance.term,
+            source='managecrs',
+            sync_to_canvas = 1,
+            title = section_name.strip(),
+            short_title = section_name.strip(),
+        )
+        db_course_section.save()
+    except Exception as e:
+        logger.exception(
+            f'Unexpected error while creating section for '
+            f'course_instance_id:{course_instance.course_instance_id}',
+            extra={'error': e},
+        )
+        raise
+    return db_course_section
