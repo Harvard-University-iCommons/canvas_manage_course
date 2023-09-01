@@ -1,3 +1,4 @@
+import functools
 import logging
 import re
 
@@ -99,15 +100,34 @@ def is_credit_status_section(sis_section_id):
     return False
 
 
-def is_editable_section(section):
+@functools.singledispatch
+def is_editable_section(arg):
+    raise NotImplementedError(f'Unsupported type: {type(arg)}')
+
+
+@is_editable_section.register
+def is_editable_section_str(section: str):
     """
     This is a helper method to check if the section is editable. If it's a primary section or a
     registrar section it shouldn't be editable.
     Set to True if it is a primary/registrar section, set to False if it is not
     """
-    sis_section_id = section.get('sis_section_id')
-    if is_sis_section(sis_section_id) or is_credit_status_section(sis_section_id):
+    if is_sis_section(section) or is_credit_status_section(section):
         return False
+
+    return True
+
+
+@is_editable_section.register
+def is_editable_section_dict(section: dict):
+    """
+    This is a helper method to check if the section is editable. If it's a primary section or a
+    registrar section it shouldn't be editable.
+    Set to True if it is a primary/registrar section, set to False if it is not
+    """
+    if section.get('sis_section_id', ''):
+        if is_sis_section(section['sis_section_id']) or is_credit_status_section(section['sis_section_id']):
+            return False
 
     return True
 
