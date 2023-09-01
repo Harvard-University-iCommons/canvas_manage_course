@@ -2,12 +2,9 @@ import functools
 import logging
 import re
 
-from django.conf import settings
-
-from canvas_sdk.methods import (
-    sections,
-    enrollments as canvas_api_enrollments
-)
+from canvas_api.helpers import courses as canvas_api_helper_courses
+from canvas_api.helpers import enrollments as canvas_api_helper_enrollments
+from canvas_api.helpers import sections as canvas_api_helper_sections
 from canvas_sdk.exceptions import CanvasAPIError
 from canvas_sdk.methods import enrollments as canvas_api_enrollments
 from canvas_sdk.methods import sections
@@ -20,12 +17,6 @@ from icommons_common.canvas_api.helpers import \
     sections as canvas_api_helper_sections
 from icommons_common.canvas_utils import SessionInactivityExpirationRC
 from icommons_common.models import CourseInstance
-from canvas_api.helpers import (
-    courses as canvas_api_helper_courses,
-    enrollments as canvas_api_helper_enrollments,
-    sections as canvas_api_helper_sections
-)
-
 
 logger = logging.getLogger(__name__)
 
@@ -80,7 +71,7 @@ def is_enrollment_section(sis_section_id):
 def is_sis_section(sis_section_id):
     """
     Check if the sis_section_id exists in the CourseInstance table.
-    If it does, it is an sis section.
+    If it does (and the source isn't 'managecrs') it is an sis section.
     :param sis_section_id:
     :return boolean:
     """
@@ -88,7 +79,7 @@ def is_sis_section(sis_section_id):
         if sis_section_id.isdigit():
             try:
                 ci = CourseInstance.objects.get(course_instance_id=int(sis_section_id))
-                if ci:
+                if ci and ci.source != 'managecrs':
                     return True
             except (CourseInstance.DoesNotExist, CourseInstance.MultipleObjectsReturned, ValueError) as e:
                 return False
