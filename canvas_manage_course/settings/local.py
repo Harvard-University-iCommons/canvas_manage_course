@@ -1,18 +1,21 @@
 import sys
+
 import oracledb
+
 oracledb.version = "8.3.0"
 sys.modules["cx_Oracle"] = oracledb
+from logging.config import dictConfig
+
 import cx_Oracle
 
 from .base import *
-from logging.config import dictConfig
 
 ALLOWED_HOSTS = ['*']
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 INSTALLED_APPS += ['debug_toolbar', 'django_extensions']
-MIDDLEWARE += ['debug_toolbar.middleware.DebugToolbarMiddleware']
+# MIDDLEWARE += ['debug_toolbar.middleware.DebugToolbarMiddleware']
 
 # For Django Debug Toolbar:
 INTERNAL_IPS = ('127.0.0.1', '10.0.2.2',)
