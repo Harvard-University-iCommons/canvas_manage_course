@@ -461,9 +461,6 @@ def add_to_section(request):
     # If this fails, we'll proceed anyway knowing that the feed will
     # eventually add the user to the section
     failed_users = []
-    failed_users = []
-    for user in users_to_add:
-        failed_users = []
     for user in users_to_add:
         try:
             canvas_api_enrollments.enroll_user_sections(
