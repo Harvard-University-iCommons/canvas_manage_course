@@ -324,7 +324,7 @@ def remove_section(request, sis_section_id, section_id):
 
     canvas_section = canvas_api_helper_sections.get_section(canvas_course_id, section_id)
     if not canvas_section:
-        message = "Failed to retrieve section %s from course %s" % (section_id, canvas_course_id)
+        message = f"Failed to retrieve section {section_id} from course {canvas_course_id}"
         logger.error(message)
         return JsonResponse({'message': message}, status=500)
 
@@ -342,7 +342,7 @@ def remove_section(request, sis_section_id, section_id):
         db_section.sync_to_canvas = 0
         db_section.save()
     except Exception as e:
-        logger.exception(f'Exception in edit_section: {e}')
+        logger.exception(f'Error retrieving section {sis_section_id} for deletion: {e}')
         return render(request, 'manage_sections/error.html', status=500)
 
     # Now check/delete enrollments
@@ -350,7 +350,7 @@ def remove_section(request, sis_section_id, section_id):
         try:
             enrollments = table.objects.filter(course_instance_id=sis_section_id).delete()
         except Exception as e:
-            message = "Failed to retrieve section %s from course %s" % (section_id, canvas_course_id)
+            message = f'Error retrieving enrollments for section {sis_section_id} for deletion: {e}'
             logger.error(message)
             return JsonResponse({'message': message}, status=500)
 
@@ -411,7 +411,7 @@ def add_to_section(request):
         sis_section_id = post_data['sis_section_id']
         users_to_add = post_data['users_to_add']
     except KeyError:
-        message = "Missing post parameters to add users to section_id %s" % request.body
+        message = f"Missing post parameters to add users to section_id {request.body}"
         logger.exception(message)
         return JsonResponse({'success': False, 'message': message}, status=500)
 
@@ -496,13 +496,13 @@ def remove_from_section(request):
     role_id = request.POST.get('role_id')
     user_id = request.POST.get('user_id')
     if not user_section_id:
-        return JsonResponse({'message': "Invalid user_section_id %s" % user_section_id}, status=500)
+        return JsonResponse({'message': f"Invalid user_section_id {user_section_id}"}, status=500)
 
     # Get HUID from Canvas
     try:
         huid = canvas_api_users.get_user_profile(SDK_CONTEXT, user_id).json()['sis_user_id']
     except Exception as e:
-        message = f"Failed to retrieve user {user_id} from Canvas: {e}"
+        message = f"Failed to retrieve user profile info for user {user_id} from Canvas: {e}"
         logger.exception(message)
         return JsonResponse({'success': False, 'message': message}, status=500)
 
@@ -513,7 +513,7 @@ def remove_from_section(request):
         else:
             db_role = UserRole.objects.get(canvas_role_id=role_id)
     except Exception as e:
-        message = f"Failed to retrieve role {user_id} from DB: {e}"
+        message = f"Failed to retrieve role {role_id} from DB: {e}"
         logger.exception(message)
         return JsonResponse({'success': False, 'message': message}, status=500)
 
@@ -527,7 +527,7 @@ def remove_from_section(request):
     try:
         table.objects.get(course_instance_id=int(sis_section_id), user_id=int(huid), role=db_role).delete()
     except Exception as e:
-        message = f"Failed to retrieve record from {table} from DB: {e}"
+        message = f"Failed to retrieve enrollment record for section {sis_section_id} from DB: {e}"
         logger.exception(message)
         return JsonResponse({'success': False, 'message': message}, status=500)
 
@@ -542,7 +542,7 @@ def remove_from_section(request):
         canvas_api_helper_sections.delete_section_cache(section_id)
 
     except CanvasAPIError:
-        message = "Failed to remove user from section %s in course %s", user_section_id, canvas_course_id
+        message = f"Failed to remove user from section {user_section_id} in course {canvas_course_id}"
         logger.exception(message)
         canvas_api_helper_sections.delete_cache(canvas_course_id)
         return JsonResponse({'message': message}, status=500)
