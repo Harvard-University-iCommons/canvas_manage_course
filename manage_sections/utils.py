@@ -1,21 +1,22 @@
+import functools
 import logging
 import re
 
-from django.conf import settings
-
-from canvas_sdk.methods import (
-    sections,
-    enrollments as canvas_api_enrollments
-)
+from canvas_api.helpers import courses as canvas_api_helper_courses
+from canvas_api.helpers import enrollments as canvas_api_helper_enrollments
+from canvas_api.helpers import sections as canvas_api_helper_sections
 from canvas_sdk.exceptions import CanvasAPIError
+from canvas_sdk.methods import enrollments as canvas_api_enrollments
+from canvas_sdk.methods import sections
+from django.conf import settings
+from icommons_common.canvas_api.helpers import \
+    courses as canvas_api_helper_courses
+from icommons_common.canvas_api.helpers import \
+    enrollments as canvas_api_helper_enrollments
+from icommons_common.canvas_api.helpers import \
+    sections as canvas_api_helper_sections
 from icommons_common.canvas_utils import SessionInactivityExpirationRC
 from icommons_common.models import CourseInstance
-from canvas_api.helpers import (
-    courses as canvas_api_helper_courses,
-    enrollments as canvas_api_helper_enrollments,
-    sections as canvas_api_helper_sections
-)
-
 
 logger = logging.getLogger(__name__)
 
@@ -70,7 +71,7 @@ def is_enrollment_section(sis_section_id):
 def is_sis_section(sis_section_id):
     """
     Check if the sis_section_id exists in the CourseInstance table.
-    If it does, it is an sis section.
+    If it does (and the source isn't 'managecrs') it is an sis section.
     :param sis_section_id:
     :return boolean:
     """
@@ -78,7 +79,7 @@ def is_sis_section(sis_section_id):
         if sis_section_id.isdigit():
             try:
                 ci = CourseInstance.objects.get(course_instance_id=int(sis_section_id))
-                if ci:
+                if ci and ci.source != 'managecrs':
                     return True
             except (CourseInstance.DoesNotExist, CourseInstance.MultipleObjectsReturned, ValueError) as e:
                 return False
@@ -99,15 +100,34 @@ def is_credit_status_section(sis_section_id):
     return False
 
 
-def is_editable_section(section):
+@functools.singledispatch
+def is_editable_section(arg):
+    raise NotImplementedError(f'Unsupported type: {type(arg)}')
+
+
+@is_editable_section.register
+def is_editable_section_str(section: str):
     """
     This is a helper method to check if the section is editable. If it's a primary section or a
     registrar section it shouldn't be editable.
     Set to True if it is a primary/registrar section, set to False if it is not
     """
-    sis_section_id = section.get('sis_section_id')
-    if is_sis_section(sis_section_id) or is_credit_status_section(sis_section_id):
+    if is_sis_section(section) or is_credit_status_section(section):
         return False
+
+    return True
+
+
+@is_editable_section.register
+def is_editable_section_dict(section: dict):
+    """
+    This is a helper method to check if the section is editable. If it's a primary section or a
+    registrar section it shouldn't be editable.
+    Set to True if it is a primary/registrar section, set to False if it is not
+    """
+    if section.get('sis_section_id', ''):
+        if is_sis_section(section['sis_section_id']) or is_credit_status_section(section['sis_section_id']):
+            return False
 
     return True
 
@@ -183,3 +203,26 @@ def delete_enrollments(enrollments, course_id):
     canvas_api_helper_sections.delete_cache(course_id)
 
     return (deleted_enrollments, is_empty)
+
+
+def create_db_section(course_instance: CourseInstance, section_name: str):
+    try:
+        db_course_section = CourseInstance(
+            cs_class_type='N',
+            parent_course_instance_id=course_instance.course_instance_id,
+            course_id=course_instance.course_id,
+            term=course_instance.term,
+            source='managecrs',
+            sync_to_canvas = 1,
+            title = section_name.strip(),
+            short_title = section_name.strip(),
+        )
+        db_course_section.save()
+    except Exception as e:
+        logger.exception(
+            f'Unexpected error while creating section for '
+            f'course_instance_id:{course_instance.course_instance_id}',
+            extra={'error': e},
+        )
+        raise
+    return db_course_section

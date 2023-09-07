@@ -20,14 +20,14 @@
 </li>
 <li id="{{ msgID }}" class="message-holder list-group-item hidden"></li>
 {% for enrollment_by_name in enrollments_by_name %}
-    {% for enrollee in enrollment_by_name.list %} 
+    {% for enrollee in enrollment_by_name.list %}
         <li class="list-group-item list-student {{ enrollment_by_name.grouper|lower }}">
             {% if allow_add %}
                 <input type="checkbox" class="add-user" id="{{enrollee.user.id}}"
-                data-course_id="{{ enrollee.course_id }}" 
-                data-course_section_id="{{ enrollee.course_section_id }}" 
+                data-course_id="{{ enrollee.course_id }}"
+                data-course_section_id="{{ enrollee.course_section_id }}"
                 data-sis_course_id="{{enrollee.sis_course_id}}"
-                data-user_id="{{enrollee.user.id}}" 
+                data-user_id="{{enrollee.user.id}}"
                 data-enrollment_role="{{enrollee.role}}"
                 data-enrollment_role_id="{{enrollee.role_id}}"
                 data-enrollment_role_label="{{enrollee.role_label}}"
@@ -38,6 +38,7 @@
 
             {% if allow_delete %}
                 <a href="#" class="remover icon-removeUser" id="{{enrollee.id}}"
+                   data-user_id="{{enrollee.user.id}}"
                    data-enrollee-id="{{enrollee.id}}"
                    data-enrollment_role_id="{{enrollee.role_id}}"
                    data-enrollment_role_label="{{enrollee.role_label}}"
