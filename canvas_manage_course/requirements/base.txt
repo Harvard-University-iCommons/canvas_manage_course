@@ -15,7 +15,7 @@ django-watchman==1.3.0
 splunk_handler==3.0.0
 python-json-logger==2.0.2
 
-canvas_python_sdk @ git+ssh://git@github.com/Harvard-University-iCommons/canvas_python_sdk.git@patricktonne/update-param-in-create-section
+canvas_python_sdk @ git+ssh://git@github.com/Harvard-University-iCommons/canvas_python_sdk.git@v1.4.4
 
 django-auth-lti @ git+ssh://git@github.com/Harvard-University-iCommons/django-auth-lti.git@v2.1.0
 django-icommons-common @ git+ssh://git@github.com/Harvard-University-iCommons/django-icommons-common.git@v2.6
