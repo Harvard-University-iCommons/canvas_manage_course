@@ -1,5 +1,4 @@
 # Canvas Manage Course
-![Static Badge](https://img.shields.io/badge/Python-v3.10-lavender?logo=python)
 
 This project provides a collection of utilies used to administer Harvard Academic Technology's instance of Canvas at the course level. The project is an LTI tool, i.e. installed via LTI.
 
