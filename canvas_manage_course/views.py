@@ -3,6 +3,7 @@
 import logging
 import urllib.request, urllib.parse, urllib.error
 
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
 from django.http import HttpResponse
@@ -90,11 +91,17 @@ def dashboard_course(request):
 
     view_context = {
         'allowed': allowed,
-        'no_tools_allowed': no_tools_allowed}
+        'no_tools_allowed': no_tools_allowed,
+        'build_info': settings.BUILD_INFO,
+        }   
     if no_tools_allowed:
         view_context['custom_error_title'] = 'Not available'
         view_context['custom_error_message'] = \
             "You do not currently have access to any of the tools available " \
             "in this view. If you think you should have access, please " \
             "use \"Help\" to contact Canvas support from Harvard."
-    return render(request, 'canvas_manage_course/dashboard_course.html', view_context)
+    return render(
+        request, 
+        'canvas_manage_course/dashboard_course.html', 
+        view_context
+    )
