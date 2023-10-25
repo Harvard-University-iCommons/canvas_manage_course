@@ -50,7 +50,7 @@ class Command(BaseCommand):
                     self.stdout.write(self.style.SUCCESS('Batch loaded into the temporary table'))
             self.stdout.write(self.style.SUCCESS('Data loading job complete'))
 
-        elif options['--migrate_from_tmp_db']:
+        elif options['migrate_from_tmp_db']:
             while True:
                 instances = generate_instances_for_coursemanager()
                 if not instances:
@@ -64,7 +64,7 @@ class Command(BaseCommand):
                     bulk_insert_course_instances(instances)
                     self.stdout.write(self.style.SUCCESS('Data migrated from temp_courseinstance to COURSE_INSTANCE'))
 
-        elif options['--update_canvas_sections']:
+        elif options['update_canvas_sections']:
             while True:
                 instances = get_instances_for_canvas()
                 if not instances:
