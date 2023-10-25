@@ -7,7 +7,7 @@ from canvas_api.helpers import enrollments as canvas_api_helper_enrollments
 from canvas_api.helpers import sections as canvas_api_helper_sections
 from django.conf import settings
 from django.core.management.base import BaseCommand
-from django.db import connection, transaction
+from django.db import connections, transaction
 from icommons_common.canvas_utils import SessionInactivityExpirationRC
 from icommons_common.models import CourseInstance
 
@@ -37,6 +37,7 @@ class Command(BaseCommand):
                 start_index = cursor.fetchone()[0]
             reader = csv.DictReader(csvfile)
             while True:
+                with connections['coursemanager'].cursor() as cursor:
                 data = generate_data_for_temp_table(reader, start_index=start_index)
                 if not data:
                     break
@@ -83,7 +84,7 @@ class Command(BaseCommand):
 
 
 def get_instances_for_canvas():
-    with connection.cursor() as cursor:
+    with connections['coursemanager'].cursor() as cursor:
         cursor.execute(f"""
             SELECT * FROM temp_courseinstance
             WHERE updated_in_canvas=0
@@ -194,33 +195,13 @@ def output_skipped(skipped):
 
 
 def create_temp_table():
-    with connection.cursor() as cursor:
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS temp_courseinstance
-            (
-                id NUMBER GENERATED ALWAYS AS IDENTITY,
-                row_index NUMBER,
-                cs_class_type VARCHAR2(1),
-                parent_course_instance_id NUMBER,
-                course_id NUMBER,
-                term VARCHAR2(100),
-                source VARCHAR2(100),
-                sync_to_canvas NUMBER,
-                title VARCHAR2(255),
-                short_title VARCHAR2(255),
-                section_id NUMBER,
-                canvas_course_id NUMBER,
-                updated_in_db NUMBER,
-                updated_in_canvas NUMBER
-            )
-        """)
-        connection.commit()
+    with connections['coursemanager'].cursor() as cursor:
 
 
 def insert_temp_data(data):
     try:
         with transaction.atomic():
-            with connection.cursor() as cursor:
+            with connections['coursemanager'].cursor() as cursor:
                 insert_query = """
                     INSERT INTO temp_courseinstance (
                         row_index,
@@ -250,7 +231,7 @@ def insert_temp_data(data):
 
 
 def generate_instances_for_coursemanager():
-    with connection.cursor() as cursor:
+    with connections['coursemanager'].cursor() as cursor:
         cursor.execute(f"""
             SELECT * FROM temp_courseinstance LIMIT {BATCH_SIZE}
         """)
@@ -278,7 +259,7 @@ def generate_instances_for_coursemanager():
 
 
 def bulk_insert_course_instances(instances):
-    with connection.cursor() as cursor:
+    with connections['coursemanager'].cursor() as cursor:
         # Get the actual cx_Oracle.Cursor object
         cx_cursor = cursor.cursor
 
@@ -314,7 +295,7 @@ def bulk_insert_course_instances(instances):
 
 
 def update_sis_section_ids(ids):
-    with connection.cursor() as cursor:
+    with connections['coursemanager'].cursor() as cursor:
         placeholders = ', '.join(['(%s, %s)'] * len(ids))
 
         cursor.execute(
@@ -326,11 +307,11 @@ def update_sis_section_ids(ids):
             """,
             ids
         )
-        connection.commit()
+        connections['coursemanager'].commit()
 
 
 def update_updated_in_canvas_flag(instance_id, value):
-    with connection.cursor() as cursor:
+    with connections['coursemanager'].cursor() as cursor:
         cursor.execute(
             f"""
             UPDATE temp_courseinstance
@@ -338,11 +319,11 @@ def update_updated_in_canvas_flag(instance_id, value):
             WHERE id = {instance_id}
             """
         )
-        connection.commit()
+        connections['coursemanager'].commit()
 
 
 def update_updated_in_db_flag(ids):
-    with connection.cursor() as cursor:
+    with connections['coursemanager'].cursor() as cursor:
         placeholders = ', '.join(['(%s)'] * len(ids))
 
         cursor.execute(
@@ -353,4 +334,4 @@ def update_updated_in_db_flag(ids):
             """,
             ids
         )
-        connection.commit()
+        connections['coursemanager'].commit()
