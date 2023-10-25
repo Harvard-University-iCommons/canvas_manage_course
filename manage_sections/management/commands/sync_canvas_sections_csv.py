@@ -196,6 +196,32 @@ def output_skipped(skipped):
 
 def create_temp_table():
     with connections['coursemanager'].cursor() as cursor:
+        try:
+            cursor.execute("""
+                CREATE TABLE temp_courseinstance
+                (
+                    id NUMBER GENERATED ALWAYS AS IDENTITY,
+                    row_index NUMBER,
+                    cs_class_type VARCHAR2(1),
+                    parent_course_instance_id NUMBER,
+                    course_id NUMBER,
+                    term_id VARCHAR2(100),
+                    source VARCHAR2(100),
+                    sync_to_canvas NUMBER,
+                    title VARCHAR2(255),
+                    short_title VARCHAR2(255),
+                    section_id NUMBER,
+                    canvas_course_id NUMBER,
+                    updated_in_db NUMBER,
+                    updated_in_canvas NUMBER
+                )
+            """)
+        except Exception as e:
+            if 'ORA-00955: name is already used by an existing object' in str(e):
+                pass
+            else:
+                raise e
+        connections['coursemanager'].commit()
 
 
 def insert_temp_data(data):
@@ -276,7 +302,7 @@ def bulk_insert_course_instances(instances):
                 """,
                 instances
             )
-            connection.commit()
+            connections['coursemanager'].commit()
         except cx_Oracle.DatabaseError as e:
             error, = e.args
             logger.exception(f'Error inserting data into COURSE_INSTANCE table: {e}')
