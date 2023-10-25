@@ -164,7 +164,7 @@ def generate_data_for_temp_table(reader, batch_size=BATCH_SIZE, start_index=0) -
                 'updated_in_canvas': 0
             })
         else:
-            logger.debug(f'No section_id for row index={i}, canvas_course_id={row["canvas_course_id"]} -- skipping')
+            logger.debug(f'No parent_sis_course_id for row index={i}, canvas_course_id={row["canvas_course_id"]} -- skipping')
             skipped.append(f'{row}')
 
         # If the data list has reached the batch size, return it
