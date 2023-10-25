@@ -32,9 +32,6 @@ class Command(BaseCommand):
 
         if options['load']:
             create_temp_table()
-            with connection.cursor() as cursor:
-                cursor.execute("SELECT MAX(row_index) FROM temp_courseinstance")
-                start_index = cursor.fetchone()[0]
             reader = csv.DictReader(csvfile)
             while True:
                 with connections['coursemanager'].cursor() as cursor:
@@ -113,7 +110,6 @@ def update_canvas_section(instance_id_pairs):
             canvas_api_helper_enrollments.delete_cache(canvas_course_id)
             # update tmp record with successful update
             update_updated_in_canvas_flag(instance_id, 1)
-
         else:
             output_errors([f"update_canvas_section error: canvas_course_id={canvas_course_id}"])
 
@@ -153,9 +149,9 @@ def generate_data_for_temp_table(reader, batch_size=BATCH_SIZE, start_index=0) -
                 'cs_class_type': 'N',
                 'parent_course_instance_id': parent_course_instance.course_instance_id,
                 'course_id': parent_course_instance.course_id,
-                'term': parent_course_instance.term,
+                'term_id': parent_course_instance.term.term_id,
                 'source': 'managecrs',
-                'sync_to_canvas': 1,
+                'sync_to_canvas': 0,
                 'title': name.strip(),
                 'short_title': name.strip(),
                 'section_id': canvas_section_id,
@@ -236,20 +232,21 @@ def insert_temp_data(data):
                         cs_class_type,
                         parent_course_instance_id,
                         course_id,
-                        term,
+                        term_id,
                         source,
                         sync_to_canvas,
                         title,
                         short_title,
                         section_id,
+                        canvas_course_id,
                         updated_in_db,
                         updated_in_canvas
-                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 """
                 # Convert data to list of tuples for executemany command
-                data_tuples = [(d['row_index'], d['sis_course_id'], d['cs_class_type'], d['parent_course_instance_id'], d['course_id'], d['term'], d['source'], d['sync_to_canvas'], d['title'], d['short_title']) for d in data]
-                cursor.executemany(insert_query, data_tuples, batcherrors=True)
-                connection.commit()
+                data_tuples = [(d['row_index'], d['cs_class_type'], d['parent_course_instance_id'], d['course_id'], d['term_id'], d['source'], d['sync_to_canvas'], d['title'], d['short_title'], d['section_id'], d['canvas_course_id'], d['updated_in_db'], d['updated_in_canvas']) for d in data]
+                cursor.executemany(insert_query, data_tuples)
+                connections['coursemanager'].commit()
     except Exception as e:
         logger.exception(f'Failed to insert data into the temporary table: {e}')
         # Write the problematic instances to a text file
@@ -273,15 +270,11 @@ def generate_instances_for_coursemanager():
             row[1],  # cs_class_type
             row[2],  # parent_course_instance_id
             row[3],  # course_id
-            row[4],  # term
+            row[4],  # term_id
             row[5],  # source
             row[6],  # sync_to_canvas
             row[7],  # title
             row[8],  # short_title
-            row[9],  # section_id
-            row[10],  # canvas_course_id
-            row[11],  # updated_in_db
-            row[12]   # updated_in_canvas
         )
         instances.append(instance)
 
@@ -293,12 +286,11 @@ def bulk_insert_course_instances(instances):
         # Get the actual cx_Oracle.Cursor object
         cx_cursor = cursor.cursor
 
-        placeholders = ', '.join(['(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'] * len(instances))
-
+        placeholders = ', '.join(['(%s, %s, %s, %s, %s, %s, %s, %s)'] * len(instances))
         try:
             cx_cursor.execute(
                 f"""
-                INSERT INTO COURSE_INSTANCE (cs_class_type, parent_course_instance_id, course_id, term, source, sync_to_canvas, title, short_title, section_id, canvas_course_id, updated_in_db, updated_in_canvas)
+                INSERT INTO COURSE_INSTANCE (cs_class_type, parent_course_instance_id, course_id, term_id, source, sync_to_canvas, title, short_title)
                 VALUES {placeholders}
                 RETURNING id INTO :ids
                 """,
@@ -319,7 +311,7 @@ def bulk_insert_course_instances(instances):
         update_data = [(instance, id) for instance, id in zip(instances, ids)]
 
         update_sis_section_ids(update_data)
-        update_canvas_section(update_data)
+        update_updated_in_db_flag(update_data)
 
     return ids
 
