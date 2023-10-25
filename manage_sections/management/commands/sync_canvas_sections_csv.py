@@ -88,7 +88,7 @@ def get_instances_for_canvas():
         cursor.execute(f"""
             SELECT * FROM temp_courseinstance
             WHERE updated_in_canvas=0
-            LIMIT {BATCH_SIZE}
+            FETCH FIRST {BATCH_SIZE} ROWS ONLY
         """)
         return cursor.fetchall()
 
@@ -135,7 +135,7 @@ def generate_data_for_temp_table(reader, batch_size=BATCH_SIZE, start_index=0) -
 
             # We now need to get the corresponding parent_course_instance
             try:
-                parent_course_instance = CourseInstance.objects.get(course_instances_id=parent_sis_course_id)
+                parent_course_instance = CourseInstance.objects.get(course_instance_id=parent_sis_course_id)
             except Exception as e:
                 logger.warning(f'Error retrieving parent_course_instance: {e}')
                 errors.append(f'{row}: {e}')
@@ -233,7 +233,9 @@ def insert_temp_data(data):
 def generate_instances_for_coursemanager():
     with connections['coursemanager'].cursor() as cursor:
         cursor.execute(f"""
-            SELECT * FROM temp_courseinstance LIMIT {BATCH_SIZE}
+            SELECT * FROM temp_courseinstance
+            WHERE updated_in_db=0
+            FETCH FIRST {BATCH_SIZE} ROWS ONLY
         """)
         rows = cursor.fetchall()
 
