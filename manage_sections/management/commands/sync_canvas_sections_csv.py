@@ -38,6 +38,8 @@ class Command(BaseCommand):
             reader = csv.DictReader(csvfile)
             while True:
                 with connections['coursemanager'].cursor() as cursor:
+                    cursor.execute("SELECT MAX(row_index) FROM temp_courseinstance")
+                    start_index = cursor.fetchone()[0] or 0
                 data = generate_data_for_temp_table(reader, start_index=start_index)
                 if not data:
                     break
