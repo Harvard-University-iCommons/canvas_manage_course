@@ -203,14 +203,14 @@ def create_temp_table():
                     cs_class_type VARCHAR2(1),
                     parent_course_instance_id NUMBER,
                     course_id NUMBER,
-                    term_id VARCHAR2(100),
+                    term_id NUMBER,
                     source VARCHAR2(100),
                     sync_to_canvas NUMBER,
                     title VARCHAR2(255),
                     short_title VARCHAR2(255),
                     section_id NUMBER,
                     canvas_course_id NUMBER,
-                    updated_in_db NUMBER,
+                    course_instance_id NUMBER,
                     updated_in_canvas NUMBER
                 )
             """)
@@ -239,12 +239,12 @@ def insert_temp_data(data):
                         short_title,
                         section_id,
                         canvas_course_id,
-                        updated_in_db,
+                        course_instance_id,
                         updated_in_canvas
                     ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 """
                 # Convert data to list of tuples for executemany command
-                data_tuples = [(d['row_index'], d['cs_class_type'], d['parent_course_instance_id'], d['course_id'], d['term_id'], d['source'], d['sync_to_canvas'], d['title'], d['short_title'], d['section_id'], d['canvas_course_id'], d['updated_in_db'], d['updated_in_canvas']) for d in data]
+                data_tuples = [(d['row_index'], d['cs_class_type'], d['parent_course_instance_id'], d['course_id'], d['term_id'], d['source'], d['sync_to_canvas'], d['title'], d['short_title'], d['section_id'], d['canvas_course_id'], d['course_instance_id'], d['updated_in_canvas']) for d in data]
                 cursor.executemany(insert_query, data_tuples)
                 connections['coursemanager'].commit()
     except Exception as e:
@@ -257,78 +257,73 @@ def insert_temp_data(data):
 
 def generate_instances_for_coursemanager():
     with connections['coursemanager'].cursor() as cursor:
-        cursor.execute(f"""
-            SELECT * FROM temp_courseinstance
-            WHERE updated_in_db=0
-            FETCH FIRST {BATCH_SIZE} ROWS ONLY
-        """)
+        cursor.execute("SELECT * FROM temp_courseinstance WHERE course_instance_id IS NULL FETCH FIRST %s ROWS ONLY", [BATCH_SIZE])
         rows = cursor.fetchall()
 
     instances = []
     for row in rows:
-        instance = (
-            row[1],  # cs_class_type
-            row[2],  # parent_course_instance_id
-            row[3],  # course_id
-            row[4],  # term_id
-            row[5],  # source
-            row[6],  # sync_to_canvas
-            row[7],  # title
-            row[8],  # short_title
-        )
-        instances.append(instance)
+        instance_dict = {
+            'temp_id': row[0],
+            'row_index': row[1],
+            'cs_class_type': row[2],
+            'parent_course_instance_id': row[3],
+            'course_id': row[4],
+            'term_id': int(row[5]),
+            'source': row[6],
+            'sync_to_canvas': row[7],
+            'title': row[8],
+            'short_title': row[9],
+            'course_instance_id': row[14],
+        }
+        instances.append(instance_dict)
 
     return instances
 
 
 def bulk_insert_course_instances(instances):
-    with connections['coursemanager'].cursor() as cursor:
-        # Get the actual cx_Oracle.Cursor object
-        cx_cursor = cursor.cursor
+    created_instances = []
 
-        placeholders = ', '.join(['(%s, %s, %s, %s, %s, %s, %s, %s)'] * len(instances))
+    for instance in instances:
         try:
-            cx_cursor.execute(
-                f"""
-                INSERT INTO COURSE_INSTANCE (cs_class_type, parent_course_instance_id, course_id, term_id, source, sync_to_canvas, title, short_title)
-                VALUES {placeholders}
-                RETURNING id INTO :ids
-                """,
-                instances
+            course_instance = CourseInstance(
+                cs_class_type=instance['cs_class_type'],
+                parent_course_instance_id=instance['parent_course_instance_id'],
+                course_id=instance['course_id'],
+                term_id=int(instance['term_id']),
+                source=instance['source'],
+                sync_to_canvas=instance['sync_to_canvas'],
+                title=instance['title'],
+                short_title=instance['short_title']
             )
-            connections['coursemanager'].commit()
-        except cx_Oracle.DatabaseError as e:
-            error, = e.args
-            logger.exception(f'Error inserting data into COURSE_INSTANCE table: {e}')
-            output_errors([f'bulk_insert_course_instances error: error={error}, e={e}'])
-            return
+            course_instance.save()
+            logger.debug(f"successfully created ci_id={course_instance.course_instance_id}" )
+        except Exception as e:
+            logger.exception(f'Exception creating course_instance: {e}')
+            with open('created_db_errors.txt', 'a') as f:
+                f.write(f"error={e}" + '\n')
+            continue
 
-        # Get the IDs of the inserted rows
-        ids = cx_cursor.var(cx_Oracle.NUMBERARRAY)
-        cx_cursor.execute(None, ids=ids)
-        ids = ids.values
+        created_instances.append(course_instance)
 
-        update_data = [(instance, id) for instance, id in zip(instances, ids)]
+    logger.debug(f"successfully created {len(created_instances)} course_instances" )
 
-        update_sis_section_ids(update_data)
-        update_updated_in_db_flag(update_data)
+    # Pair each created CourseInstance with its corresponding temp_id
+    created_instances_with_ids = []
+    for instance, original_instance in zip(created_instances, instances):
+        created_instances_with_ids.append((instance.course_instance_id, original_instance['temp_id']))
 
-    return ids
+    update_course_instance_ids(created_instances_with_ids)
+    return created_instances
 
 
-def update_sis_section_ids(ids):
+def update_course_instance_ids(update_data):
     with connections['coursemanager'].cursor() as cursor:
-        placeholders = ', '.join(['(%s, %s)'] * len(ids))
-
-        cursor.execute(
-            f"""
+        update_query = """
             UPDATE temp_courseinstance
-            SET sis_section_id = CASE id
-                {placeholders}
-            END
-            """,
-            ids
-        )
+            SET course_instance_id = %s
+            WHERE id = %s
+        """
+        cursor.executemany(update_query, update_data)
         connections['coursemanager'].commit()
 
 
