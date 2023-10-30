@@ -1,7 +1,6 @@
 import csv
 import logging
 
-import cx_Oracle
 from canvas_api.helpers import courses as canvas_api_helper_courses
 from canvas_api.helpers import enrollments as canvas_api_helper_enrollments
 from canvas_api.helpers import sections as canvas_api_helper_sections
@@ -25,9 +24,10 @@ class Command(BaseCommand):
         parser.add_argument('--load', action='store_true', help='Load data into a temporary table for later processing')
         parser.add_argument('--migrate_from_tmp_db', action='store_true', help='Migrate data from the temporary table to Coursemanager')
         parser.add_argument('--update_canvas_sections', action='store_true', help='Update Canvas sections')
+        parser.add_argument('--enable_sync_to_canvas', action='store_true', help='Update sync_to_canvas attribute of CourseInstance records')
         parser.add_argument('--dry-run', action='store_true', help='Perform a dry run without inserting into the database')
 
-    def handle(self, *args, **options):
+    def handle(self, **options):
         csvfile = options['csvfile']
 
         if options['load']:
@@ -61,7 +61,10 @@ class Command(BaseCommand):
                             f.write(str(instance) + '\n')
                     self.stdout.write(self.style.SUCCESS('dry-run mode: data not migrated fropm temp_courseinstance to COURSE_INSTANCE'))
                 else:
-                    bulk_insert_course_instances(instances)
+                    ids = bulk_insert_course_instances(instances)
+                    if not ids:
+                        self.stdout.write(self.style.ERROR('Error during bulk creation'))
+                        break
                     self.stdout.write(self.style.SUCCESS('Data migrated from temp_courseinstance to COURSE_INSTANCE'))
 
         elif options['update_canvas_sections']:
@@ -78,8 +81,11 @@ class Command(BaseCommand):
                     update_canvas_section(instances)
                     self.stdout.write(self.style.SUCCESS('Canvas sections updated with new COURSE_INSTANCE data'))
 
+        elif options['enable_sync_to_canvas']:
+            update_course_instance_sync_to_canvas()
+
         else:
-            self.stdout.write(self.style.ERROR('Please specify either --load, --migrate_from_tmp_db, or --update_canvas_sections'))
+            self.stdout.write(self.style.ERROR('Please specify either --load, --migrate_from_tmp_db, --update_canvas_sections, or --enable_sync_to_canva'))
 
 
 def get_instances_for_canvas():
@@ -341,16 +347,16 @@ def update_updated_in_canvas_flag(temp_ids):
         connections['coursemanager'].commit()
 
 
-def update_updated_in_db_flag(ids):
+def update_course_instance_sync_to_canvas():
     with connections['coursemanager'].cursor() as cursor:
-        placeholders = ', '.join(['(%s)'] * len(ids))
-
-        cursor.execute(
-            f"""
-            UPDATE temp_courseinstance
-            SET updated_in_db = 1
-            WHERE id IN {placeholders}
-            """,
-            ids
-        )
-        connections['coursemanager'].commit()
+        cursor.execute("SELECT course_instance_id FROM temp_courseinstance WHERE updated_in_canvas=1")
+        records = cursor.fetchall()
+        for record in records:
+            course_instance_id = record[0]
+            try:
+                course_instance = CourseInstance.objects.get(course_instance_id=course_instance_id)
+                course_instance.sync_to_canvas = 1
+                course_instance.save()
+                logger.debug(f'Enabled sync_to_canvas for ci_id={course_instance.course_instance_id}')
+            except CourseInstance.DoesNotExist:
+                logger.exception(f'CourseInstance with id={course_instance_id} does not exist')
