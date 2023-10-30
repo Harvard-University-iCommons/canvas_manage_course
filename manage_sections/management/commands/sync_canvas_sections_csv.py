@@ -25,6 +25,7 @@ class Command(BaseCommand):
         parser.add_argument('--migrate_from_tmp_db', action='store_true', help='Migrate data from the temporary table to Coursemanager')
         parser.add_argument('--update_canvas_sections', action='store_true', help='Update Canvas sections')
         parser.add_argument('--enable_sync_to_canvas', action='store_true', help='Update sync_to_canvas attribute of CourseInstance records')
+        parser.add_argument('--reverse', action='store_true', help='Reverses the Canvas and Coursemanager updates to their original states')
         parser.add_argument('--dry-run', action='store_true', help='Perform a dry run without inserting into the database')
 
     def handle(self, **options):
@@ -84,22 +85,34 @@ class Command(BaseCommand):
         elif options['enable_sync_to_canvas']:
             update_course_instance_sync_to_canvas()
 
+        elif options['reverse']:
+            reverse()
+
         else:
-            self.stdout.write(self.style.ERROR('Please specify either --load, --migrate_from_tmp_db, --update_canvas_sections, or --enable_sync_to_canva'))
+            self.stdout.write(self.style.ERROR('Please specify either --load, --migrate_from_tmp_db, --update_canvas_sections, --enable_sync_to_canvas, or --reverse'))
 
 
-def get_instances_for_canvas():
-    with connections['coursemanager'].cursor() as cursor:
-        cursor.execute("SELECT * FROM temp_courseinstance WHERE updated_in_canvas=0 AND course_instance_id IS NOT NULL FETCH FIRST %s ROWS ONLY", [BATCH_SIZE])
-        return cursor.fetchall()
+def get_instances_for_canvas(reverse=False):
+    if reverse:
+        with connections['coursemanager'].cursor() as cursor:
+            # if reversing the operation, just grab all records where canvas has been updated
+            cursor.execute("SELECT * FROM temp_courseinstance WHERE updated_in_canvas=1 AND course_instance_id IS NOT NULL")
+            return cursor.fetchall()
+    else:
+        with connections['coursemanager'].cursor() as cursor:
+            cursor.execute("SELECT * FROM temp_courseinstance WHERE updated_in_canvas=0 AND course_instance_id IS NOT NULL FETCH FIRST %s ROWS ONLY", [BATCH_SIZE])
+            return cursor.fetchall()
 
 
-def update_canvas_section(instances):
+def update_canvas_section(instances, reverse=False):
     successful_temp_ids = []
     for instance in instances:
         canvas_course_id = instance[11]
         section_id = instance[10]
         instance_id = instance[14]
+
+        if reverse:
+            instance_id = ''
 
         try:
             course_section = canvas_api_helper_sections.update_section(canvas_course_id, section_id, course_section_sis_section_id=instance_id)
@@ -109,7 +122,7 @@ def update_canvas_section(instances):
             continue
 
         if not course_section:
-            logger.warning(f'Section not created. Instance={instance}')
+            logger.warning(f'Section not updated. Instance={instance}')
             output_errors([f"canvas_course_id={canvas_course_id}, section_id={section_id}, sis_section_id={instance_id}"])
             continue
 
@@ -119,7 +132,10 @@ def update_canvas_section(instances):
 
         successful_temp_ids.append((instance[0],))
 
-    update_updated_in_canvas_flag(successful_temp_ids)
+    if reverse:
+        update_updated_in_canvas_flag(successful_temp_ids, reverse=True)
+    else:
+        update_updated_in_canvas_flag(successful_temp_ids)
 
 
 def generate_data_for_temp_table(reader, batch_size=BATCH_SIZE, start_index=0) -> list[dict]:
@@ -336,13 +352,20 @@ def update_course_instance_ids(update_data):
         connections['coursemanager'].commit()
 
 
-def update_updated_in_canvas_flag(temp_ids):
+def update_updated_in_canvas_flag(temp_ids, reverse=False):
     with connections['coursemanager'].cursor() as cursor:
-        update_query = """
-            UPDATE temp_courseinstance
-            SET updated_in_canvas = 1
-            WHERE id = %s
-        """
+        if reverse:
+            update_query = """
+                UPDATE temp_courseinstance
+                SET updated_in_canvas = 0
+                WHERE id = %s
+            """
+        else:
+            update_query = """
+                UPDATE temp_courseinstance
+                SET updated_in_canvas = 1
+                WHERE id = %s
+            """
         cursor.executemany(update_query, temp_ids)
         connections['coursemanager'].commit()
 
@@ -360,3 +383,50 @@ def update_course_instance_sync_to_canvas():
                 logger.debug(f'Enabled sync_to_canvas for ci_id={course_instance.course_instance_id}')
             except CourseInstance.DoesNotExist:
                 logger.exception(f'CourseInstance with id={course_instance_id} does not exist')
+
+
+def _delete_linked_course_instances():
+    with connections['coursemanager'].cursor() as cursor:
+        cursor.execute("""
+            SELECT course_instance_id FROM temp_courseinstance WHERE course_instance_id IS NOT NULL
+        """)
+        temp_courseinstance_ids = [row[0] for row in cursor.fetchall()]
+
+    if not temp_courseinstance_ids:
+        logger.info('No linked CourseInstance records found in temp_courseinstance table.')
+        return
+
+    try:
+        CourseInstance.objects.filter(id__in=temp_courseinstance_ids).delete()
+        logger.debug(f'Deleted {len(temp_courseinstance_ids)} course_instance records')
+    except Exception as e:
+        logger.exception(f'Error during deletion: {e}')
+        with open('delete_db_errors.txt', 'a') as f:
+            f.write(f"error={e}" + '\n')
+        return
+
+    try:
+        with connections['coursemanager'].cursor() as cursor:
+            update_query = """
+                UPDATE temp_courseinstance SET course_instance_id = NULL WHERE course_instance_id = %s
+            """
+            cursor.executemany(update_query, [(id,) for id in temp_courseinstance_ids])
+            connections['coursemanager'].commit()
+
+            logger.debug(f'Reverted course_instance_id for records')
+    except Exception as e:
+        logger.exception(f'Error during update: {e}')
+        with open('delete_db_errors.txt', 'a') as f:
+            f.write(f"error={e}" + '\n')
+
+    return
+
+
+def reverse():
+    # Reverse Canvas update by removing the sis_section_id attached to the section
+    instances = get_instances_for_canvas(reverse=True)
+    update_canvas_section(instances, reverse=True)
+
+    # Delete the course_instance records associated with the above sections
+    _delete_linked_course_instances()
+    return
