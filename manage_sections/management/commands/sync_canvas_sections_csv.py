@@ -123,7 +123,7 @@ def update_canvas_section(instances, reverse=False):
 
         if not course_section:
             logger.warning(f'Section not updated. Instance={instance}')
-            output_errors([f"canvas_course_id={canvas_course_id}, section_id={section_id}, sis_section_id={instance_id}"])
+            output_errors([f"canvas_course_id={canvas_course_id}, section_id={section_id}, sis_section_id={instance_id}, course_ssection={course_section}"])
             continue
 
         logger.debug(f'Updated course_section={course_section}')
