@@ -84,34 +84,36 @@ class Command(BaseCommand):
 
 def get_instances_for_canvas():
     with connections['coursemanager'].cursor() as cursor:
-        cursor.execute(f"""
-            SELECT * FROM temp_courseinstance
-            WHERE updated_in_canvas=0
-            FETCH FIRST {BATCH_SIZE} ROWS ONLY
-        """)
+        cursor.execute("SELECT * FROM temp_courseinstance WHERE updated_in_canvas=0 AND course_instance_id IS NOT NULL FETCH FIRST %s ROWS ONLY", [BATCH_SIZE])
         return cursor.fetchall()
 
 
-def update_canvas_section(instance_id_pairs):
-    for instance, instance_id in instance_id_pairs:
-        canvas_course_id = instance[canvas_course_id]
-        section_id = instance[canvas_section_id]
+def update_canvas_section(instances):
+    successful_temp_ids = []
+    for instance in instances:
+        canvas_course_id = instance[11]
+        section_id = instance[10]
+        instance_id = instance[14]
 
         try:
             course_section = canvas_api_helper_sections.update_section(canvas_course_id, section_id, course_section_sis_section_id=instance_id)
-            success = True
         except Exception as e:
             logger.exception(f'Unable to update section with section_id={section_id} to sis_section_id={instance_id} in Canvas')
             output_errors([f"canvas_course_id={canvas_course_id}, section_id={section_id}, sis_section_id={instance_id}: {e}"])
-            success = False
+            continue
 
-        if success:
-            canvas_api_helper_courses.delete_cache(canvas_course_id=canvas_course_id)
-            canvas_api_helper_enrollments.delete_cache(canvas_course_id)
-            # update tmp record with successful update
-            update_updated_in_canvas_flag(instance_id, 1)
-        else:
-            output_errors([f"update_canvas_section error: canvas_course_id={canvas_course_id}"])
+        if not course_section:
+            logger.warning(f'Section not created. Instance={instance}')
+            output_errors([f"canvas_course_id={canvas_course_id}, section_id={section_id}, sis_section_id={instance_id}"])
+            continue
+
+        logger.debug(f'Updated course_section={course_section}')
+        canvas_api_helper_courses.delete_cache(canvas_course_id=canvas_course_id)
+        canvas_api_helper_enrollments.delete_cache(canvas_course_id)
+
+        successful_temp_ids.append((instance[0],))
+
+    update_updated_in_canvas_flag(successful_temp_ids)
 
 
 def generate_data_for_temp_table(reader, batch_size=BATCH_SIZE, start_index=0) -> list[dict]:
@@ -156,6 +158,7 @@ def generate_data_for_temp_table(reader, batch_size=BATCH_SIZE, start_index=0) -
                 'short_title': name.strip(),
                 'section_id': canvas_section_id,
                 'canvas_course_id': canvas_course_id,
+                'course_instance_id': None,
                 'updated_in_db': 0,
                 'updated_in_canvas': 0
             })
@@ -327,15 +330,14 @@ def update_course_instance_ids(update_data):
         connections['coursemanager'].commit()
 
 
-def update_updated_in_canvas_flag(instance_id, value):
+def update_updated_in_canvas_flag(temp_ids):
     with connections['coursemanager'].cursor() as cursor:
-        cursor.execute(
-            f"""
+        update_query = """
             UPDATE temp_courseinstance
-            SET updated_in_canvas = {value}
-            WHERE id = {instance_id}
-            """
-        )
+            SET updated_in_canvas = 1
+            WHERE id = %s
+        """
+        cursor.executemany(update_query, temp_ids)
         connections['coursemanager'].commit()
 
 
