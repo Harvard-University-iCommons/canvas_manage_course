@@ -23,7 +23,7 @@ class Command(BaseCommand):
         parser.add_argument('csvfile', type=open)
         parser.add_argument('--load', action='store_true', help='Load data into a temporary table for later processing')
         parser.add_argument('--migrate_from_tmp_db', action='store_true', help='Migrate data from the temporary table to Coursemanager')
-        parser.add_argument('--update_canvas_sections', action='store_true', help='Update Canvas sections')
+        parser.add_argument('--update_canvas_sections', action='store_true', help='Update Canvas sections with sis_section_ids')
         parser.add_argument('--enable_sync_to_canvas', action='store_true', help='Update sync_to_canvas attribute of CourseInstance records')
         parser.add_argument('--reverse', action='store_true', help='Reverses the Canvas and Coursemanager updates to their original states')
         parser.add_argument('--dry-run', action='store_true', help='Perform a dry run without inserting into the database')
