@@ -525,7 +525,8 @@ def remove_from_section(request):
         table = CourseGuest
 
     try:
-        table.objects.get(course_instance_id=int(sis_section_id), user_id=int(huid), role=db_role).delete()
+        table.objects.get(course_instance_id=int(sis_section_id), user_id=huid, role=db_role).delete()
+        logger.info(f'Successfully deleted user_id={huid}, role={db_role} from course_instance_id={int(sis_section_id)}')
     except Exception as e:
         message = f"Failed to retrieve enrollment record for section {sis_section_id} from DB: {e}"
         logger.exception(message)
