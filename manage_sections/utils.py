@@ -112,6 +112,8 @@ def is_editable_section_str(section: str):
     registrar section it shouldn't be editable.
     Set to True if it is a primary/registrar section, set to False if it is not
     """
+    if not section:
+        return False
     if is_sis_section(section) or is_credit_status_section(section):
         return False
 
@@ -125,9 +127,11 @@ def is_editable_section_dict(section: dict):
     registrar section it shouldn't be editable.
     Set to True if it is a primary/registrar section, set to False if it is not
     """
-    if section.get('sis_section_id', ''):
-        if is_sis_section(section['sis_section_id']) or is_credit_status_section(section['sis_section_id']):
-            return False
+    sis_section_id = section.get('sis_section_id')
+    if not sis_section_id:
+        return False
+    if is_sis_section(sis_section_id) or is_credit_status_section(sis_section_id):
+        return False
 
     return True
 
