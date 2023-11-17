@@ -1,11 +1,13 @@
-<li id="section-{{section.id}}" class="list-group-item courseSection" data-sis-section-id="{{section.sis_section_id}}" data-section-id="{{section.id}}">
+<li id="section-{{section.id}}" class="list-group-item courseSection" data-sis-section-id="{{section.sis_section_id|default_if_none:""}}" data-section-id="{{section.id}}">
     <div class="deleteMenu">
     {% if section.registrar_section_flag %}
         <a href="#" class="disable-delete lti-tooltip" rel="tooltip" data-toggle="tooltip" title="You can't delete sections that have been created outside of Canvas" data-original-title="You can't delete sections that have been created outside of Canvas"><i class="fa fa-trash-o"></i></a>
-    {% else %}
+    {% elif section.sis_section_id %}
         <a href="{% url 'manage_sections:remove_section' section_id=section.id  sis_section_id=section.sis_section_id %}" class="remove_data lti-tooltip" rel="tooltip" data-toggle="tooltip" title="Delete section" data-original-title="Delete section">
             <i class="fa fa-trash-o"></i><span class="sr-only">Delete Section</span>
         </a>
+    {% else %}
+        <a href="#" class="disable-delete lti-tooltip" rel="tooltip" data-toggle="tooltip" title="This legacy section cannot be deleted" data-original-title="This legacy section cannot be deleted"><i class="fa fa-trash-o"></i></a>
     {% endif %}
     </div>
     <a class="listNav-item showSection" href="{% url 'manage_sections:section_details' section_id=section.id sis_section_id=section.sis_section_id %}">
@@ -19,8 +21,10 @@
     <div class="editMenu">
     {% if section.registrar_section_flag %}
         <a href="#" class="disable-delete lti-tooltip" rel="tooltip" data-toggle="tooltip" title="You can't edit sections that have been created outside of Canvas" data-original-title="You can't edit sections that have been created outside of Canvas"><i class="fa fa-pencil"></i><span class="sr-only">Edit</span></a>
-    {% else %}
+    {% elif section.sis_section_id %}
         <a href="{% url 'manage_sections:edit_section' sis_section_id=section.sis_section_id section_id=section.id %}" class="editSection lti-tooltip" rel="tooltip" data-toggle="tooltip" title="Edit section name" data-original-title="Edit section name"><i class="fa fa-pencil"></i><span class="sr-only">Edit</span></a>
+    {% else %}
+        <a href="#" class="disable-delete lti-tooltip" rel="tooltip" data-toggle="tooltip" title="This legacy section cannot be edited" data-original-title="This legacy section cannot be edited"><i class="fa fa-pencil"></i><span class="sr-only">Edit</span></a>
     {% endif %}
     </div>
 </li>
