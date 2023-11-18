@@ -1,8 +1,9 @@
 {% extends "icommons_ui/base_lti.html" %}
 {% load static %}
 {% block stylesheet %}
-{{ block.super }}
-{% endblock %}
+    {{ block.super }}
+    <link href="https://static.tlt.harvard.edu/shared/font-awesome-4.5.0/css/font-awesome.min.css" rel="stylesheet">
+{% endblock stylesheet %}
 
 {% block breadcrumb %}
 <nav>
@@ -106,7 +107,7 @@ $(document).ready(function(){
     // Add event listener to 'main-sis-section' elements to display a spinner upon click.
     $('.main-sis-section').on('click', function (event) {
         // Append loading content indicator after the clicked link.
-        $(this).parent('li').append('<span> Loadind... <i class="fa-li fa fa-spinner fa-spin"></i></span>');
+        $(this).parent('li').append(' Loading... <i class="fa fa-spinner fa-spin" aria-hidden="true"></i>');
     });
 
     //the sections menu
