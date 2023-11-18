@@ -28,19 +28,23 @@
         <p><small>
           These sections are fed from the Registrar's office.
         </small></p>
-        <ul class="">
-            {%  for section in sisenrollmentsections %}
-                {% include "manage_sections/sis_enrollment_sections.html" with data=section %}
-            {% endfor %}
-        </ul>
+        <div class="sections-list">
+            <ul class="">
+                {%  for section in sisenrollmentsections %}
+                    {% include "manage_sections/sis_enrollment_sections.html" with data=section %}
+                {% endfor %}
+            </ul>
+        </div>
         <button id="addSection" class="btn btn-primary"><i class="fa fa-plus"></i> Add A Section</button>
         <h3>Section(s):</h3>
-        <ul id="sectionsMenu" class="listNav list-group list-unstyled">
+        <div class="sections-list">
+            <ul id="sectionsMenu" class="listNav list-group list-unstyled">
 
-            {%  for section in sections %}
-                {% include "manage_sections/section_list.html" with data=section %}
-            {% endfor %}
-        </ul>
+                {%  for section in sections %}
+                    {% include "manage_sections/section_list.html" with data=section %}
+                {% endfor %}
+            </ul>
+        </div>
         <p><span style="font-size: larger;">*</span> does not include teaching staff enrollments</p>
 
         <form class="hide" action="{% url 'manage_sections:create_section' %}" method="post" id="formId">
@@ -99,6 +103,11 @@ $(document).ready(function(){
         container: 'body'
     });
 
+    // Add event listener to 'main-sis-section' elements to display a spinner upon click.
+    $('.main-sis-section').on('click', function (event) {
+        // Append loading content indicator after the clicked link.
+        $(this).parent('li').append('<span> Loadind... <i class="fa-li fa fa-spinner fa-spin"></i></span>');
+    });
 
     //the sections menu
     var $menu = $('#sectionsMenu');
