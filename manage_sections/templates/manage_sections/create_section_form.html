@@ -104,10 +104,16 @@ $(document).ready(function(){
         container: 'body'
     });
 
-    // Add event listener to 'main-sis-section' elements to display a spinner upon click.
-    $('.main-sis-section').on('click', function (event) {
-        // Append loading content indicator after the clicked link.
-        $(this).parent('li').append(' Loading... <i class="fa fa-spinner fa-spin" aria-hidden="true"></i>');
+    // Add event listener to 'main-sis-section' and 'section-list' elements to display a spinner upon click.
+    $('.main-sis-section, .section-list').on('click', function (event) {
+        const spinner = ' Loading... <i class="fa fa-spinner fa-spin" aria-hidden="true"></i>'
+
+        // Append loading content (spinner) indicator after the clicked link.
+        if ($(this).hasClass('main-sis-section')) {
+            $(this).closest('li').append(`<span>&emsp;${spinner}</span>`);
+        } else if ($(this).hasClass('section-list')) {
+            $(this).closest('div').append(`<span class="listNav-item">${spinner}<span style="font-size: larger;"></span></span>`);
+        }
     });
 
     //the sections menu
