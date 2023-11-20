@@ -465,6 +465,12 @@ $(document).ready(function(){
         const removeUrl = $(this).data('url');
         const sectionId = $(this).data('sectionId');
         const sectionRow = $('[data-section-id="' + sectionId + '"]');
+
+        // Disable the delete comfirmation button and append 
+        // processing indicator text to the confirm delete modal body.
+        $("#btnConfirmDelSection").prop('disabled', true);
+        $(".modal-body").append('<p>Processing... <i class="fa fa-spinner fa-spin" aria-hidden="true"></i></p>');
+
         $.ajax({
             url: removeUrl,
             type : "POST",
@@ -486,7 +492,8 @@ $(document).ready(function(){
             }
         })
         .always(function() {
-            $('#confirmDelSection').modal('hide');
+            $('#confirmDelSection').modal('hide');  // Re-enable the delete comfirmation button.
+            $("#btnConfirmDelSection").prop('disabled', false);
         });
     }
 
