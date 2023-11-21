@@ -1,4 +1,6 @@
 # Canvas Manage Course
+![Static Badge](https://img.shields.io/badge/Python-v3.10-lavender?logo=python)
+![GitHub tag (with filter)](https://img.shields.io/github/v/tag/Harvard-University-iCommons/canvas_manage_course?label=Latest%20tag)
 
 This project provides a collection of utilies used to administer Harvard Academic Technology's instance of Canvas at the course level. The project is an LTI tool, i.e. installed via LTI.
 
