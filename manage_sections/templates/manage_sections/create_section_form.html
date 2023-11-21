@@ -47,6 +47,7 @@
             <label for="newSectionName" class="sr-only">Enter a section name</label>
             <input type="text" id="newSectionName" placeholder="Enter Section Name" class="form-control " />
             <span class="closeInput closeAdd cancelAdd"><i class="fa fa-times cancelAdd"></i></span>
+            <span class="closeInput closeAdd saveAdd"><i class="fa fa-floppy-o saveAdd"></i></span>
             <div id="formErr" class="hide">
                 <p class="text-danger">We've encountered an error creating the requested section. Please try again.</p>
             </div>
@@ -148,56 +149,43 @@ $(document).ready(function(){
 
 
     //listen when the user has click away from the text input
-    $(document).bind('mousedown',function(e){
+    $(document).bind('click',function(e){
         //checks to see the form input is visible
-        if ( !($newSectionInput.is(':hidden')) )
-        {
+        if (!($newSectionInput.is(':hidden'))) {
             //closing the input text field when clicking on the x
+            insertSectionTriggered = false;
             if ($(e.target).hasClass('cancelAdd')){
                 //hide the form
                 $newSectionInput.trigger('toggle');
-            }else{
-                //1 listens for mouse click and if the input is empty
-                //keep the input open with error class
-                //Else the user clicked after populating the text and inserts
-                //the new section
-                if ( e.which == 1 && $('#newSectionName').val().length == 0 ){
-                    //keep focus on textbox
+            } else if ($(e.target).hasClass('saveAdd')){
                     e.preventDefault();
-                    $newSectionInput.focus();
+                // Check if the input field is empty
+                if ($('#newSectionName').val().length == 0) {
                     $('#newSectionName').parent().addClass('has-error');
-                    //change placeholder text to indicate error
                     $('#newSectionName').attr('placeholder', 'You must provide a name');
-                }else{
-                    //call to AJAX method to insert a section
+                } else {
+                    // Call AJAX method to insert a section
                     $menu.trigger('insertSection');
-                }
             }
         }
         //checks to see if the update form is visible
-        else if ( ($('#editSection').hasClass('showSection')) )
-        {
+        } else if (($('#editSection').hasClass('showSection'))) {
             //cancel the edit operation by hiding form and restoring
             //to previous section name
-            if ( $(e.target).hasClass('cancelEdit') )
-                cancelEditing();
-
+            if ($(e.target).hasClass('cancelEdit')) cancelEditing();
             //1 listens for mouse click and if the input is empty
             //keep the input open with error class
             //Else the user clicked after populating the text and inserts
             //the new section
-            if ( e.which == 1 && $('#editSectionName').val().length == 0 ){
+            if (e.which == 1 && $('#editSectionName').val().length == 0) {
                 //keep focus on textbox
                 e.preventDefault();
                 $newSectionInput.focus();
                 $('#editSectionName').parent().addClass('has-error');
                 $('#editSectionName').attr('placeholder', 'You must provide a name');
-
-            }
             //allow them to click on the input field but once they click
             //outside then continue with the update
-            else if ( $(e.target).attr('id') != 'editSectionName' )
-            {
+            } else if ($(e.target).attr('id') != 'editSectionName') {
                 //hide the form after editing the section name
                 $editSectionForm.removeClass('showSection').addClass('hide');
                 //remove any error classes
