@@ -115,28 +115,34 @@ $(document).ready(function(){
         $('#newSectionName').focus();
     });
 
-    //listening to tab and enter. If the text input is empty then
-    //throw an error else continue adding the section
+    // Create a flag to track if 'insertSection' has been triggered
+    var insertSectionTriggered = false;
+
+    // Listening enter pressdown. If the text input is empty then
+    // throw an error else continue adding the section
     $('#newSectionName').bind('keydown', function(e){
-        //The jquery e.which property normalizes e.keyCode and e.charCode
-        //check for tab key (9), enter key (13) or esc key (27)
+        // The jquery e.which property normalizes e.keyCode and e.charCode
+        // Check for enter key (13) or esc key (27)
         switch(e.which){
-            case 9:
             case 13:
-                //check for empty input
+                // Check for empty input
                 if ($(this).val().length == 0){
                     $(this).parent().addClass('has-error');
-                    //change placeholder text to indicate error
+                    // Change placeholder text to indicate error
                     $('#newSectionName').attr('placeholder', 'You must provide a name');
-                    //keep focus on textbox
+                    // Keep focus on textbox
                     $(this).focus();
-                    //don't let them tab away
+                    // Don't let them tab away
                     e.preventDefault();
-
                     break;
                 }
-
-                $menu.trigger('insertSection');
+                
+                // Check if 'insertSection' has already been triggered
+                if (!insertSectionTriggered) {
+                    $menu.trigger('insertSection');
+                    insertSectionTriggered = true; // This will prevent multiple form submission
+                }
+                
                 e.preventDefault();
                 break;
             case 27:
@@ -144,9 +150,7 @@ $(document).ready(function(){
                 e.preventDefault();
                 break;
         }
-
     });
-
 
     //listen when the user has click away from the text input
     $(document).bind('click',function(e){
@@ -158,7 +162,7 @@ $(document).ready(function(){
                 //hide the form
                 $newSectionInput.trigger('toggle');
             } else if ($(e.target).hasClass('saveAdd')){
-                    e.preventDefault();
+                e.preventDefault();
                 // Check if the input field is empty
                 if ($('#newSectionName').val().length == 0) {
                     $('#newSectionName').parent().addClass('has-error');
@@ -166,8 +170,8 @@ $(document).ready(function(){
                 } else {
                     // Call AJAX method to insert a section
                     $menu.trigger('insertSection');
-            }
-        }
+                }
+            } 
         //checks to see if the update form is visible
         } else if (($('#editSection').hasClass('showSection'))) {
             //cancel the edit operation by hiding form and restoring
