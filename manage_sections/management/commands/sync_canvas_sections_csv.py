@@ -109,7 +109,7 @@ def update_canvas_section(instances, reverse=False):
     for instance in instances:
         canvas_course_id = instance[11]
         section_id = instance[10]
-        instance_id = instance[14]
+        instance_id = instance[12]
 
         if reverse:
             instance_id = ''
@@ -123,7 +123,7 @@ def update_canvas_section(instances, reverse=False):
 
         if not course_section:
             logger.warning(f'Section not updated. Instance={instance}')
-            output_errors([f"canvas_course_id={canvas_course_id}, section_id={section_id}, sis_section_id={instance_id}, course_ssection={course_section}"])
+            output_errors([f"canvas_course_id={canvas_course_id}, section_id={section_id}, sis_section_id={instance_id}, course_section={course_section}"])
             continue
 
         logger.debug(f'Updated course_section={course_section}')
@@ -151,7 +151,7 @@ def generate_data_for_temp_table(reader, batch_size=BATCH_SIZE, start_index=0) -
             try:
                 int(parent_sis_course_id)
             except ValueError as e:
-                logger.warning(f"sis_course_id {parent_sis_course_id} not a valid SIs ID")
+                logger.warning(f"sis_course_id {parent_sis_course_id} not a valid SIS ID")
                 errors.append(f'{row}: {e}')
                 continue
 
@@ -298,7 +298,7 @@ def generate_instances_for_coursemanager():
             'sync_to_canvas': row[7],
             'title': row[8],
             'short_title': row[9],
-            'course_instance_id': row[14],
+            'course_instance_id': row[12],
         }
         instances.append(instance_dict)
 
