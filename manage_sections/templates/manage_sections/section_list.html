@@ -10,14 +10,16 @@
         <a href="#" class="disable-delete lti-tooltip" rel="tooltip" data-toggle="tooltip" title="This legacy section cannot be deleted" data-original-title="This legacy section cannot be deleted"><i class="fa fa-trash-o"></i></a>
     {% endif %}
     </div>
-    <a class="listNav-item showSection" href="{% url 'manage_sections:section_details' section_id=section.id sis_section_id=section.sis_section_id %}">
-        <span class="sectionName">{{ section.name }}</span>
-        {% if section.enrollment_count == 'n/a' %}
-            (enrollee count not available)
-        {% else %}
-            (<span class="sectionCount">{{section.enrollment_count}}</span> student{{ section.enrollment_count|pluralize }}<span style="font-size: larger;">*</span>)
-        {% endif %}
-    </a>
+    <div>
+        <a class="listNav-item showSection section-list" href="{% url 'manage_sections:section_details' section_id=section.id %}">
+            <span class="sectionName">{{ section.name }}</span>
+            {% if section.enrollment_count == 'n/a' %}
+                (enrollee count not available)
+            {% else %}
+                (<span class="sectionCount">{{section.enrollment_count}}</span> student{{ section.enrollment_count|pluralize }}<span style="font-size: larger;">*</span>)
+            {% endif %}
+        </a>
+    </div>
     <div class="editMenu">
     {% if section.registrar_section_flag %}
         <a href="#" class="disable-delete lti-tooltip" rel="tooltip" data-toggle="tooltip" title="You can't edit sections that have been created outside of Canvas" data-original-title="You can't edit sections that have been created outside of Canvas"><i class="fa fa-pencil"></i><span class="sr-only">Edit</span></a>

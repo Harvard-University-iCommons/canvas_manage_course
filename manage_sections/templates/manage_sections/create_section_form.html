@@ -1,8 +1,9 @@
 {% extends "icommons_ui/base_lti.html" %}
 {% load static %}
 {% block stylesheet %}
-{{ block.super }}
-{% endblock %}
+    {{ block.super }}
+    <link href="https://static.tlt.harvard.edu/shared/font-awesome-4.5.0/css/font-awesome.min.css" rel="stylesheet">
+{% endblock stylesheet %}
 
 {% block breadcrumb %}
 <nav>
@@ -28,25 +29,30 @@
         <p><small>
           These sections are fed from the Registrar's office.
         </small></p>
-        <ul class="">
-            {%  for section in sisenrollmentsections %}
-                {% include "manage_sections/sis_enrollment_sections.html" with data=section %}
-            {% endfor %}
-        </ul>
+        <div class="sections-list">
+            <ul class="">
+                {%  for section in sisenrollmentsections %}
+                    {% include "manage_sections/sis_enrollment_sections.html" with data=section %}
+                {% endfor %}
+            </ul>
+        </div>
         <button id="addSection" class="btn btn-primary"><i class="fa fa-plus"></i> Add A Section</button>
         <h3>Section(s):</h3>
-        <ul id="sectionsMenu" class="listNav list-group list-unstyled">
+        <div class="sections-list">
+            <ul id="sectionsMenu" class="listNav list-group list-unstyled">
 
-            {%  for section in sections %}
-                {% include "manage_sections/section_list.html" with data=section %}
-            {% endfor %}
-        </ul>
+                {%  for section in sections %}
+                    {% include "manage_sections/section_list.html" with data=section %}
+                {% endfor %}
+            </ul>
+        </div>
         <p><span style="font-size: larger;">*</span> does not include teaching staff enrollments</p>
 
         <form class="hide" action="{% url 'manage_sections:create_section' %}" method="post" id="formId">
             <label for="newSectionName" class="sr-only">Enter a section name</label>
             <input type="text" id="newSectionName" placeholder="Enter Section Name" class="form-control " />
             <span class="closeInput closeAdd cancelAdd"><i class="fa fa-times cancelAdd"></i></span>
+            <span class="closeInput closeAdd saveAdd"><i class="fa fa-floppy-o saveAdd"></i></span>
             <div id="formErr" class="hide">
                 <p class="text-danger">We've encountered an error creating the requested section. Please try again.</p>
             </div>
@@ -99,6 +105,17 @@ $(document).ready(function(){
         container: 'body'
     });
 
+    // Add event listener to 'main-sis-section' and 'section-list' elements to display a spinner upon click.
+    $('.main-sis-section, .section-list').on('click', function (event) {
+        const spinner = ' Loading... <i class="fa fa-spinner fa-spin" aria-hidden="true"></i>'
+
+        // Append loading content (spinner) indicator after the clicked link.
+        if ($(this).hasClass('main-sis-section')) {
+            $(this).closest('li').append(`<span>&emsp;${spinner}</span>`);
+        } else if ($(this).hasClass('section-list')) {
+            $(this).closest('div').append(`<span class="listNav-item">${spinner}<span style="font-size: larger;"></span></span>`);
+        }
+    });
 
     //the sections menu
     var $menu = $('#sectionsMenu');
@@ -114,28 +131,34 @@ $(document).ready(function(){
         $('#newSectionName').focus();
     });
 
-    //listening to tab and enter. If the text input is empty then
-    //throw an error else continue adding the section
+    // Create a flag to track if 'insertSection' has been triggered
+    var insertSectionTriggered = false;
+
+    // Listening enter pressdown. If the text input is empty then
+    // throw an error else continue adding the section
     $('#newSectionName').bind('keydown', function(e){
-        //The jquery e.which property normalizes e.keyCode and e.charCode
-        //check for tab key (9), enter key (13) or esc key (27)
+        // The jquery e.which property normalizes e.keyCode and e.charCode
+        // Check for enter key (13) or esc key (27)
         switch(e.which){
-            case 9:
             case 13:
-                //check for empty input
+                // Check for empty input
                 if ($(this).val().length == 0){
                     $(this).parent().addClass('has-error');
-                    //change placeholder text to indicate error
+                    // Change placeholder text to indicate error
                     $('#newSectionName').attr('placeholder', 'You must provide a name');
-                    //keep focus on textbox
+                    // Keep focus on textbox
                     $(this).focus();
-                    //don't let them tab away
+                    // Don't let them tab away
                     e.preventDefault();
-
                     break;
                 }
-
-                $menu.trigger('insertSection');
+                
+                // Check if 'insertSection' has already been triggered
+                if (!insertSectionTriggered) {
+                    $menu.trigger('insertSection');
+                    insertSectionTriggered = true; // This will prevent multiple form submission
+                }
+                
                 e.preventDefault();
                 break;
             case 27:
@@ -143,61 +166,46 @@ $(document).ready(function(){
                 e.preventDefault();
                 break;
         }
-
     });
 
-
     //listen when the user has click away from the text input
-    $(document).bind('mousedown',function(e){
+    $(document).bind('click',function(e){
         //checks to see the form input is visible
-        if ( !($newSectionInput.is(':hidden')) )
-        {
+        if (!($newSectionInput.is(':hidden'))) {
             //closing the input text field when clicking on the x
+            insertSectionTriggered = false;
             if ($(e.target).hasClass('cancelAdd')){
                 //hide the form
                 $newSectionInput.trigger('toggle');
-            }else{
-                //1 listens for mouse click and if the input is empty
-                //keep the input open with error class
-                //Else the user clicked after populating the text and inserts
-                //the new section
-                if ( e.which == 1 && $('#newSectionName').val().length == 0 ){
-                    //keep focus on textbox
-                    e.preventDefault();
-                    $newSectionInput.focus();
+            } else if ($(e.target).hasClass('saveAdd')){
+                e.preventDefault();
+                // Check if the input field is empty
+                if ($('#newSectionName').val().length == 0) {
                     $('#newSectionName').parent().addClass('has-error');
-                    //change placeholder text to indicate error
                     $('#newSectionName').attr('placeholder', 'You must provide a name');
-                }else{
-                    //call to AJAX method to insert a section
+                } else {
+                    // Call AJAX method to insert a section
                     $menu.trigger('insertSection');
                 }
-            }
-        }
+            } 
         //checks to see if the update form is visible
-        else if ( ($('#editSection').hasClass('showSection')) )
-        {
+        } else if (($('#editSection').hasClass('showSection'))) {
             //cancel the edit operation by hiding form and restoring
             //to previous section name
-            if ( $(e.target).hasClass('cancelEdit') )
-                cancelEditing();
-
+            if ($(e.target).hasClass('cancelEdit')) cancelEditing();
             //1 listens for mouse click and if the input is empty
             //keep the input open with error class
             //Else the user clicked after populating the text and inserts
             //the new section
-            if ( e.which == 1 && $('#editSectionName').val().length == 0 ){
+            if (e.which == 1 && $('#editSectionName').val().length == 0) {
                 //keep focus on textbox
                 e.preventDefault();
                 $newSectionInput.focus();
                 $('#editSectionName').parent().addClass('has-error');
                 $('#editSectionName').attr('placeholder', 'You must provide a name');
-
-            }
             //allow them to click on the input field but once they click
             //outside then continue with the update
-            else if ( $(e.target).attr('id') != 'editSectionName' )
-            {
+            } else if ($(e.target).attr('id') != 'editSectionName') {
                 //hide the form after editing the section name
                 $editSectionForm.removeClass('showSection').addClass('hide');
                 //remove any error classes
@@ -449,6 +457,12 @@ $(document).ready(function(){
         const removeUrl = $(this).data('url');
         const sectionId = $(this).data('sectionId');
         const sectionRow = $('[data-section-id="' + sectionId + '"]');
+
+        // Disable the delete comfirmation button and append 
+        // processing indicator text to the confirm delete modal body.
+        $("#btnConfirmDelSection").prop('disabled', true);
+        $(".modal-body").append('<p>Processing... <i class="fa fa-spinner fa-spin" aria-hidden="true"></i></p>');
+
         $.ajax({
             url: removeUrl,
             type : "POST",
@@ -470,7 +484,8 @@ $(document).ready(function(){
             }
         })
         .always(function() {
-            $('#confirmDelSection').modal('hide');
+            $('#confirmDelSection').modal('hide');  // Re-enable the delete comfirmation button.
+            $("#btnConfirmDelSection").prop('disabled', false);
         });
     }
 

@@ -2,8 +2,9 @@
 {% load static %}
 
 {% block stylesheet %}
-{{ block.super }}
-<link rel="stylesheet" type="text/css" href="{% static "manage_sections/css/manage_sections.css" %}" media="screen"/>
+    {{ block.super }}
+    <link href="https://static.tlt.harvard.edu/shared/font-awesome-4.5.0/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="{% static "manage_sections/css/manage_sections.css" %}" media="screen"/>
 {% endblock stylesheet %}
 
 {% block breadcrumb %}
@@ -27,7 +28,7 @@
                 {% endif %}
 
                 <div id="pane-left">
-                   {{section_name}}: <span class="enroll_count"></span> user<span class="enroll_count_pluralize"></span>
+                   {{section_name}}: <span class="enroll_count"><i class="fa fa-spinner fa-spin" aria-hidden="true"></i></span> user<span class="enroll_count_pluralize"></span>
                    <div id="sectionUsers">
                    </div>
                 </div>
@@ -37,6 +38,9 @@
                         <button class="btn btn-primary pull-right add-selected-users" disabled><i class="fa fa-plus"></i> Add Selection</button>
                     {% endif %}
                     <div id="fullClassList">
+                        <div class="mt-5 pt-5">
+                            <br><span>Loading users... <span><i class="fa fa-spinner fa-spin" aria-hidden="true"></i>
+                        </div>
                     </div>
                 </div>
             </div>
