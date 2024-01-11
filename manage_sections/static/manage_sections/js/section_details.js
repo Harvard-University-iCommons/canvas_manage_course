@@ -39,7 +39,7 @@ $(document).ready(function() {
         $.get(userlistURL, function( data ) {
             $('#sectionUsers').html( data );
             updateSectionUserCountDisplay();
-            //call the pagination plugin after the data has been added   
+            //call the pagination plugin after the data has been added
             $('#people-list').alphabetPagination();
             paneHeight();
             // Tooltip message for when removing a user
@@ -47,7 +47,7 @@ $(document).ready(function() {
             $("#people-list").on('click', '.icon-removeUser', removeUser);
         })
         .done(function(){
-            //checking for msgCSS and msgTxt controls the displaying from showing when successfully 
+            //checking for msgCSS and msgTxt controls the displaying from showing when successfully
             //removing users from a section
             if ( !(typeof msgEleId === 'undefined' || typeof msgCSS === 'undefined' || typeof msgTxt === 'undefined') ) {
                 $('li' + msgEleId).removeClass('hidden').html(messageHTML(msgCSS, msgTxt));
@@ -56,12 +56,12 @@ $(document).ready(function() {
     }
 
     function loadSectionClassList(msgEleId, msgCSS, msgTxt) {
-        $.get(classlistURL, function( data ) {     
+        $.get(classlistURL, function( data ) {
             $('#fullClassList').html( data );
             // Reset selection count
             updateSelectionCountDisplay();
             $('.btn.add-selected-users').prop('disabled', true);
-            // Call the pagination plugin after the data has been added   
+            // Call the pagination plugin after the data has been added
             $('#people-in-course').alphabetPagination();
             paneHeight();
 
@@ -71,7 +71,7 @@ $(document).ready(function() {
             });
         })
         .done(function(){
-            //checking for msgCSS and msgTxt controls the displaying from showing when successfully 
+            //checking for msgCSS and msgTxt controls the displaying from showing when successfully
             //removing users from a section
             if ( !(typeof msgEleId === 'undefined' || typeof msgCSS === 'undefined' || typeof msgTxt === 'undefined') )
                 $('li' + msgEleId).removeClass('hidden').html(messageHTML(msgCSS, msgTxt));
@@ -125,16 +125,18 @@ $(document).ready(function() {
 
         $('#addUsers').show();
     }
-        
+
     function removeUser(e) {
         // Prevent the anchor from making the page jump
         e.preventDefault();
         var $removeUserBtn = $(this);
         var roleLabel = $removeUserBtn.attr('data-enrollment_role_label');
+        var roleId = $removeUserBtn.attr('data-enrollment_role_id');
+        var userId = $removeUserBtn.attr('data-user_id');
         var userLine = $(this).closest("li");
         var userName = $removeUserBtn.attr('data-user_name');
         $('#confirmDelUser .modal-body').html('Remove ' + userName + ' from this section?');
-        
+
         var msgTxt, msgCSS, msgEleId;
 
         var $modal = $('#confirmDelUser').modal({ keyboard:false });
@@ -142,11 +144,14 @@ $(document).ready(function() {
             //disable the delete popup buttons so the user is not abel to double click
             $('#confirmDelUser button').attr('disabled', 'disabled');
             $.ajax({
-                url : rmFromSectionURL, 
+                url : rmFromSectionURL,
                 type : "POST",
                 data : {
                     user_section_id : $removeUserBtn.attr("data-enrollee-id"),
-                    section_id: $('main').data('section_id')
+                    section_id: $('main').data('section_id'),
+                    sis_section_id: $('main').data('sis_section_id'),
+                    role_id: roleId,
+                    user_id: userId
                 }
             })
             .always(function(xhrOrData){
@@ -194,7 +199,7 @@ $(document).ready(function() {
             var $checkbox = $(this);
             userLines.push($checkbox.parent());
             usersToAdd.push({
-                enrollment_user_id: $checkbox.attr('data-user_id'), 
+                enrollment_user_id: $checkbox.attr('data-user_id'),
                 enrollment_role_id: $checkbox.attr('data-enrollment_role_id'),
                 enrollment_type: $checkbox.attr('data-enrollment_type')
             });
@@ -206,10 +211,12 @@ $(document).ready(function() {
         $addSelectedBtn.find('i').removeClass('fa-plus').addClass('fa-spinner fa-spin');
         var msgTxt, msgCSS, msgEleId;
         $.ajax({
-            url : addToSectionURL, 
+            url : addToSectionURL,
             type : "POST",
             data: JSON.stringify({
                 section_id: $('main').data('section_id'),
+                sis_section_id: $('main').data('sis_section_id'),
+                section_name: $('main').data('section_name'),
                 users_to_add: usersToAdd
             }),
             dataType: 'json',

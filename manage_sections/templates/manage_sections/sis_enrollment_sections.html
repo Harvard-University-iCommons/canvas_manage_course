@@ -1,5 +1,5 @@
 <li id="{{ section.id }}" class="">
-    <a class="main-sis-section" href="{% url 'manage_sections:section_details' section_id=section.id %}">
+    <a class="main-sis-section" href="{% url 'manage_sections:section_details' section_id=section.id sis_section_id=section.sis_section_id %}">
         {{ section.name }}
         {% if section.enrollment_count == 'n/a' %}
             (enrollee count not available)
