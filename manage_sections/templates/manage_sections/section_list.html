@@ -11,7 +11,7 @@
     {% endif %}
     </div>
     <div>
-        <a class="listNav-item showSection section-list" href="{% url 'manage_sections:section_details' section_id=section.id %}">
+        <a class="listNav-item showSection section-list" href="{% url 'manage_sections:section_details' section_id=section.id sis_section_id=section.sis_section_id %}">
             <span class="sectionName">{{ section.name }}</span>
             {% if section.enrollment_count == 'n/a' %}
                 (enrollee count not available)
