@@ -211,7 +211,6 @@ def delete_enrollments(enrollments, course_id):
 
 
 def create_db_section(course_instance: CourseInstance, section_name: str):
-    # First create the section record
     try:
         db_course_section = CourseInstance(
             cs_class_type='N',
