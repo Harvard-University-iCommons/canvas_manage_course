@@ -1,6 +1,7 @@
 import functools
 import logging
 import re
+import uuid
 
 from canvas_api.helpers import courses as canvas_api_helper_courses
 from canvas_api.helpers import enrollments as canvas_api_helper_enrollments
@@ -221,32 +222,24 @@ def create_db_section(course_instance: CourseInstance, section_name: str):
             sync_to_canvas = 1,
             title = section_name.strip(),
             short_title = section_name.strip(),
+            section = str(uuid.uuid4())
         )
         db_course_section.save()
     except Exception as e:
         logger.exception(
             f'Unexpected error while creating section for '
-            f'parent_course_instance_id:{course_instance.course_instance_id}',
-            extra={'error': e},
-        )
-        raise
-
-    # Then backfill the `section` column with the course_instance_id of the new record
-    try:
-        db_course_section.section = str(db_course_section.course_instance_id)
-        db_course_section.save()
-    except Exception as e:
-        logger.exception(
-            f'Unexpected error setting section value for '
-            f'parent_course_instance_id:{course_instance.course_instance_id}',
+            f'parent_course_instance_id: {course_instance.course_instance_id}',
             extra={'error': e},
         )
         raise
 
     logger.info(
         f'Successfully created section for '
-        f'parent_course_instance_id:{course_instance.course_instance_id}',
-        extra={'course_instance_id': db_course_section.course_instance_id},
+        f'parent_course_instance_id: {course_instance.course_instance_id}',
+        extra={
+            'course_instance_id': db_course_section.course_instance_id,
+            'title': db_course_section.title,
+        }
     )
 
     return db_course_section
