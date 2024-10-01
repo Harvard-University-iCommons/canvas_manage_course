@@ -380,17 +380,23 @@ def section_class_list(request, section_id):
     """
     canvas_course_id = request.LTI['custom_canvas_course_id']
     section = canvas_api_helper_sections.get_section(canvas_course_id, section_id)
+
+    # Fetch enrollments for the course
     course_enrollments = [
         e for e in canvas_api_helper_enrollments.get_enrollments(canvas_course_id)
         if e['type'] in ENROLLMENT_TYPES
     ]
 
+    # Apply the unique enrollment filter, ensuring non-manual enrollments are included
     eligible_enrollments = unique_enrollments_not_in_section_filter(
         section_id, course_enrollments)
+    
+    # Add badges and roles to the filtered enrollments
     enrollments_badged = _add_badge_label_name_to_enrollments(
         eligible_enrollments)
     enrollments = canvas_api_helper_enrollments.add_role_labels_to_enrollments(
         enrollments_badged)
+    
     enrollments.sort(key=lambda x: x['user']['sortable_name'])
 
     return render(request, 'manage_sections/_section_classlist.html', {
