@@ -41,7 +41,11 @@ def unique_enrollments_not_in_section_filter(section_id, enrollments):
     section_set = {role_key(x) for x in enrollments if x['course_section_id'] == int(section_id)}
     # Use a temporary dictionary to get unique enrollments based on the "role_key".  Filter out any
     # records where the role_key is present in the current section (by using the section_set above)
-    return list({role_key(x): x for x in enrollments if role_key(x) not in section_set}.values())
+
+    # Filter out enrollments in manually-created sections (source='managecrs')
+    non_manual_enrollments = [enr for enr in enrollments if enr.get('source') != 'managecrs']
+
+    return list({role_key(x): x for x in non_manual_enrollments if role_key(x) not in section_set}.values())
 
 
 def get_section_by_id(section_id):
