@@ -138,7 +138,7 @@ def results_list(request):
     # Find all users enrolled in the course according to Canvas with roles that
     # are deletable via Manage People.
     available_roles = get_available_roles(course_instance_id)
-    enrolled_roles_by_id = get_enrolled_roles_for_user_ids(
+    enrolled_roles_by_id, error_msgs = get_enrolled_roles_for_user_ids(
         canvas_course_id, list(search_results.keys()))
     user_ids_with_enrollments = list(enrolled_roles_by_id.keys())
 
@@ -160,6 +160,7 @@ def results_list(request):
         if user_id not in user_ids_with_enrollments
     }
 
+    error_messages.extend(error_msgs)
     return render(request, 'manage_people/results_list.html', {
         'available_roles': available_roles,
         'enrolled_roles_by_id': dict(enrolled_roles_by_id),  # templates don't
@@ -180,6 +181,8 @@ def get_enrolled_roles_for_user_ids(canvas_course_id, search_results_user_ids):
     are already enrolled in the course and to display Canvas role names.
     Do not match XIDs.
     """
+    error_messages = []
+
     t0 = time.perf_counter()
     logger.debug(f'search_results_user_ids: {search_results_user_ids}')
     canvas_enrollments = []
@@ -204,18 +207,19 @@ def get_enrolled_roles_for_user_ids(canvas_course_id, search_results_user_ids):
     for enrollment in canvas_enrollments:
         try:
             sis_user_id = enrollment['user']['sis_user_id']
-        except KeyError:
-            continue
-        else:
             if sis_user_id in search_results_user_ids:
                 enrollment.update(
                     {'canvas_role_label': canvas_roles_by_role_id[
                         enrollment['role_id']]['label']})
                 found_ids[sis_user_id].append(enrollment)
+        except KeyError as e:
+            logger.exception(f'Unable to retrieve role id {enrollment.get("role_id")} for sis_user_id {enrollment.get("user", {}).get("sis_user_id")} from the Canvas role list.',
+                             extra={'enrollment': enrollment})
+            error_messages.append(f'Some roles could not be retrieved for one or more users from the Canvas role list.')
 
     t3 = time.perf_counter()
     logger.debug(f'*** TIMING getting role labels took {t3 - t2} seconds')
-    return found_ids
+    return found_ids, error_messages
 
 def find_person(search_term):
     t0 = time.perf_counter()
