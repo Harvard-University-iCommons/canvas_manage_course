@@ -206,15 +206,15 @@ def get_enrolled_roles_for_user_ids(canvas_course_id, search_results_user_ids):
     found_ids = defaultdict(list)
     for enrollment in canvas_enrollments:
         try:
+            enrollment_role = UserRole.objects.get(canvas_role_id=enrollment['role_id'])
+
             sis_user_id = enrollment['user']['sis_user_id']
             if sis_user_id in search_results_user_ids:
                 enrollment.update(
-                    {'canvas_role_label': canvas_roles_by_role_id[
-                        enrollment['role_id']]['label']})
+                    {'canvas_role_label': enrollment_role.role_name})
                 found_ids[sis_user_id].append(enrollment)
-        except KeyError as e:
-            logger.exception(f'Unable to retrieve role id {enrollment.get("role_id")} for sis_user_id {enrollment.get("user", {}).get("sis_user_id")} from the Canvas role list.',
-                             extra={'enrollment': enrollment})
+        except UserRole.DoesNotExist:
+            logger.exception(f'Error: Canvas role id {enrollment["role_id"]} does not exist in the UserRole table.')
             error_messages.append(f'One or more roles could not be retrieved for the user from the Canvas role list.')
 
     t3 = time.perf_counter()
