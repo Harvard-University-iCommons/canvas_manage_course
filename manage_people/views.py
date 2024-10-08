@@ -215,7 +215,7 @@ def get_enrolled_roles_for_user_ids(canvas_course_id, search_results_user_ids):
         except KeyError as e:
             logger.exception(f'Unable to retrieve role id {enrollment.get("role_id")} for sis_user_id {enrollment.get("user", {}).get("sis_user_id")} from the Canvas role list.',
                              extra={'enrollment': enrollment})
-            error_messages.append(f'Some roles could not be retrieved for one or more users from the Canvas role list.')
+            error_messages.append(f'One or more roles could not be retrieved for the user from the Canvas role list.')
 
     t3 = time.perf_counter()
     logger.debug(f'*** TIMING getting role labels took {t3 - t2} seconds')
