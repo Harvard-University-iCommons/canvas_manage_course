@@ -206,12 +206,19 @@ def get_enrolled_roles_for_user_ids(canvas_course_id, search_results_user_ids):
     found_ids = defaultdict(list)
     for enrollment in canvas_enrollments:
         try:
-            enrollment_role = UserRole.objects.get(canvas_role_id=enrollment['role_id'])
+            enrollment_role = UserRole.objects.filter(canvas_role_id=enrollment['role_id']).first()
 
             sis_user_id = enrollment['user']['sis_user_id']
             if sis_user_id in search_results_user_ids:
-                enrollment.update(
-                    {'canvas_role_label': enrollment_role.role_name})
+                if enrollment_role:
+                    enrollment.update({'canvas_role_label': enrollment_role.role_name})
+                else: 
+                    logger.warning(f"No matching UserRole found for canvas_role_id {enrollment['role_id']}")
+                    enrollment.update({'canvas_role_label': f"Unknown role {enrollment['role_id']}"})
+                    error_messages.append(
+                        f"Unable to resolve a role for user {sis_user_id} (Canvas role id {enrollment['role_id']})"
+                    )
+
                 found_ids[sis_user_id].append(enrollment)
         except UserRole.DoesNotExist:
             logger.exception(f'Error: Canvas role id {enrollment["role_id"]} does not exist in the UserRole table.')
@@ -324,8 +331,13 @@ def add_users(request):
         if person: 
             person.error_message = error_msg
         else:
-            person = Person(univ_id=user_id)
-            person.error_message = error_msg or "An unexpected error occured."
+            person = Person(
+                univ_id=user_id,
+                name_first='[Unknown]',
+                name_last='',
+                email_address='[unknown]'
+            )
+            person.error_message = error_msg or "An unexpected error occurred."
 
         enrollment_results.append((existing, person))
 
@@ -374,7 +386,8 @@ def add_member_to_course(user_id, user_role_id, course_instance_id,
     enrollment = model_class(
         user_id=user_id,
         role_id=user_role_id,
-        course_instance_id=course_instance_id
+        course_instance_id=course_instance_id,
+        source=None
     )
 
     logger.debug('Adding %s to %s table as user_role_id %s',
