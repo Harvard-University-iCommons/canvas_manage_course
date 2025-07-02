@@ -216,12 +216,12 @@ def get_enrolled_roles_for_user_ids(canvas_course_id, search_results_user_ids):
                     logger.warning(f"No matching UserRole found for canvas_role_id {enrollment['role_id']}")
                     enrollment.update({'canvas_role_label': f"Unknown role {enrollment['role_id']}"})
                     error_messages.append(
-                        f"Unable to resolve a role for user {sis_user_id} (Canvas role id {enrollment['role_id']})"
+                        f"Unable to resolve a role for user {sis_user_id} (Canvas role id {enrollment['role_id']}). This may be due to an outdated or unrecognized role mapping."
                     )
 
                 found_ids[sis_user_id].append(enrollment)
         except UserRole.DoesNotExist:
-            logger.exception(f'Error: Canvas role id {enrollment["role_id"]} does not exist in the UserRole table.')
+            logger.warning(f'Error: Canvas role id {enrollment["role_id"]} does not exist in the UserRole table.')
             error_messages.append(f'One or more roles could not be retrieved for the user from the Canvas role list.')
 
     t3 = time.perf_counter()
@@ -271,9 +271,7 @@ def get_badge_info_for_users(user_id_list=None):
     logger.debug("IDs found and their role types: %s", person_id_badge_mapping)
 
     discrepancies = set(user_id_list) - set(person_id_badge_mapping.keys())
-    if discrepancies:
-        logger.warn("The following users were not found in COURSEMANAGER while "
-                    "attempting to get their role types: %s", discrepancies)
+    logger.warning("The following users were not found in COURSEMANAGER while attempting to get their role types: %s", discrepancies)
 
     # If person_id_badge_mapping does not have a result matching user_id
     # (because user_id wasn't found in the Person database above) then send a
@@ -337,7 +335,7 @@ def add_users(request):
                 name_last='',
                 email_address='[unknown]'
             )
-            person.error_message = error_msg or "An unexpected error occurred."
+            error_message = error_message or f"Could not find a person record for user ID {user_id}. Ensure the user exists in the system."
 
         enrollment_results.append((existing, person))
 
@@ -442,13 +440,12 @@ def add_member_to_course(user_id, user_role_id, course_instance_id,
                 canvas_api_helper_sections.delete_cache(canvas_course_id)
             else:
                 error_message = f"Failed to enroll user {user_id} in Canvas with role ID {user_role.canvas_role_id}."
-                logger.error(error_message)
+                logger.warning(error_message)
         except Exception as e:
             error_message = f"Canvas enrollment failed for user {user_id}: {str(e)}"
             logger.exception(error_message)
 
     return existing_enrollment, person, error_message
-
 
 def get_enrollments_added_through_tool(sis_course_id):
     """
