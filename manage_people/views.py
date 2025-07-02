@@ -221,6 +221,7 @@ def get_enrolled_roles_for_user_ids(canvas_course_id, search_results_user_ids):
     logger.debug(f'*** TIMING getting role labels took {t3 - t2} seconds')
     return found_ids, error_messages
 
+
 def find_person(search_term):
     t0 = time.perf_counter()
     if "@" in search_term:
@@ -316,9 +317,17 @@ def add_users(request):
     for user_id, user_role_id in list(users_to_add.items()):
         # Add the returned (existing_enrollment, person) tuple to the results
         # list
-        enrollment_results.append(
-            add_member_to_course(user_id, int(user_role_id), course_instance_id,
-                                 canvas_course_instance_id))
+        existing, person, error_msg = add_member_to_course(
+            user_id, int(user_role_id), course_instance_id, canvas_course_instance_id
+        )
+
+        if person: 
+            person.error_message = error_msg
+        else:
+            person = Person(univ_id=user_id)
+            person.error_message = error_msg or "An unexpected error occured."
+
+        enrollment_results.append((existing, person))
 
     # get the updated (or cached) Canvas role list so we can show the right
     # role labels for these enrollments
@@ -351,42 +360,46 @@ def add_member_to_course(user_id, user_role_id, course_instance_id,
     Returns a (existing_enrollment, person) tuple, existing_enrollment is true
     if there was already an existing enrollment for the given user/role
     """
+    error_message = None
+    existing_enrollment = False
 
     user_role = get_user_role_if_permitted(course_instance_id, user_role_id)
     if user_role is None:
-        return False, None
-
+        error_message = f"The selected role (ID {user_role_id}) is not permitted for this course."
+        return False, None, error_message
+    
     # get an instance of the correct Course* model class for this role
     model_class = get_course_member_class(user_role)
     enrollment = model_class()
+    enrollment = model_class(
+        user_id=user_id,
+        role_id=user_role_id,
+        course_instance_id=course_instance_id
+    )
 
-    # populate and store the enrollment in coursemanager
-    enrollment.user_id = user_id
-    enrollment.role_id = user_role_id
-    enrollment.course_instance_id = course_instance_id
     logger.debug('Adding %s to %s table as user_role_id %s',
                  user_id, enrollment._meta.db_table, user_role_id)
-    existing_enrollment = False
+
     try:
         enrollment.save()
-    except IntegrityError as e:
+    except IntegrityError:
         existing_enrollment = True
-        logger.exception(
-            f'Unable to save user {user_id} to table {enrollment._meta.db_table} '
-            f'as user_role_id {user_role_id} in course instance {course_instance_id}'
-        )
+        error_message = f"User {user_id} is already enrolled with the selected role."
+        logger.warning(error_message)
     except RuntimeError as e:
         existing_enrollment = True
-        logger.exception(
-            f'Unexpected error while saving user {user_id} to table {enrollment._meta.db_table} '
-            f'as user_role_id {user_role_id} in course instance {course_instance_id}'
-        )
+        error_message = f"Unexpected error while saving enrollment for user {user_id}: {str(e)}"
+        logger.exception(error_message)
 
-    # get and annotate a Person instance for this enrollment
-    person = Person.objects.filter(univ_id=user_id)[0]
-    person.badge_label = get_badge_label_name(person.role_type_cd)
-    person.role_id = user_role.role_id
-    person.role_name = user_role.role_name
+    # Get user details for confirmation
+    person = Person.objects.filter(univ_id=user_id).first()
+    if person:
+        person.badge_label = get_badge_label_name(person.role_type_cd)
+        person.role_id = user_role.role_id
+        person.role_name = user_role.role_name
+    else:
+        error_message = error_message or f"Person record not found for user_id {user_id}."
+        return existing_enrollment, None, error_message
 
     # create the canvas enrollment if needed.  add enrollee to primary section
     # if it exists, otherwise add to the course.
@@ -400,25 +413,28 @@ def add_member_to_course(user_id, user_role_id, course_instance_id,
         #       in the future.
         canvas_role_name = get_canvas_role_name(user_role_id)
         canvas_section = get_canvas_course_section(course_instance_id)
-        if canvas_section:
-            canvas_enrollment = add_canvas_section_enrollee(
-                canvas_section['id'], canvas_role_name, user_id, enrollment_role_id=user_role.canvas_role_id)
-        else:
-            canvas_enrollment = add_canvas_course_enrollee(
-                canvas_course_id, canvas_role_name, user_id, enrollment_role_id=user_role.canvas_role_id)
+        try: 
+            if canvas_section:
+                canvas_enrollment = add_canvas_section_enrollee(
+                    canvas_section['id'], canvas_role_name, user_id, enrollment_role_id=user_role.canvas_role_id)
+            else:
+                canvas_enrollment = add_canvas_course_enrollee(
+                    canvas_course_id, canvas_role_name, user_id, enrollment_role_id=user_role.canvas_role_id)
 
-        if canvas_enrollment:
-            # flush the canvas api caches on successful enrollment
-            canvas_api_helper_courses.delete_cache(
-                canvas_course_id=canvas_course_id)
-            canvas_api_helper_enrollments.delete_cache(canvas_course_id)
-            canvas_api_helper_sections.delete_cache(canvas_course_id)
-        else:
-            logger.error(
-                f'Unable to enroll {user_id} as user_role_id {user_role_id} '
-                f'(Canvas role id {user_role.canvas_role_id}) for course instance id {course_instance_id}.'
-            )
-    return existing_enrollment, person
+            if canvas_enrollment:
+                # flush the canvas api caches on successful enrollment
+                canvas_api_helper_courses.delete_cache(
+                    canvas_course_id=canvas_course_id)
+                canvas_api_helper_enrollments.delete_cache(canvas_course_id)
+                canvas_api_helper_sections.delete_cache(canvas_course_id)
+            else:
+                error_message = f"Failed to enroll user {user_id} in Canvas with role ID {user_role.canvas_role_id}."
+                logger.error(error_message)
+        except Exception as e:
+            error_message = f"Canvas enrollment failed for user {user_id}: {str(e)}"
+            logger.exception(error_message)
+
+    return existing_enrollment, person, error_message
 
 
 def get_enrollments_added_through_tool(sis_course_id):
