@@ -388,7 +388,7 @@ def add_member_to_course(user_id, user_role_id, course_instance_id,
         user_id=user_id,
         role_id=user_role_id,
         course_instance_id=course_instance_id,
-        source=None
+        source='managecrs'
     )
 
     logger.debug('Adding %s to %s table as user_role_id %s',
@@ -396,6 +396,7 @@ def add_member_to_course(user_id, user_role_id, course_instance_id,
 
     try:
         enrollment.save()
+        logger.info(f"Created enrollment for user {user_id} in course_instance_id {course_instance_id} as role_id {user_role_id}")
     except IntegrityError:
         existing_enrollment = True
         error_message = f"User {user_id} is already enrolled with the selected role."
