@@ -26,10 +26,6 @@
                     <span class="label">HKL</span>
                 {% endif %}
                 <div class="float-right">
-                    {% if enrollee.error_message %}
-                        <span class="text-strong text-danger">
-                            <i class="fa fa-exclamation-circle"></i> {{ enrollee.error_message }}
-                        </span>
                     {% elif existing_enrollment %}
                         <span class="text-strong"><i class="fa fa-check"></i> Already enrolled as a {{ enrollee.canvas_role_label }}</span>
                     {% else %}
