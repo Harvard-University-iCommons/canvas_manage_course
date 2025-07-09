@@ -407,13 +407,12 @@ def add_member_to_course(user_id, user_role_id, course_instance_id,
 
     # Get user details for confirmation
     person = Person.objects.filter(univ_id=user_id).first()
-    if person:
-        person.badge_label = get_badge_label_name(person.role_type_cd)
-        person.role_id = user_role.role_id
-        person.role_name = user_role.role_name
-    else:
-        error_message = error_message or f"Person record not found for user_id {user_id}."
-        return existing_enrollment, None, error_message
+    if not person:
+        raise EnrollmentError(f"Person record not found for user_id {user_id}.", user_id)
+
+    person.badge_label = get_badge_label_name(person.role_type_cd)
+    person.role_id = user_role.role_id
+    person.role_name = user_role.role_name
 
     # create the canvas enrollment if needed.  add enrollee to primary section
     # if it exists, otherwise add to the course.
