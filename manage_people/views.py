@@ -48,6 +48,13 @@ logger = logging.getLogger(__name__)
 audit_logger = logging.getLogger('manage_people_audit_log')
 pp = pprint.PrettyPrinter(indent=4)
 
+class EnrollmentError(Exception):
+    """Custom exception raised when a user enrollment fails."""
+    def __init__(self, message, user_id=None):
+        self.message = message
+        self.user_id = user_id
+        super().__init__(self.message)
+
 
 @login_required
 @require_http_methods(['GET'])
