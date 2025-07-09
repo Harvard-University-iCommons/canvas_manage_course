@@ -13,6 +13,7 @@ from canvas_sdk.methods import enrollments
 from canvas_sdk.utils import get_all_list_data
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 from django.db import IntegrityError
 from django.db.models import Q
 from django.http import HttpResponseRedirect, JsonResponse
@@ -331,13 +332,16 @@ def add_users(request):
             )
             person.error_message = None
         except EnrollmentError as e:
+            messages.error(
+                request,
+                f"[{e.user_id or user_id}] {e.message}"
+            )
             person = Person(
                 univ_id=e.user_id or user_id,
                 name_first='Unknown',
                 name_last='',
                 email_address=''
             )
-            person.error_message = e.message
             existing = False  
 
         enrollment_results.append((existing, person))
