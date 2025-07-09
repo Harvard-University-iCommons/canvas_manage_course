@@ -383,7 +383,6 @@ def add_member_to_course(user_id, user_role_id, course_instance_id,
     
     # get an instance of the correct Course* model class for this role
     model_class = get_course_member_class(user_role)
-    enrollment = model_class()
     enrollment = model_class(
         user_id=user_id,
         role_id=user_role_id,
