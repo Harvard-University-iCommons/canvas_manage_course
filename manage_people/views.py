@@ -325,20 +325,20 @@ def add_users(request):
     for user_id, user_role_id in list(users_to_add.items()):
         # Add the returned (existing_enrollment, person) tuple to the results
         # list
-        existing, person, error_msg = add_member_to_course(
-            user_id, int(user_role_id), course_instance_id, canvas_course_instance_id
-        )
-
-        if person: 
-            person.error_message = error_msg
-        else:
-            person = Person(
-                univ_id=user_id,
-                name_first='[Unknown]',
-                name_last='',
-                email_address='[unknown]'
+        try:
+            existing, person = add_member_to_course(
+                user_id, int(user_role_id), course_instance_id, canvas_course_instance_id
             )
-            error_message = error_message or f"Could not find a person record for user ID {user_id}. Ensure the user exists in the system."
+            person.error_message = None
+        except EnrollmentError as e:
+            person = Person(
+                univ_id=e.user_id or user_id,
+                name_first='Unknown',
+                name_last='',
+                email_address=''
+            )
+            person.error_message = e.message
+            existing = False  
 
         enrollment_results.append((existing, person))
 
