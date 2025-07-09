@@ -379,7 +379,7 @@ def add_member_to_course(user_id, user_role_id, course_instance_id,
     user_role = get_user_role_if_permitted(course_instance_id, user_role_id)
     if user_role is None:
         error_message = f"The selected role (ID {user_role_id}) is not permitted for this course."
-        return False, None, error_message
+        raise EnrollmentError(error_message, user_id)
     
     # get an instance of the correct Course* model class for this role
     model_class = get_course_member_class(user_role)
@@ -447,7 +447,7 @@ def add_member_to_course(user_id, user_role_id, course_instance_id,
             error_message = f"Canvas enrollment failed for user {user_id}: {str(e)}"
             logger.exception(error_message)
 
-    return existing_enrollment, person, error_message
+    return existing_enrollment, person
 
 def get_enrollments_added_through_tool(sis_course_id):
     """
