@@ -212,24 +212,20 @@ def get_enrolled_roles_for_user_ids(canvas_course_id, search_results_user_ids):
 
     found_ids = defaultdict(list)
     for enrollment in canvas_enrollments:
-        try:
-            enrollment_role = UserRole.objects.filter(canvas_role_id=enrollment['role_id']).first()
+        enrollment_role = UserRole.objects.filter(canvas_role_id=enrollment['role_id']).first()
 
-            sis_user_id = enrollment['user']['sis_user_id']
-            if sis_user_id in search_results_user_ids:
-                if enrollment_role:
-                    enrollment.update({'canvas_role_label': enrollment_role.role_name})
-                else: 
-                    logger.warning(f"No matching UserRole found for canvas_role_id {enrollment['role_id']}")
-                    enrollment.update({'canvas_role_label': f"Unknown role {enrollment['role_id']}"})
-                    error_messages.append(
-                        f"Unable to resolve a role for user {sis_user_id} (Canvas role id {enrollment['role_id']}). This may be due to an outdated or unrecognized role mapping."
-                    )
+        sis_user_id = enrollment['user']['sis_user_id']
+        if sis_user_id in search_results_user_ids:
+            if enrollment_role:
+                enrollment.update({'canvas_role_label': enrollment_role.role_name})
+            else: 
+                logger.warning(f"No matching UserRole found for canvas_role_id {enrollment['role_id']}")
+                enrollment.update({'canvas_role_label': f"Unknown role {enrollment['role_id']}"})
+                error_messages.append(
+                    f"Unable to resolve a role for user {sis_user_id} (Canvas role id {enrollment['role_id']}). This may be due to an outdated or unrecognized role mapping."
+                )
 
-                found_ids[sis_user_id].append(enrollment)
-        except UserRole.DoesNotExist:
-            logger.warning(f'Error: Canvas role id {enrollment["role_id"]} does not exist in the UserRole table.')
-            error_messages.append(f'One or more roles could not be retrieved for the user from the Canvas role list.')
+            found_ids[sis_user_id].append(enrollment)
 
     t3 = time.perf_counter()
     logger.debug(f'*** TIMING getting role labels took {t3 - t2} seconds')
