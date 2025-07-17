@@ -28,15 +28,6 @@
         </div>
     {% else %}
         <main class="float-left col-60">
-            {% if messages %}
-                <div class="alert-messages">
-                {% for message in messages %}
-                    <div class="alert alert-{{ message.tags }}">
-                    {{ message }}
-                    </div>
-                {% endfor %}
-                </div>
-            {% endif %}
             {% block page_content %}{% endblock page_content %}
         </main>
         <aside class="float-left col-40 clearfix">
