@@ -331,20 +331,13 @@ def add_users(request):
                 user_id, int(user_role_id), course_instance_id, canvas_course_instance_id
             )
             person.error_message = None
+            enrollment_results.append((existing, person))
         except EnrollmentError as e:
             messages.error(
                 request,
-                f"[{e.user_id or user_id}] {e.message}"
+                f"[User: {e.user_id or user_id}]: {e.message}"
             )
-            person = Person(
-                univ_id=e.user_id or user_id,
-                name_first='Unknown',
-                name_last='',
-                email_address=''
-            )
-            existing = False  
-
-        enrollment_results.append((existing, person))
+            return HttpResponseRedirect(reverse('manage_people:find_user'))
 
     # get the updated (or cached) Canvas role list so we can show the right
     # role labels for these enrollments
@@ -362,7 +355,7 @@ def add_users(request):
 
     # annotate enrollments with the Canvas role label
     for (_, person) in enrollment_results:
-        person.canvas_role_label = labels_by_user_role_id.get(person.role_id)
+        person.canvas_role_label = labels_by_user_role_id.get(person.role_id, 'Unknown')
 
     return render(request, 'manage_people/add_user_confirmation.html', {
         'workflow_state': workflow_state,
