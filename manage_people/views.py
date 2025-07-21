@@ -396,7 +396,14 @@ def add_member_to_course(user_id, user_role_id, course_instance_id,
     except IntegrityError:
         existing_enrollment = True
         error_message = f"User {user_id} is already enrolled with the selected role."
-        logger.warning(error_message)
+        logger.warning(
+            error_message, 
+            extra={
+                "user_id": user_id,
+                "course_instance_id": course_instance_id,
+                "user_role_id": user_role_id,
+            }
+        )
     except RuntimeError as e:
         existing_enrollment = True
         error_message = f"Unexpected error while saving enrollment for user {user_id}: {str(e)}"
@@ -442,7 +449,14 @@ def add_member_to_course(user_id, user_role_id, course_instance_id,
                 logger.warning(error_message)
         except Exception as e:
             error_message = f"Canvas enrollment failed for user {user_id}: {str(e)}"
-            logger.exception(error_message)
+            logger.exception(
+                error_message,
+                extra={
+                    "user_id": user_id,
+                    "course_instance_id": course_instance_id,
+                    "canvas_course_id": canvas_course_id,
+                }
+            )
 
     return existing_enrollment, person
 
