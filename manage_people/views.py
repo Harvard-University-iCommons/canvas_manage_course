@@ -404,10 +404,18 @@ def add_member_to_course(user_id, user_role_id, course_instance_id,
                 "user_role_id": user_role_id,
             }
         )
+        raise EnrollmentError(error_message, user_id)
     except RuntimeError as e:
         existing_enrollment = True
         error_message = f"Unexpected error while saving enrollment for user {user_id}: {str(e)}"
-        logger.exception(error_message)
+        logger.exception(
+            error_message,
+            extra={
+                "user_id": user_id,
+                "course_instance_id": course_instance_id,
+            }
+        )
+        raise EnrollmentError(error_message, user_id)
 
     # Get user details for confirmation
     person = Person.objects.filter(univ_id=user_id).first()
@@ -440,13 +448,20 @@ def add_member_to_course(user_id, user_role_id, course_instance_id,
 
             if canvas_enrollment:
                 # flush the canvas api caches on successful enrollment
-                canvas_api_helper_courses.delete_cache(
-                    canvas_course_id=canvas_course_id)
+                canvas_api_helper_courses.delete_cache(canvas_course_id=canvas_course_id)
                 canvas_api_helper_enrollments.delete_cache(canvas_course_id)
                 canvas_api_helper_sections.delete_cache(canvas_course_id)
             else:
                 error_message = f"Failed to enroll user {user_id} in Canvas with role ID {user_role.canvas_role_id}."
-                logger.warning(error_message)
+                logger.warning(
+                    error_message,
+                    extra={
+                        "user_id": user_id,
+                        "course_instance_id": course_instance_id,
+                        "canvas_course_id": canvas_course_id,
+                    }
+                )
+                raise EnrollmentError(error_message, user_id)
         except Exception as e:
             error_message = f"Canvas enrollment failed for user {user_id}: {str(e)}"
             logger.exception(
@@ -457,6 +472,7 @@ def add_member_to_course(user_id, user_role_id, course_instance_id,
                     "canvas_course_id": canvas_course_id,
                 }
             )
+            raise EnrollmentError(error_message, user_id)
 
     return existing_enrollment, person
 
