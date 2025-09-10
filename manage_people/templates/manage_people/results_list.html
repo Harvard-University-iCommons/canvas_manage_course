@@ -72,7 +72,7 @@
                     {% if person.badge_label_name != 'XID' %}
                         <span class="label">{{ person.badge_label_name }}</span>
                     {% else %}
-                        <span class="label">HKL</span>
+                        <span class="label">Harvard Guest</span>
                     {% endif %}
                     <span class="float-right text-strong">
                       Enrolled as a {{ role.canvas_role_label }}
@@ -102,7 +102,7 @@
 
         {% if unique_results %}
             <fieldset id="matching-records" class="users-found hidden">
-                
+
                 <ul class="list-with-floats">
                     {% for key, result in unique_results.items %}
                         <li>
@@ -116,10 +116,10 @@
                                 {% if result.badge_label_name != 'XID' %}
                                     <span class="label">{{ result.badge_label_name }}</span>
                                 {% else %}
-                                    <span class="label">HKL</span>
+                                    <span class="label">Harvard Guest</span>
                                 {% endif %}
                             </label>
-                            
+
                             <div class="float-right">
                                 <label for="select-role-{{ forloop.counter }}"><span class="sr-only">Add as a:</span></label>
                                 <select id="select-role-{{ forloop.counter }}" class="disabled" name="select_role_id_{{ forloop.counter }}" data-selenium-user-id="{{ result.univ_id }}">
@@ -148,7 +148,7 @@
             <button id="user_create_button" class="btn-disabled users-found hidden" type="submit" data-loading-text="Adding to course...">Add to course</button>
             <a id="find_another_user" href="{% url 'manage_people:find_user' %}" class="users-not-found hidden">Search for a different person</a>
         </div>
-        
+
     </form>
 
     <div class="infoBlock-help users-found hidden">
