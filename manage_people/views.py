@@ -12,8 +12,8 @@ from canvas_sdk.exceptions import CanvasAPIError
 from canvas_sdk.methods import enrollments
 from canvas_sdk.utils import get_all_list_data
 from django.conf import settings
-from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
 from django.db.models import Q
 from django.http import HttpResponseRedirect, JsonResponse
@@ -219,7 +219,7 @@ def get_enrolled_roles_for_user_ids(canvas_course_id, search_results_user_ids):
         if sis_user_id in search_results_user_ids:
             if enrollment_role:
                 enrollment.update({'canvas_role_label': enrollment_role.role_name})
-            else: 
+            else:
                 logger.warning(f"No matching UserRole found for canvas_role_id {enrollment['role_id']}")
                 enrollment.update({'canvas_role_label': f"Unknown role {enrollment['role_id']}"})
                 error_messages.append(
@@ -377,7 +377,7 @@ def add_member_to_course(user_id, user_role_id, course_instance_id,
     if user_role is None:
         error_message = f"The selected role (ID {user_role_id}) is not permitted for this course."
         raise EnrollmentError(error_message, user_id)
-    
+
     # get an instance of the correct Course* model class for this role
     model_class = get_course_member_class(user_role)
     enrollment = model_class(
@@ -397,7 +397,7 @@ def add_member_to_course(user_id, user_role_id, course_instance_id,
         existing_enrollment = True
         error_message = f"User {user_id} is already enrolled with the selected role."
         logger.warning(
-            error_message, 
+            error_message,
             extra={
                 "user_id": user_id,
                 "course_instance_id": course_instance_id,
@@ -438,7 +438,7 @@ def add_member_to_course(user_id, user_role_id, course_instance_id,
         #       in the future.
         canvas_role_name = get_canvas_role_name(user_role_id)
         canvas_section = get_canvas_course_section(course_instance_id)
-        try: 
+        try:
             if canvas_section:
                 canvas_enrollment = add_canvas_section_enrollee(
                     canvas_section['id'], canvas_role_name, user_id, enrollment_role_id=user_role.canvas_role_id)
@@ -764,8 +764,8 @@ def lti_key_error_response(request, key_error_exception):
 
 
 def _get_people_in_list_query(user_id_list=[]):
-    pat = re.compile(r'[^\w]+', re.UNICODE)
-    clean_user_ids = ["'{}'".format(pat.sub('', i)) for i in user_id_list if len(pat.sub('', i)) == 8]
+    pat = re.compile(r'[^\w-]+', re.UNICODE)
+    clean_user_ids = ["'{}'".format(pat.sub('', i)) for i in user_id_list if len(pat.sub('', i)) <= 10]
     if clean_user_ids:
         # split clean_user_ids into chunks of 999 (https://www.geeksforgeeks.org/break-list-chunks-size-n-python/)
         n = 999
