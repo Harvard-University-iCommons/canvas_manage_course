@@ -390,13 +390,13 @@ def section_class_list(request, section_id):
     # Apply the unique enrollment filter, ensuring non-manual enrollments are included
     eligible_enrollments = unique_enrollments_not_in_section_filter(
         section_id, course_enrollments)
-    
+
     # Add badges and roles to the filtered enrollments
     enrollments_badged = _add_badge_label_name_to_enrollments(
         eligible_enrollments)
     enrollments = canvas_api_helper_enrollments.add_role_labels_to_enrollments(
         enrollments_badged)
-    
+
     enrollments.sort(key=lambda x: x['user']['sortable_name'])
 
     return render(request, 'manage_sections/_section_classlist.html', {
@@ -558,8 +558,8 @@ def remove_from_section(request):
 
 
 def _get_people_in_list_query(user_id_list=[]):
-    pat = re.compile('[^\w]+', re.UNICODE)
-    clean_user_ids = ["'{}'".format(pat.sub('', i)) for i in user_id_list if len(pat.sub('', i)) == 8]
+    pat = re.compile(r'[^\w-]+', re.UNICODE)
+    clean_user_ids = ["'{}'".format(pat.sub('', i)) for i in user_id_list if len(pat.sub('', i)) <= 10]
     if clean_user_ids:
         # split clean_user_ids into chunks of 999 (https://www.geeksforgeeks.org/break-list-chunks-size-n-python/)
         n = 999
