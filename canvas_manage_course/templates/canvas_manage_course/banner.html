@@ -1,0 +1,45 @@
+{% comment %} CSS for the deprecation notice banner {% endcomment %}
+<style>
+    .deprecation-notice {
+        background-color: #fff3cd;
+        border-left: 5px solid #ffc107;
+        margin-bottom: 20px;
+        padding: 16px 20px;
+        border-radius: 4px;
+    }
+    .deprecation-notice h4 {
+        color: #856404;
+        margin-top: 0;
+        margin-bottom: 8px;
+    }
+    .deprecation-notice h4 i {
+        margin-right: 6px;
+    }
+    .deprecation-notice p {
+        margin-bottom: 12px;
+    }
+    .notice-buttons a {
+        margin-right: 10px;
+        display: inline-block;
+    }
+    .notice-buttons a i {
+        margin-right: 4px;
+    }
+</style>
+
+{% comment %} HTML for the deprecation notice banner {% endcomment %}
+<div class="deprecation-notice">
+    <h4><i class="fa fa-exclamation-triangle"></i> Important: Tool Deprecation Notice</h4>
+    <p>
+        This Manage Course tool is being deprecated and will be replaced by the new <strong>Manage Course [New!]</strong>.
+        Please review the documentation and provide feedback on the transition.
+    </p>
+    <div class="notice-buttons">
+        <a href="https://qualtrics-auth.tlt.harvard.edu/a/caf3e373-fa57-4db7-b9cd-e49a13431bc0" class="btn btn-sm btn-warning" target="_blank">
+            <i class="fa fa-comment"></i> Provide Feedback
+        </a>
+        <a href="https://harvard.service-now.com/ithelp?id=kb_article&sys_id=ffbaa295377d76c09aa163d2b3990ee6" class="btn btn-sm btn-info" target="_blank">
+            <i class="fa fa-book"></i> View Documentation
+        </a>
+    </div>
+</div>
